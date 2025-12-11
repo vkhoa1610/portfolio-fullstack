@@ -12,6 +12,21 @@
     "docker:down": "docker-compose down",
     "docker:logs": "docker-compose logs -f",
     "docker:clean": "docker-compose down -v --rmi all",
-    "install:all": "cd frontend && npm install && cd ../bff && npm install"
+    "install:all": "cd frontend && npm install && cd ../bff && npm install",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "frontend/**/*.{ts,tsx,js,jsx}": [
+      "bash -c \"cd frontend && npm run lint\""
+    ],
+    "bff/**/*.{ts,js}": [
+      "bash -c \"cd bff && npm run build\""
+    ]
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^20.2.0",
+    "@commitlint/config-conventional": "^20.2.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7"
   }
 }

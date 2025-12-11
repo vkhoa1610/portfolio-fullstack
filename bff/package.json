@@ -4,8 +4,8 @@
   "type": "module",
   "scripts": {
     "dev": "npx tsx src/product/handler.ts",
-    "build": "tsc",
-    "start": "node dist/product/handler.js"
+    "build": "tsup src/product/handler.ts --format esm --out-dir dist --clean",
+    "start": "node dist/handler.js"
   },
   "dependencies": {
     "@aws-sdk/client-cognito-identity-provider": "^3.908.0",
@@ -19,6 +19,7 @@
     "@types/express": "^4.17.21",
     "@types/node": "^22.5.0",
     "ts-node": "^10.9.2",
+    "tsup": "^8.5.1",
     "typescript": "^5.6.3"
   }
 }
