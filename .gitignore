@@ -21,5 +21,12 @@ target/
 # Docker
 docker-compose.override.yml
 
+
+# Secrets
+.env
+.env.*
+! .env.example
+
 # LocalStack
-localstack/
+localstack/cognito-secrets.json
+localstack/cognito-secrets.txt
