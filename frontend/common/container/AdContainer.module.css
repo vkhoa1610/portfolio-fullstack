@@ -1,0 +1,70 @@
+/* src/common/container/AdContainer.module.css */
+.wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  position: relative;
+  overflow: hidden;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.blob1 {
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  background: rgba(128, 0, 255, 0.4);
+  border-radius: 50%;
+  filter: blur(80px);
+  top: -150px;
+  left: -150px;
+  animation: float 12s infinite;
+}
+
+.blob2 {
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  background: rgba(255, 100, 100, 0.4);
+  border-radius: 50%;
+  filter: blur(80px);
+  bottom: -100px;
+  right: -100px;
+  animation: float 15s infinite reverse;
+}
+
+.blob3 {
+  position: absolute;
+  width: 450px;
+  height: 450px;
+  background: rgba(100, 200, 255, 0.4);
+  border-radius: 50%;
+  filter: blur(80px);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: float 18s infinite;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(40px, -60px) scale(1.1);
+  }
+  66% {
+    transform: translate(-30px, 40px) scale(0.9);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

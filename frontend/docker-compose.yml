@@ -1,0 +1,71 @@
+# Docker Compose configuration for Portfolio Full-Stack
+
+services:
+  # ============================================
+  # React Frontend (Next.js)
+  # ============================================
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: react-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://localhost:4000
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+  # ============================================
+  # NextJS BFF (sẽ thêm sau)
+  # ============================================
+  # bff:
+  #   build:
+  #     context: ../bff
+  #     dockerfile: Dockerfile
+  #   container_name: nextjs-bff
+  #   ports:
+  #     - "4000:4000"
+  #   environment:
+  #     - NODE_ENV=production
+  #     - AWS_ENDPOINT=http://localstack:4566
+  #   depends_on:
+  #     - localstack
+
+  # ============================================
+  # Spring Boot Backend (sẽ thêm sau)
+  # ============================================
+  # backend:
+  #   build:
+  #     context: ../backend
+  #     dockerfile: Dockerfile
+  #   container_name: spring-backend
+  #   ports:
+  #     - "8080:8080"
+  #   environment:
+  #     - SPRING_PROFILES_ACTIVE=docker
+  #   depends_on:
+  #     - postgres
+
+  # ============================================
+  # LocalStack (AWS Mock) - sẽ thêm sau
+  # ============================================
+  # localstack:
+  #   image: localstack/localstack:latest
+  #   container_name: localstack
+  #   ports:
+  #     - "4566:4566"
+  #   environment:
+  #     - SERVICES=s3,cognito,dynamodb
+  #     - DEBUG=1
+  #   volumes:
+  #     - "./localstack:/etc/localstack/init/ready.d"
+
+networks:
+  default:
+    name: portfolio-network

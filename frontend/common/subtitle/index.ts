@@ -1,0 +1,1 @@
+export { AdSubtitle } from "./AdSubtitle";

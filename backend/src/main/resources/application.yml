@@ -1,0 +1,46 @@
+spring:
+  datasource:
+    write:
+      url: jdbc:mysql://localhost:3306/mydb?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh
+      username: root
+      password: 12345678
+      driver-class-name: com.mysql.cj.jdbc.Driver
+
+    read:
+      url: jdbc:mysql://localhost:3306/mydb?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh
+      username: root
+      password: 12345678
+      driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+
+  mvc:
+      pathmatch:
+        matching-strategy: ant_path_matcher
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+  info:
+    title: My Java App API
+    description: API test
+    version: 1.0.0
+    contact:
+      name: Your Name
+      email: you@example.com
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.example.my_java_app.entity
+  configuration:
+      map-underscore-to-camel-case: true
+      log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+eureka:
+  client:
+    enabled: false

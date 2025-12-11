@@ -1,0 +1,21 @@
+.errorBox {
+  margin-top: 20px;
+  padding: 16px;
+  background: rgba(255, 107, 107, 0.2);
+  border: 1px solid #ff6b6b;
+  border-radius: 12px;
+  color: #ffcccc;
+  font-size: 15px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

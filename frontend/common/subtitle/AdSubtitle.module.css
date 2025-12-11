@@ -1,0 +1,11 @@
+.subtitle {
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 40px;
+  font-size: 16px;
+}
+
+/* Optional smaller size */
+.subtitleSmall {
+  font-size: 14px;
+  margin-bottom: 24px;
+}

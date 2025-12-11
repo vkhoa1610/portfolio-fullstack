@@ -1,0 +1,145 @@
+/* ============================================
+ * AdButton - Enterprise Component Styles
+ * Uses design tokens from tokens.css
+ * ============================================ */
+
+/* Base button styles */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3, 0.75rem);
+  border: none;
+  border-radius: var(--radius-xl, 1rem);
+  font-family: var(--font-sans, inherit);
+  font-weight: var(--font-semibold, 600);
+  cursor: pointer;
+  transition: all var(--transition-normal, 300ms ease);
+  text-decoration: none;
+  white-space: nowrap;
+  outline: none;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Focus styles for accessibility */
+.button:focus-visible {
+  outline: 2px solid var(--color-primary-500, #667eea);
+  outline-offset: 2px;
+}
+
+/* ============================================
+ * VARIANTS
+ * ============================================ */
+
+/* Primary - Gradient */
+.primary {
+  background: var(--gradient-primary, linear-gradient(135deg, #667eea, #764ba2));
+  color: white;
+}
+
+.primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-primary, 0 8px 24px rgba(102, 126, 234, 0.35));
+}
+
+.primary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Secondary */
+.secondary {
+  background: var(--color-neutral-800, #27272a);
+  color: white;
+}
+
+.secondary:hover:not(:disabled) {
+  background: var(--color-neutral-700, #3f3f46);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Outline */
+.outline {
+  background: transparent;
+  color: var(--color-primary-500, #667eea);
+  border: 2px solid var(--color-primary-500, #667eea);
+}
+
+.outline:hover:not(:disabled) {
+  background: var(--color-primary-50, #f0f0ff);
+  transform: translateY(-1px);
+}
+
+/* Ghost */
+.ghost {
+  background: transparent;
+  color: var(--color-neutral-700, #3f3f46);
+}
+
+.ghost:hover:not(:disabled) {
+  background: var(--color-neutral-100, #f4f4f5);
+}
+
+/* ============================================
+ * SIZES
+ * ============================================ */
+
+.sm {
+  padding: var(--space-2, 0.5rem) var(--space-4, 1rem);
+  font-size: var(--text-sm, 0.875rem);
+  border-radius: var(--radius-lg, 0.75rem);
+  gap: var(--space-2, 0.5rem);
+}
+
+.md {
+  padding: var(--space-3, 0.75rem) var(--space-6, 1.5rem);
+  font-size: var(--text-base, 1rem);
+}
+
+.lg {
+  padding: var(--space-4, 1rem) var(--space-8, 2rem);
+  font-size: var(--text-lg, 1.125rem);
+}
+
+/* ============================================
+ * STATES
+ * ============================================ */
+
+/* Full width */
+.fullWidth {
+  width: 100%;
+}
+
+/* Disabled state */
+.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Loading state */
+.loading {
+  cursor: wait;
+}
+
+.contentLoading {
+  opacity: 0.7;
+}
+
+/* Spinner */
+.spinner {
+  width: 1em;
+  height: 1em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

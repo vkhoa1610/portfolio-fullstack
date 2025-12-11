@@ -1,0 +1,1 @@
+export { AdFooter } from "./AdFooter";

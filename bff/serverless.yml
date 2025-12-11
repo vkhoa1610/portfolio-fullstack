@@ -1,0 +1,13 @@
+service: serverless-bff
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: ap-southeast-1
+
+functions:
+  api:
+    handler: dist/app.handler
+    events:
+      - httpApi: '*'

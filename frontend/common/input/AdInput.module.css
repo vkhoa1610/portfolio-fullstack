@@ -1,0 +1,136 @@
+/* ============================================
+ * AdInput - Enterprise Component Styles
+ * Uses design tokens from tokens.css
+ * ============================================ */
+
+/* Wrapper */
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1, 0.25rem);
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+/* Input container for icons */
+.inputContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* Base input styles */
+.input {
+  width: 100%;
+  border-radius: var(--radius-xl, 1rem);
+  border: 2px solid var(--color-neutral-300, rgba(255, 255, 255, 0.3));
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  font-family: var(--font-sans, inherit);
+  outline: none;
+  transition: all var(--transition-normal, 300ms ease);
+}
+
+.input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Focus state - accessibility */
+.input:focus {
+  border-color: var(--color-primary-400, rgba(255, 255, 255, 0.6));
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+.input:focus-visible {
+  outline: none;
+}
+
+/* ============================================
+ * SIZES
+ * ============================================ */
+
+.sm {
+  padding: var(--space-2, 0.5rem) var(--space-3, 0.75rem);
+  font-size: var(--text-sm, 0.875rem);
+  border-radius: var(--radius-lg, 0.75rem);
+}
+
+.md {
+  padding: var(--space-3, 0.75rem) var(--space-5, 1.25rem);
+  font-size: var(--text-base, 1rem);
+}
+
+.lg {
+  padding: var(--space-4, 1rem) var(--space-6, 1.5rem);
+  font-size: var(--text-lg, 1.125rem);
+}
+
+/* ============================================
+ * ICONS
+ * ============================================ */
+
+.leftIcon,
+.rightIcon {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.6);
+  pointer-events: none;
+}
+
+.leftIcon {
+  left: var(--space-4, 1rem);
+}
+
+.rightIcon {
+  right: var(--space-4, 1rem);
+}
+
+/* Padding adjustments for icons */
+.hasLeftIcon {
+  padding-left: var(--space-12, 3rem);
+}
+
+.hasRightIcon {
+  padding-right: var(--space-12, 3rem);
+}
+
+/* ============================================
+ * STATES
+ * ============================================ */
+
+/* Error state */
+.inputError {
+  border-color: var(--color-error-500, #ff6b6b);
+}
+
+.inputError:focus {
+  border-color: var(--color-error-500, #ff6b6b);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+}
+
+/* Disabled state */
+.input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* ============================================
+ * HELPER TEXT & ERROR MESSAGE
+ * ============================================ */
+
+.errorMessage {
+  font-size: var(--text-sm, 0.875rem);
+  color: var(--color-error-500, #ff6b6b);
+  margin-top: var(--space-1, 0.25rem);
+}
+
+.helperText {
+  font-size: var(--text-sm, 0.875rem);
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: var(--space-1, 0.25rem);
+}

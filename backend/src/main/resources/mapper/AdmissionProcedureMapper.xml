@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.my_java_app.mapper.AdmissionProcedureMapper">
+
+    <!--  Find all records -->
+    <select id="findAll" resultType="com.example.my_java_app.entity.AdmissionProcedureEntity">
+        SELECT 
+            id_admission_procedure AS idAdmissionProcedure,
+            university_code AS universityCode,
+            entrance_fee AS entranceFee,
+            entrance_fee_2 AS entranceFee2,
+            destination_admission_procedure_id AS destinationAdmissionProcedureId,
+            create_user AS createUser,
+            create_time AS createTime,
+            update_user AS updateUser,
+            update_time AS updateTime,
+            del_flg AS delFlg
+        FROM ADMISSION_PROCEDURE
+    </select>
+
+
+    <!--  Find by ID -->
+    <select id="findById" parameterType="long"
+            resultType="com.example.my_java_app.entity.AdmissionProcedureEntity">
+        SELECT 
+            id_admission_procedure AS idAdmissionProcedure,
+            university_code AS universityCode,
+            entrance_fee AS entranceFee,
+            entrance_fee_2 AS entranceFee2,
+            destination_admission_procedure_id AS destinationAdmissionProcedureId,
+            create_user AS createUser,
+            create_time AS createTime,
+            update_user AS updateUser,
+            update_time AS updateTime,
+            del_flg AS delFlg
+        FROM ADMISSION_PROCEDURE
+        WHERE id_admission_procedure = #{id}
+    </select>
+
+
+    <!-- Insert -->
+    <insert id="insert" parameterType="com.example.my_java_app.entity.AdmissionProcedureEntity">
+        INSERT INTO ADMISSION_PROCEDURE (
+            id_admission_procedure,
+            university_code,
+            entrance_fee,
+            entrance_fee_2,
+            destination_admission_procedure_id,
+            create_user,
+            create_time,
+            update_user,
+            update_time,
+            del_flg
+        ) VALUES (
+            #{idAdmissionProcedure},
+            #{universityCode},
+            #{entranceFee},
+            #{entranceFee2},
+            #{destinationAdmissionProcedureId},
+            #{createUser},
+            #{createTime},
+            #{updateUser},
+            #{updateTime},
+            #{delFlg}
+        )
+    </insert>
+
+</mapper>

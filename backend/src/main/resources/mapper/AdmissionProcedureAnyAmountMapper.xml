@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.my_java_app.mapper.AdmissionProcedureAnyAmountMapper">
+
+    <!-- Find all -->
+    <select id="findAll" resultType="com.example.my_java_app.entity.AdmissionProcedureAnyAmountEntity">
+        SELECT
+            id_admission_procedure AS idAdmissionProcedure,
+            university_code AS universityCode,
+            entrance_fee AS entranceFee,
+            create_user AS createUser,
+            create_time AS createTime,
+            update_user AS updateUser,
+            update_time AS updateTime,
+            del_flg AS delFlg
+        FROM ADMISSION_PROCEDURE_ANYAMOUNT
+    </select>
+
+    <!-- Find by ID -->
+    <select id="findById" parameterType="long"
+            resultType="com.example.my_java_app.entity.AdmissionProcedureAnyAmountEntity">
+        SELECT
+            id_admission_procedure AS idAdmissionProcedure,
+            university_code AS universityCode,
+            entrance_fee AS entranceFee,
+            create_user AS createUser,
+            create_time AS createTime,
+            update_user AS updateUser,
+            update_time AS updateTime,
+            del_flg AS delFlg
+        FROM ADMISSION_PROCEDURE_ANYAMOUNT
+        WHERE id_admission_procedure = #{id}
+    </select>
+
+    <!-- Insert -->
+    <insert id="insert" parameterType="com.example.my_java_app.entity.AdmissionProcedureAnyAmountEntity">
+        INSERT INTO ADMISSION_PROCEDURE_ANYAMOUNT (
+            id_admission_procedure,
+            university_code,
+            entrance_fee,
+            create_user,
+            create_time,
+            update_user,
+            update_time,
+            del_flg
+        ) VALUES (
+            #{idAdmissionProcedure},
+            #{universityCode},
+            #{entranceFee},
+            #{createUser},
+            #{createTime},
+            #{updateUser},
+            #{updateTime},
+            #{delFlg}
+        )
+    </insert>
+
+</mapper>

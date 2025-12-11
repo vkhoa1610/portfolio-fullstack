@@ -1,0 +1,15 @@
+.link {
+  color: #ffb3b3;
+  font-size: 14px;
+  text-decoration: none;
+  transition: 0.2s ease;
+}
+
+.link:hover {
+  color: #ff9999;
+  text-decoration: underline;
+}
+
+.right {
+  margin-left: auto;
+}

@@ -1,0 +1,52 @@
+/* src/common/card/AdCard.module.css */
+.card {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 50px 40px;
+  width: 420px;
+  max-width: 90vw;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s ease;
+}
+
+/* Hover nâng card + bóng đẹp hơn */
+.card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+}
+
+/* Biến thể nhỏ – dùng cho widget, thông báo */
+.cardSmall {
+  padding: 24px;
+  width: auto;
+  max-width: 100%;
+}
+
+/* Biến thể lớn – dùng cho dashboard chính */
+.cardLarge {
+  padding: 60px 50px;
+  width: 100%;
+  max-width: 900px;
+}
+
+/* Viền gradient khi hover (tùy chọn) */
+.cardGradientBorder::before {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  background: linear-gradient(45deg, #667eea, #764ba2, #f093fb, #f5576c);
+  border-radius: 27px;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+
+.cardGradientBorder:hover::before {
+  opacity: 1;
+}

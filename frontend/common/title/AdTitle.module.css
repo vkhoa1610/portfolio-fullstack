@@ -1,0 +1,15 @@
+.title {
+  font-size: 32px;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 8px;
+}
+
+/* Optional sizes */
+.titleLarge {
+  font-size: 42px;
+}
+
+.titleSmall {
+  font-size: 24px;
+}
