@@ -12,7 +12,6 @@
     "docker:down": "docker-compose down",
     "docker:logs": "docker-compose logs -f",
     "docker:clean": "docker-compose down -v --rmi all",
-    "localstack:seed": "bash scripts/localstack-seed.sh",
     "install:all": "cd frontend && npm install && cd ../bff && npm install",
     "prepare": "husky"
   },

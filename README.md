@@ -9,8 +9,8 @@ This is a **Monorepo** containing the full-stack source code for my portfolio ap
 | **Frontend** | React (Next.js)      | `/frontend` | 3000 | The user interface application.                         |
 | **BFF**      | Node.js (Express/TS) | `/bff`      | 4000 | Acts as an API Gateway/Aggregator for the frontend.     |
 | **Backend**  | Java Spring Boot     | `/backend`  | 8080 | Core business logic and database interactions.          |
-| **Database** | PostgreSQL           | Docker      | 5432 | Primary data store.                                     |
-| **AWS Mock** | LocalStack           | Docker      | 4566 | Simulates AWS services (S3, Cognito, DynamoDB) locally. |
+| **Gateway**  | Nginx                | Docker      | 8080 | Reverse proxy unifying frontend and BFF under one port. |
+| **Database** | MySQL 8.0            | Docker      | 3306 | Primary data store.                                     |
 
 ---
 
@@ -34,7 +34,7 @@ npm run docker:up
 npm run docker:down
 ```
 
-> Access Frontend at: [http://localhost:3000](http://localhost:3000)
+> Access Frontend at: [http://localhost:8080](http://localhost:8080) (via Gateway)
 
 ### 💻 Option 2: Run Services Individually (Development Mode)
 
