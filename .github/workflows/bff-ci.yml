@@ -1,0 +1,28 @@
+name: BFF CI
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'bff/**'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'bff/**'
+
+jobs:
+  build:
+    name: 🚀 BFF Build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./bff
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: bff/package-lock.json
+      - run: npm ci
+      - run: npm run build

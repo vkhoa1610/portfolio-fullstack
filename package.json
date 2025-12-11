@@ -1,0 +1,17 @@
+{
+  "name": "portfolio-fullstack-root",
+  "private": true,
+  "description": "Root scripts for managing the monorepo. No dependencies needed here.",
+  "scripts": {
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:bff": "cd bff && npm run dev",
+    "dev:backend": "cd backend && ./mvnw spring-boot:run",
+    "build:frontend": "cd frontend && npm run build",
+    "build:bff": "cd bff && npm run build",
+    "docker:up": "docker-compose up --build",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:clean": "docker-compose down -v --rmi all",
+    "install:all": "cd frontend && npm install && cd ../bff && npm install"
+  }
+}
