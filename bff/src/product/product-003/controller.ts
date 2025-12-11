@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { signIn } from "@common/config/cognito-service.ts";
+import { signIn } from "@common/config/cognito-service.js";
 
 export const handle = async (req: Request, res: Response) => {
   try {

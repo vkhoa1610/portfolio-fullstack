@@ -1,4 +1,4 @@
-import { handle } from "./controller.ts";
+import { handle } from "./controller.js";
 
 export const bffProduct001 = {
   endpoint: "/001",

@@ -1,6 +1,6 @@
-// controller/productBController.ts
+// controller/productBController.js
 import { Request, Response } from "express";
-import { apiClientGet } from "@common/config/apiClient.ts"; // utility bạn đã tạo
+import { apiClientGet } from "@common/config/apiClient.js"; // utility bạn đã tạo
 
 export const handle = async (req: Request, res: Response) => {
   try {

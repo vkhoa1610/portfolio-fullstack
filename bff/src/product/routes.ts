@@ -1,7 +1,7 @@
 import express from "express";
-import { bffProduct001 } from "@product/product-001/index.ts";
-import { bffProduct002 } from "@product/product-002/index.ts";
-import { bffProduct003 } from "@product/product-003/index.ts";
+import { bffProduct001 } from "@product/product-001/index.js";
+import { bffProduct002 } from "@product/product-002/index.js";
+import { bffProduct003 } from "@product/product-003/index.js";
 
 const bffSetting = [bffProduct001, bffProduct002, bffProduct003];
 

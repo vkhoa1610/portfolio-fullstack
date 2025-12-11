@@ -1,5 +1,5 @@
 import express from "express";
-import { createRouter } from "./routes.ts"
+import { createRouter } from "./routes.js"
 
 export const createApp = () => {
   const app = express();

@@ -1,8 +1,8 @@
 import express, { Request, Response, NextFunction } from 'express';
-import { RequestLogger } from '../common/util/RequestLogger.ts';
-import { ResponseLogger } from '../common/util/ResponseLogger.ts';
+import { RequestLogger } from '../common/util/RequestLogger.js';
+import { ResponseLogger } from '../common/util/ResponseLogger.js';
 import cors from 'cors';
-import { createApp } from './app.ts';
+import { createApp } from './app.js';
 
 const mainApp = express();
 

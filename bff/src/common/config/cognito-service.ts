@@ -3,11 +3,10 @@ import {
   CognitoIdentityProviderClient,
   InitiateAuthCommand,
 } from '@aws-sdk/client-cognito-identity-provider';
-import { AWS_REGION, AWS_ENDPOINT, COGNITO_CLIENT_ID, COGNITO_CLIENT_SECRET } from './env.js';
+import { AWS_REGION, COGNITO_CLIENT_ID, COGNITO_CLIENT_SECRET } from './env.js';
 
 const cognitoClient = new CognitoIdentityProviderClient({
   region: AWS_REGION,
-  // endpoint: AWS_ENDPOINT, // Removed for Hybrid mode (Real Cognito)
 });
 
 // === Helper tính SECRET_HASH ===
