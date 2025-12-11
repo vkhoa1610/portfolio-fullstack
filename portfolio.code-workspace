@@ -1,0 +1,46 @@
+{
+	"folders": [
+		{
+			"name": "Root",
+			"path": "."
+		},
+		{
+			"name": "Frontend (Next.js)",
+			"path": "frontend"
+		},
+		{
+			"name": "BFF (Node.js)",
+			"path": "bff"
+		},
+		{
+			"name": "Backend (Spring Boot)",
+			"path": "backend"
+		}
+	],
+	"settings": {
+		"files.exclude": {
+			"**/.git": true,
+			"**/.DS_Store": true,
+			"**/node_modules": true
+		},
+		"editor.formatOnSave": true,
+		"[java]": {
+			"editor.defaultFormatter": "redhat.java"
+		},
+		"[typescript]": {
+			"editor.defaultFormatter": "esbenp.prettier-vscode"
+		},
+		"[typescriptreact]": {
+			"editor.defaultFormatter": "esbenp.prettier-vscode"
+		}
+	},
+	"extensions": {
+		"recommendations": [
+			"vscjava.vscode-java-pack",
+			"vmware.vscode-spring-boot",
+			"dbaeumer.vscode-eslint",
+			"esbenp.prettier-vscode",
+			"ms-azuretools.vscode-docker"
+		]
+	}
+}

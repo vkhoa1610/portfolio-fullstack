@@ -1,0 +1,25 @@
+# System Files
+.DS_Store
+Thumbs.db
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.iml
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Java
+target/
+.mvn/wrapper/maven-wrapper.jar
+*.class
+
+# Docker
+docker-compose.override.yml
+
+# LocalStack
+localstack/

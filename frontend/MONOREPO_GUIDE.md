@@ -98,21 +98,21 @@ version: "3.8"
 services:
   frontend:
     build:
-      context: ./frontend  # Trỏ vào folder frontend
+      context: ./frontend # Trỏ vào folder frontend
       dockerfile: Dockerfile
     ports: ["3000:3000"]
     # ... (config cũ)
 
   bff:
     build:
-      context: ./bff       # Trỏ vào folder bff
+      context: ./bff # Trỏ vào folder bff
       dockerfile: Dockerfile
     ports: ["4000:4000"]
     # ...
 
   backend:
     build:
-      context: ./backend   # Trỏ vào folder backend
+      context: ./backend # Trỏ vào folder backend
       dockerfile: Dockerfile
     ports: ["8080:8080"]
     # ...
