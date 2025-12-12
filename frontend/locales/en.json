@@ -3,7 +3,7 @@
     "login": {
       "branding_title": "Enterprise Finance",
       "branding_subtitle": "Intelligent expense management system, compliant with German and European accounting standards.",
-      "company_name": "ISB Corp.",
+      "company_name": "DK Corp.",
       "title": "Welcome back",
       "subtitle": "Please sign in to access the system.",
       "email_label": "Work Email",
@@ -21,7 +21,7 @@
       "otp_label": "Verification Code",
       "btn_submit": "Confirm",
       "help_link": "Can't scan the code?",
-      "footer": "© 2025 ISB System Security"
+      "footer": "© 2025 DK System Security"
     }
   },
   "onboarding": {

@@ -1,6 +1,6 @@
 /**
  * Design Tokens - TypeScript Constants
- * ⚠️ AUTO-GENERATED FILE - DO NOT EDIT DIRECTLY
+ * AUTO-GENERATED FILE - DO NOT EDIT DIRECTLY
  * Edit tokens.json and run: npm run generate:tokens
  */
 
@@ -92,21 +92,21 @@ export const fontSize = {
 } as const;
 
 export const fontWeight = {
-  normal: 400,
-  medium: 500,
-  semibold: 600,
-  bold: 700,
+  normal: "400",
+  medium: "500",
+  semibold: "600",
+  bold: "700",
 } as const;
 
 export const fontFamily = {
-  sans: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-  mono: '"JetBrains Mono", "Fira Code", Consolas, monospace',
+  sans: "Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif",
+  mono: "JetBrains Mono, Fira Code, Consolas, monospace",
 } as const;
 
 export const lineHeight = {
-  tight: 1.25,
-  normal: 1.5,
-  relaxed: 1.75,
+  tight: "1.25",
+  normal: "1.5",
+  relaxed: "1.75",
 } as const;
 
 export const borderRadius = {
@@ -134,23 +134,23 @@ export const transitions = {
   slow: "500ms ease",
 } as const;
 
-export const breakpoints = {
-  sm: 640,
-  md: 768,
-  lg: 1024,
-  xl: 1280,
-  "2xl": 1536,
+export const zIndex = {
+  dropdown: "1000",
+  sticky: "1020",
+  fixed: "1030",
+  modalBackdrop: "1040",
+  modal: "1050",
+  popover: "1060",
+  tooltip: "1070",
+  toast: "1080",
 } as const;
 
-export const zIndex = {
-  dropdown: 1000,
-  sticky: 1020,
-  fixed: 1030,
-  modalBackdrop: 1040,
-  modal: 1050,
-  popover: 1060,
-  tooltip: 1070,
-  toast: 1080,
+export const breakpoints = {
+  sm: "640px",
+  md: "768px",
+  lg: "1024px",
+  xl: "1280px",
+  "2xl": "1536px",
 } as const;
 
 // Type exports for TypeScript usage

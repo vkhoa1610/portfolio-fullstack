@@ -3,7 +3,7 @@
     "login": {
       "branding_title": "Enterprise Finance",
       "branding_subtitle": "Hệ thống quản lý chi tiêu thông minh, tuân thủ chuẩn kế toán Đức & Châu Âu.",
-      "company_name": "ISB Corp.",
+      "company_name": "DK Corp.",
       "title": "Chào mừng trở lại",
       "subtitle": "Vui lòng đăng nhập để truy cập hệ thống.",
       "email_label": "Email công việc",
@@ -21,7 +21,7 @@
       "otp_label": "Mã xác thực",
       "btn_submit": "Xác nhận",
       "help_link": "Tôi không thể quét mã?",
-      "footer": "© 2025 ISB System Security"
+      "footer": "© 2025 DK System Security"
     }
   },
   "onboarding": {

@@ -3,7 +3,7 @@
     "login": {
       "branding_title": "Enterprise Finance",
       "branding_subtitle": "Intelligentes Spesenmanagement-System, konform mit deutschen und europäischen Buchhaltungsstandards.",
-      "company_name": "ISB Corp.",
+      "company_name": "DK Corp.",
       "title": "Willkommen zurück",
       "subtitle": "Bitte melden Sie sich an, um auf das System zuzugreifen.",
       "email_label": "Geschäfts-E-Mail",
@@ -21,7 +21,7 @@
       "otp_label": "Verifizierungscode",
       "btn_submit": "Bestätigen",
       "help_link": "Kann den Code nicht scannen?",
-      "footer": "© 2025 ISB System Security"
+      "footer": "© 2025 DK System Security"
     }
   },
   "onboarding": {
