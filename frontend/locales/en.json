@@ -1,0 +1,64 @@
+{
+  "auth": {
+    "login": {
+      "branding_title": "Enterprise Finance",
+      "branding_subtitle": "Intelligent expense management system, compliant with German and European accounting standards.",
+      "company_name": "ISB Corp.",
+      "title": "Welcome back",
+      "subtitle": "Please sign in to access the system.",
+      "email_label": "Work Email",
+      "email_placeholder": "name@company.com",
+      "password_label": "Password",
+      "password_placeholder": "••••••••",
+      "forgot_password": "Forgot password?",
+      "btn_submit": "Sign In",
+      "divider_text": "or continue with",
+      "btn_sso": "Sign in with SSO"
+    },
+    "mfa": {
+      "title": "Account Security",
+      "subtitle": "Enter the 6-digit code from your Authenticator app (Google/Microsoft).",
+      "otp_label": "Verification Code",
+      "btn_submit": "Confirm",
+      "help_link": "Can't scan the code?",
+      "footer": "© 2025 ISB System Security"
+    }
+  },
+  "onboarding": {
+    "compliance": {
+      "title": "Data Protection",
+      "subtitle": "Please read and accept the privacy policy to continue.",
+      "section1_title": "1. Data Processing",
+      "section1_content": "We process your financial data according to strict GDPR standards. All data is used solely for business purposes.",
+      "section2_title": "2. Servers & Storage",
+      "section2_content": "Data is encrypted with AES-256 and stored in Frankfurt (AWS eu-central-1), complying with German law.",
+      "section3_title": "3. Your Rights",
+      "section3_content": "You have the right to access, request correction, or delete your personal data (Right to be forgotten) at any time through the support portal.",
+      "section4_title": "4. Third Parties",
+      "section4_content": "We do not share data with third parties except for payment processing partners (DATEV/SAP) listed in the appendix.",
+      "checkbox_gdpr": "I agree to the processing of personal data according to GDPR.",
+      "checkbox_terms": "I accept the Terms and Conditions.",
+      "btn_continue": "Continue",
+      "footer_badge": "GDPR-compliant & Encrypted"
+    },
+    "profile": {
+      "title": "Profile & Settings",
+      "subtitle": "Set up your personal information and language.",
+      "language_label": "Display Language",
+      "system_profile": "System Profile",
+      "status_active": "Active",
+      "role_label": "Role",
+      "role_value": "Employee",
+      "limit_label": "Monthly Limit",
+      "limit_value": "€5,000.00",
+      "admin_note": "This information is managed centrally by the IT department.",
+      "btn_submit": "Save & Go to Dashboard"
+    }
+  },
+  "common": {
+    "footer_links": {
+      "impressum": "Imprint",
+      "privacy": "Privacy Policy"
+    }
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "auth": {
+    "login": {
+      "branding_title": "Enterprise Finance",
+      "branding_subtitle": "Intelligentes Spesenmanagement-System, konform mit deutschen und europäischen Buchhaltungsstandards.",
+      "company_name": "ISB Corp.",
+      "title": "Willkommen zurück",
+      "subtitle": "Bitte melden Sie sich an, um auf das System zuzugreifen.",
+      "email_label": "Geschäfts-E-Mail",
+      "email_placeholder": "name@company.com",
+      "password_label": "Passwort",
+      "password_placeholder": "••••••••",
+      "forgot_password": "Passwort vergessen?",
+      "btn_submit": "Anmelden",
+      "divider_text": "oder fortfahren mit",
+      "btn_sso": "Mit SSO anmelden"
+    },
+    "mfa": {
+      "title": "Kontosicherheit",
+      "subtitle": "Geben Sie den 6-stelligen Code aus Ihrer Authenticator-App ein (Google/Microsoft).",
+      "otp_label": "Verifizierungscode",
+      "btn_submit": "Bestätigen",
+      "help_link": "Kann den Code nicht scannen?",
+      "footer": "© 2025 ISB System Security"
+    }
+  },
+  "onboarding": {
+    "compliance": {
+      "title": "Datenschutz",
+      "subtitle": "Bitte lesen und akzeptieren Sie die Datenschutzbestimmungen, um fortzufahren.",
+      "section1_title": "1. Datenverarbeitung",
+      "section1_content": "Wir verarbeiten Ihre Finanzdaten nach strengen GDPR-Standards. Alle Daten dienen ausschließlich geschäftlichen Zwecken.",
+      "section2_title": "2. Server & Speicherung",
+      "section2_content": "Daten werden mit AES-256 verschlüsselt und in Frankfurt (AWS eu-central-1) gespeichert, gemäß deutschem Recht.",
+      "section3_title": "3. Ihre Rechte",
+      "section3_content": "Sie haben das Recht auf Zugang, Berichtigung oder Löschung Ihrer persönlichen Daten (Recht auf Vergessenwerden) jederzeit über das Support-Portal.",
+      "section4_title": "4. Dritte Parteien",
+      "section4_content": "Wir teilen keine Daten mit Dritten, außer mit den im Anhang aufgeführten Zahlungspartnern (DATEV/SAP).",
+      "checkbox_gdpr": "Ich stimme der Verarbeitung personenbezogener Daten gemäß GDPR zu.",
+      "checkbox_terms": "Ich akzeptiere die Allgemeinen Geschäftsbedingungen (AGBs).",
+      "btn_continue": "Weiter",
+      "footer_badge": "DSGVO-konform & Verschlüsselt"
+    },
+    "profile": {
+      "title": "Profil & Einstellungen",
+      "subtitle": "Richten Sie Ihre persönlichen Informationen und Sprache ein.",
+      "language_label": "Anzeigesprache",
+      "system_profile": "Systemprofil",
+      "status_active": "Aktiv",
+      "role_label": "Rolle",
+      "role_value": "Mitarbeiter",
+      "limit_label": "Monatliches Limit",
+      "limit_value": "5.000,00 €",
+      "admin_note": "Diese Informationen werden zentral von der IT-Abteilung verwaltet.",
+      "btn_submit": "Speichern & zum Dashboard"
+    }
+  },
+  "common": {
+    "footer_links": {
+      "impressum": "Impressum",
+      "privacy": "Datenschutz"
+    }
+  }
+}

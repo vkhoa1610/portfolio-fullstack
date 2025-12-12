@@ -32,5 +32,8 @@ export { AdLink } from "./link";
 export { AdLogo } from "./logo";
 export { AdFooter } from "./footer";
 
+// Utility Components
+export { LanguageSwitcher } from "./language-switcher";
+
 // Design Tokens (JS)
 export * from "./styles";

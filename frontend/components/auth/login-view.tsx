@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable @next/next/no-img-element */
 
 "use client";
@@ -6,9 +5,11 @@
 import React, { useState } from "react";
 import { Hexagon, Eye, EyeOff, ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { AdInput, AdButton } from "@/common";
+import { useTranslation } from "react-i18next";
+import { AdInput, AdButton, LanguageSwitcher } from "@/common";
 
 export default function LoginView() {
+  const { t } = useTranslation();
   const [showPassword, setShowPassword] = useState(false);
 
   return (
@@ -27,45 +28,60 @@ export default function LoginView() {
               <Hexagon className="h-8 w-8 fill-white/20 text-white" />
             </div>
           </div>
-          <h2 className="mb-4 text-4xl font-bold tracking-tight">Enterprise Finance</h2>
+          <h2 className="mb-4 text-4xl font-bold tracking-tight">
+            {t("auth.login.branding_title")}
+          </h2>
           <p className="text-primary-100 mx-auto max-w-md text-lg">
-            Hệ thống quản lý chi tiêu thông minh, tuân thủ chuẩn kế toán Đức & Châu Âu.
+            {t("auth.login.branding_subtitle")}
           </p>
         </div>
       </div>
 
       {/* --- RIGHT SIDE: FORM AREA --- */}
-      <div className="flex w-full flex-col justify-center bg-white px-8 sm:px-12 md:px-24 lg:w-1/2">
+      <div className="relative flex w-full flex-col justify-center bg-white px-8 sm:px-12 md:px-24 lg:w-1/2">
+        {/* Language Switcher - Top Right */}
+        <div className="absolute top-6 right-6">
+          <LanguageSwitcher />
+        </div>
+
         {/* Header */}
         <div className="text-primary-600 mb-10 flex items-center gap-2">
           <Hexagon className="h-8 w-8 fill-current" />
-          <span className="text-xl font-bold tracking-tight text-neutral-900">ISB Corp.</span>
+          <span className="text-xl font-bold tracking-tight text-neutral-900">
+            {t("auth.login.company_name")}
+          </span>
         </div>
 
         <div className="mb-8">
-          <h1 className="mb-2 text-3xl font-bold text-neutral-900">Willkommen zurück</h1>
-          <p className="text-neutral-500">Vui lòng đăng nhập để truy cập hệ thống.</p>
+          <h1 className="mb-2 text-3xl font-bold text-neutral-900">{t("auth.login.title")}</h1>
+          <p className="text-neutral-500">{t("auth.login.subtitle")}</p>
         </div>
 
         {/* Form Container */}
         <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
           {/* Email Input */}
-          <AdInput label="Email công việc" type="email" placeholder="name@company.com" />
+          <AdInput
+            label={t("auth.login.email_label")}
+            type="email"
+            placeholder={t("auth.login.email_placeholder")}
+          />
 
           {/* Password Input */}
           <div>
             <div className="mb-1.5 flex items-center justify-between">
-              <label className="text-sm font-medium text-neutral-700">Mật khẩu</label>
+              <label className="text-sm font-medium text-neutral-700">
+                {t("auth.login.password_label")}
+              </label>
               <Link
                 href="/auth/forgot-password"
                 className="text-primary-600 hover:text-primary-500 text-sm font-medium"
               >
-                Quên mật khẩu?
+                {t("auth.login.forgot_password")}
               </Link>
             </div>
             <AdInput
               type={showPassword ? "text" : "password"}
-              placeholder="••••••••"
+              placeholder={t("auth.login.password_placeholder")}
               endIcon={
                 <button
                   type="button"
@@ -85,13 +101,15 @@ export default function LoginView() {
             fullWidth
             endIcon={<ArrowRight className="h-4 w-4" />}
           >
-            Đăng nhập
+            {t("auth.login.btn_submit")}
           </AdButton>
 
           {/* Divider */}
           <div className="relative flex items-center py-2">
             <div className="flex-grow border-t border-neutral-200"></div>
-            <span className="mx-4 flex-shrink-0 text-sm text-neutral-400">hoặc tiếp tục với</span>
+            <span className="mx-4 flex-shrink-0 text-sm text-neutral-400">
+              {t("auth.login.divider_text")}
+            </span>
             <div className="flex-grow border-t border-neutral-200"></div>
           </div>
 
@@ -121,17 +139,17 @@ export default function LoginView() {
               </svg>
             }
           >
-            Đăng nhập bằng SSO
+            {t("auth.login.btn_sso")}
           </AdButton>
         </form>
 
         {/* Footer Links */}
         <div className="mt-8 flex justify-center gap-6 border-t border-neutral-100 pt-6 text-xs font-medium text-neutral-400">
           <Link href="/impressum" className="hover:text-primary-600 transition-colors">
-            Impressum
+            {t("common.footer_links.impressum")}
           </Link>
           <Link href="/datenschutz" className="hover:text-primary-600 transition-colors">
-            Datenschutz
+            {t("common.footer_links.privacy")}
           </Link>
         </div>
       </div>

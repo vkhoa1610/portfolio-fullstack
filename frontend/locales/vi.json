@@ -1,0 +1,64 @@
+{
+  "auth": {
+    "login": {
+      "branding_title": "Enterprise Finance",
+      "branding_subtitle": "Hệ thống quản lý chi tiêu thông minh, tuân thủ chuẩn kế toán Đức & Châu Âu.",
+      "company_name": "ISB Corp.",
+      "title": "Chào mừng trở lại",
+      "subtitle": "Vui lòng đăng nhập để truy cập hệ thống.",
+      "email_label": "Email công việc",
+      "email_placeholder": "name@company.com",
+      "password_label": "Mật khẩu",
+      "password_placeholder": "••••••••",
+      "forgot_password": "Quên mật khẩu?",
+      "btn_submit": "Đăng nhập",
+      "divider_text": "hoặc tiếp tục với",
+      "btn_sso": "Đăng nhập bằng SSO"
+    },
+    "mfa": {
+      "title": "Bảo mật tài khoản",
+      "subtitle": "Nhập mã 6 số từ ứng dụng Authenticator (Google/Microsoft).",
+      "otp_label": "Mã xác thực",
+      "btn_submit": "Xác nhận",
+      "help_link": "Tôi không thể quét mã?",
+      "footer": "© 2025 ISB System Security"
+    }
+  },
+  "onboarding": {
+    "compliance": {
+      "title": "Bảo mật dữ liệu",
+      "subtitle": "Để tiếp tục, vui lòng đọc và đồng ý với các quy định bảo mật.",
+      "section1_title": "1. Xử lý dữ liệu (Datenverarbeitung)",
+      "section1_content": "Chúng tôi xử lý dữ liệu tài chính của bạn theo tiêu chuẩn GDPR nghiêm ngặt. Mọi dữ liệu chỉ phục vụ mục đích công việc.",
+      "section2_title": "2. Máy chủ & Lưu trữ",
+      "section2_content": "Dữ liệu được mã hóa chuẩn AES-256 và lưu trữ tại Frankfurt (AWS eu-central-1), tuân thủ luật pháp CHLB Đức.",
+      "section3_title": "3. Quyền lợi của bạn",
+      "section3_content": "Bạn có quyền truy cập, yêu cầu chỉnh sửa, hoặc xóa dữ liệu cá nhân (Right to be forgotten) bất cứ lúc nào thông qua cổng hỗ trợ.",
+      "section4_title": "4. Bên thứ ba",
+      "section4_content": "Chúng tôi không chia sẻ dữ liệu cho bên thứ ba ngoại trừ các đối tác xử lý thanh toán (DATEV/SAP) được liệt kê trong phụ lục.",
+      "checkbox_gdpr": "Tôi đồng ý với việc xử lý dữ liệu cá nhân theo GDPR.",
+      "checkbox_terms": "Tôi chấp nhận các điều khoản sử dụng (AGBs).",
+      "btn_continue": "Tiếp tục",
+      "footer_badge": "Tuân thủ DSGVO & Mã hóa"
+    },
+    "profile": {
+      "title": "Hồ sơ & Cài đặt",
+      "subtitle": "Thiết lập thông tin cá nhân và ngôn ngữ.",
+      "language_label": "Ngôn ngữ hiển thị",
+      "system_profile": "Hồ sơ hệ thống",
+      "status_active": "Đang hoạt động",
+      "role_label": "Vai trò",
+      "role_value": "Nhân viên",
+      "limit_label": "Hạn mức / Tháng",
+      "limit_value": "5.000,00 €",
+      "admin_note": "Các thông tin này được quản lý tập trung bởi bộ phận IT Admin.",
+      "btn_submit": "Lưu & Vào Dashboard"
+    }
+  },
+  "common": {
+    "footer_links": {
+      "impressum": "Impressum",
+      "privacy": "Bảo mật dữ liệu"
+    }
+  }
+}
