@@ -128,3 +128,5 @@ services:
 
 Bây giờ, bạn hãy thực hiện **Bước 1, 2, 3** ở trên Terminal máy bạn.
 Sau khi xong, hãy mở folder `portfolio-fullstack` trong VS Code và chúng ta sẽ tiếp tục cấu hình Docker Compose chi tiết!
+
+

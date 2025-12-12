@@ -15,6 +15,8 @@ export { AdFormGroup } from "./form-group";
 export { AdInput } from "./input";
 export { AdLabel } from "./label";
 export { AdButton } from "./button";
+export { AdCheckbox } from "./checkbox";
+export { AdSelect } from "./select";
 
 // Typography Components
 export { AdTitle } from "./title";

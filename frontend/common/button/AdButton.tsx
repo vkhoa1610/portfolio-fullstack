@@ -1,7 +1,9 @@
 "use client";
 
 import React, { forwardRef } from "react";
-import styles from "./AdButton.module.css";
+import { Loader2 } from "lucide-react";
+import { clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 // ============================================
 // Types
@@ -17,12 +19,32 @@ export interface AdButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElem
   /** Size of the button */
   size?: ButtonSize;
   /** Show loading spinner */
-  loading?: boolean;
+  isLoading?: boolean;
+  /** Icon to display before button text */
+  startIcon?: React.ReactNode;
+  /** Icon to display after button text */
+  endIcon?: React.ReactNode;
   /** Full width button */
   fullWidth?: boolean;
   /** Additional class name */
   className?: string;
 }
+
+// ============================================
+// Variant Styles (Tailwind)
+// ============================================
+const variantStyles: Record<ButtonVariant, string> = {
+  primary: "bg-primary-500 text-white hover:bg-primary-600 shadow-primary",
+  secondary: "bg-primary-900 text-white hover:bg-primary-800",
+  outline: "bg-white border border-neutral-300 text-neutral-700 hover:bg-neutral-50",
+  ghost: "text-primary-600 hover:text-primary-500 hover:bg-primary-50",
+};
+
+const sizeStyles: Record<ButtonSize, string> = {
+  sm: "px-3 py-1.5 text-sm gap-1.5",
+  md: "px-4 py-2.5 text-base gap-2",
+  lg: "px-6 py-3.5 text-lg gap-2.5",
+};
 
 // ============================================
 // Component
@@ -33,7 +55,9 @@ export const AdButton = forwardRef<HTMLButtonElement, AdButtonProps>(
       children,
       variant = "primary",
       size = "md",
-      loading = false,
+      isLoading = false,
+      startIcon,
+      endIcon,
       fullWidth = false,
       disabled = false,
       className = "",
@@ -42,32 +66,50 @@ export const AdButton = forwardRef<HTMLButtonElement, AdButtonProps>(
     },
     ref
   ) => {
-    const isDisabled = disabled || loading;
+    const isDisabled = disabled || isLoading;
 
-    const classNames = [
-      styles.button,
-      styles[variant],
-      styles[size],
-      fullWidth ? styles.fullWidth : "",
-      isDisabled ? styles.disabled : "",
-      loading ? styles.loading : "",
-      className,
-    ]
-      .filter(Boolean)
-      .join(" ");
+    const buttonClasses = twMerge(
+      clsx(
+        // Base styles
+        "inline-flex items-center justify-center",
+        "font-semibold rounded-input",
+        "transition-all duration-normal",
+        "focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:ring-offset-2",
+        "active:scale-[0.98]",
+        // Variant
+        variantStyles[variant],
+        // Size
+        sizeStyles[size],
+        // States
+        fullWidth && "w-full",
+        isDisabled && "opacity-60 cursor-not-allowed pointer-events-none",
+        isLoading && "cursor-wait",
+        className
+      )
+    );
 
     return (
       <button
         ref={ref}
         type={type}
-        className={classNames}
+        className={buttonClasses}
         disabled={isDisabled}
         aria-disabled={isDisabled}
-        aria-busy={loading}
+        aria-busy={isLoading}
         {...rest}
       >
-        {loading && <span className={styles.spinner} aria-hidden="true" />}
-        <span className={loading ? styles.contentLoading : ""}>{children}</span>
+        {isLoading && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
+        {!isLoading && startIcon && (
+          <span className="shrink-0" aria-hidden="true">
+            {startIcon}
+          </span>
+        )}
+        <span className={isLoading ? "opacity-70" : ""}>{children}</span>
+        {!isLoading && endIcon && (
+          <span className="shrink-0" aria-hidden="true">
+            {endIcon}
+          </span>
+        )}
       </button>
     );
   }

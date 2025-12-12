@@ -1,16 +1,32 @@
 "use client";
 
-import React from "react";
-import styles from "./AdSubtitle.module.css";
+import React, { forwardRef } from "react";
+import { clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
 
-type AdSubtitleProps = {
+// ============================================
+// Types
+// ============================================
+export interface AdSubtitleProps extends React.HTMLAttributes<HTMLParagraphElement> {
+  /** Subtitle content */
   children: React.ReactNode;
+  /** Additional class name */
   className?: string;
-  size?: "default" | "small";
-};
-
-export function AdSubtitle({ children, className = "", size = "default" }: AdSubtitleProps) {
-  const sizeClass = size === "small" ? styles.subtitleSmall : "";
-
-  return <p className={`${styles.subtitle} ${sizeClass} ${className}`}>{children}</p>;
 }
+
+// ============================================
+// Component
+// ============================================
+export const AdSubtitle = forwardRef<HTMLParagraphElement, AdSubtitleProps>(
+  ({ children, className = "", ...rest }, ref) => {
+    const subtitleClasses = twMerge(clsx("text-sm text-neutral-500", className));
+
+    return (
+      <p ref={ref} className={subtitleClasses} {...rest}>
+        {children}
+      </p>
+    );
+  }
+);
+
+AdSubtitle.displayName = "AdSubtitle";

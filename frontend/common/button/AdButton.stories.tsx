@@ -1,172 +1,172 @@
-import type { Meta, StoryObj } from "@storybook/react";
-import { AdButton } from "./AdButton";
+// import type { Meta, StoryObj } from "@storybook/react";
+// import { AdButton } from "./AdButton";
 
-/**
- * AdButton là component button chính của hệ thống.
- * Hỗ trợ nhiều variants, sizes, và states khác nhau.
- */
-const meta: Meta<typeof AdButton> = {
-  title: "Common/AdButton",
-  component: AdButton,
-  tags: ["autodocs"],
-  argTypes: {
-    variant: {
-      control: "select",
-      options: ["primary", "secondary", "outline", "ghost"],
-      description: "Visual style của button",
-    },
-    size: {
-      control: "select",
-      options: ["sm", "md", "lg"],
-      description: "Kích thước button",
-    },
-    loading: {
-      control: "boolean",
-      description: "Hiển thị loading spinner",
-    },
-    disabled: {
-      control: "boolean",
-      description: "Disable button",
-    },
-    fullWidth: {
-      control: "boolean",
-      description: "Button chiếm full width",
-    },
-    children: {
-      control: "text",
-      description: "Nội dung button",
-    },
-  },
-};
+// /**
+//  * AdButton là component button chính của hệ thống.
+//  * Hỗ trợ nhiều variants, sizes, và states khác nhau.
+//  */
+// const meta: Meta<typeof AdButton> = {
+//   title: "Common/AdButton",
+//   component: AdButton,
+//   tags: ["autodocs"],
+//   argTypes: {
+//     variant: {
+//       control: "select",
+//       options: ["primary", "secondary", "outline", "ghost"],
+//       description: "Visual style của button",
+//     },
+//     size: {
+//       control: "select",
+//       options: ["sm", "md", "lg"],
+//       description: "Kích thước button",
+//     },
+//     isLoading: {
+//       control: "boolean",
+//       description: "Hiển thị loading spinner",
+//     },
+//     disabled: {
+//       control: "boolean",
+//       description: "Disable button",
+//     },
+//     fullWidth: {
+//       control: "boolean",
+//       description: "Button chiếm full width",
+//     },
+//     children: {
+//       control: "text",
+//       description: "Nội dung button",
+//     },
+//   },
+// };
 
-export default meta;
-type Story = StoryObj<typeof AdButton>;
+// export default meta;
+// type Story = StoryObj<typeof AdButton>;
 
-// ============================================
-// Basic Stories
-// ============================================
+// // ============================================
+// // Basic Stories
+// // ============================================
 
-export const Default: Story = {
-  args: {
-    children: "Button",
-  },
-};
+// export const Default: Story = {
+//   args: {
+//     children: "Button",
+//   },
+// };
 
-export const Primary: Story = {
-  args: {
-    variant: "primary",
-    children: "Primary Button",
-  },
-};
+// export const Primary: Story = {
+//   args: {
+//     variant: "primary",
+//     children: "Primary Button",
+//   },
+// };
 
-export const Secondary: Story = {
-  args: {
-    variant: "secondary",
-    children: "Secondary Button",
-  },
-};
+// export const Secondary: Story = {
+//   args: {
+//     variant: "secondary",
+//     children: "Secondary Button",
+//   },
+// };
 
-export const Outline: Story = {
-  args: {
-    variant: "outline",
-    children: "Outline Button",
-  },
-};
+// export const Outline: Story = {
+//   args: {
+//     variant: "outline",
+//     children: "Outline Button",
+//   },
+// };
 
-export const Ghost: Story = {
-  args: {
-    variant: "ghost",
-    children: "Ghost Button",
-  },
-};
+// export const Ghost: Story = {
+//   args: {
+//     variant: "ghost",
+//     children: "Ghost Button",
+//   },
+// };
 
-// ============================================
-// Size Stories
-// ============================================
+// // ============================================
+// // Size Stories
+// // ============================================
 
-export const Small: Story = {
-  args: {
-    size: "sm",
-    children: "Small Button",
-  },
-};
+// export const Small: Story = {
+//   args: {
+//     size: "sm",
+//     children: "Small Button",
+//   },
+// };
 
-export const Medium: Story = {
-  args: {
-    size: "md",
-    children: "Medium Button",
-  },
-};
+// export const Medium: Story = {
+//   args: {
+//     size: "md",
+//     children: "Medium Button",
+//   },
+// };
 
-export const Large: Story = {
-  args: {
-    size: "lg",
-    children: "Large Button",
-  },
-};
+// export const Large: Story = {
+//   args: {
+//     size: "lg",
+//     children: "Large Button",
+//   },
+// };
 
-// ============================================
-// State Stories
-// ============================================
+// // ============================================
+// // State Stories
+// // ============================================
 
-export const Disabled: Story = {
-  args: {
-    disabled: true,
-    children: "Disabled Button",
-  },
-};
+// export const Disabled: Story = {
+//   args: {
+//     disabled: true,
+//     children: "Disabled Button",
+//   },
+// };
 
-export const Loading: Story = {
-  args: {
-    loading: true,
-    children: "Loading...",
-  },
-};
+// export const Loading: Story = {
+//   args: {
+//     isLoading: true,
+//     children: "Loading...",
+//   },
+// };
 
-export const FullWidth: Story = {
-  args: {
-    fullWidth: true,
-    children: "Full Width Button",
-  },
-};
+// export const FullWidth: Story = {
+//   args: {
+//     fullWidth: true,
+//     children: "Full Width Button",
+//   },
+// };
 
-// ============================================
-// Combination Stories
-// ============================================
+// // ============================================
+// // Combination Stories
+// // ============================================
 
-export const AllVariants: Story = {
-  render: () => (
-    <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
-      <AdButton variant="primary">Primary</AdButton>
-      <AdButton variant="secondary">Secondary</AdButton>
-      <AdButton variant="outline">Outline</AdButton>
-      <AdButton variant="ghost">Ghost</AdButton>
-    </div>
-  ),
-};
+// export const AllVariants: Story = {
+//   render: () => (
+//     <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+//       <AdButton variant="primary">Primary</AdButton>
+//       <AdButton variant="secondary">Secondary</AdButton>
+//       <AdButton variant="outline">Outline</AdButton>
+//       <AdButton variant="ghost">Ghost</AdButton>
+//     </div>
+//   ),
+// };
 
-export const AllSizes: Story = {
-  render: () => (
-    <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-      <AdButton size="sm">Small</AdButton>
-      <AdButton size="md">Medium</AdButton>
-      <AdButton size="lg">Large</AdButton>
-    </div>
-  ),
-};
+// export const AllSizes: Story = {
+//   render: () => (
+//     <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+//       <AdButton size="sm">Small</AdButton>
+//       <AdButton size="md">Medium</AdButton>
+//       <AdButton size="lg">Large</AdButton>
+//     </div>
+//   ),
+// };
 
-export const LoadingStates: Story = {
-  render: () => (
-    <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
-      <AdButton loading variant="primary">
-        Primary
-      </AdButton>
-      <AdButton loading variant="secondary">
-        Secondary
-      </AdButton>
-      <AdButton loading variant="outline">
-        Outline
-      </AdButton>
-    </div>
-  ),
-};
+// export const LoadingStates: Story = {
+//   render: () => (
+//     <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+//       <AdButton isLoading variant="primary">
+//         Primary
+//       </AdButton>
+//       <AdButton isLoading variant="secondary">
+//         Secondary
+//       </AdButton>
+//       <AdButton isLoading variant="outline">
+//         Outline
+//       </AdButton>
+//     </div>
+//   ),
+// };
