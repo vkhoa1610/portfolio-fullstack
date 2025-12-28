@@ -2,8 +2,9 @@ import express from "express";
 import { bffProduct001 } from "@product/product-001/index.js";
 import { bffProduct002 } from "@product/product-002/index.js";
 import { bffProduct003 } from "@product/product-003/index.js";
+import { bffProduct004 } from "@product/product-004/index.js";
 
-const bffSetting = [bffProduct001, bffProduct002, bffProduct003];
+const bffSetting = [bffProduct001, bffProduct002, bffProduct003, bffProduct004];
 
 export const createRouter = () => {
   const router = express.Router();

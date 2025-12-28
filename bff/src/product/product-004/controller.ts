@@ -1,16 +1,14 @@
 import { Request, Response } from 'express';
-import { signIn } from '@common/config/cognito-service.js';
+import { respondToNewPasswordChallenge } from '@common/config/cognito-service.js';
 import { apiClientGet } from '@common/config/apiClient.js';
 import { JAVA_API_URL } from '@common/config/env.js';
 import { ProcessStatus, ErrorResponse } from '@common/config/common-types.js';
 import { UserProfile } from '@common/api/get-user.js';
 import { handleNormal, handleBackendError, throwBffError } from '@common/util/response-handler.js';
 import {
-  LoginRequest,
-  LoginResponse,
-  MfaRequiredResponse,
+  NewPasswordRequest,
+  NewPasswordResponse,
   LoginSuccessResponse,
-  NewPasswordRequiredResponse,
 } from '@product/product-003/bff.type.js';
 
 // Cookie options for security
@@ -22,65 +20,41 @@ const COOKIE_OPTIONS = {
 };
 
 /**
- * POST /api/auth/login
- * Handles initial login with email/password via AWS Cognito
+ * POST /api/auth/new-password
+ * Handles NEW_PASSWORD_REQUIRED challenge from Cognito
  */
 export const handle = async (
-  req: Request<{}, {}, LoginRequest>,
-  res: Response<LoginResponse | ErrorResponse>,
+  req: Request<{}, {}, NewPasswordRequest>,
+  res: Response<NewPasswordResponse | ErrorResponse>,
 ) => {
   try {
-    const { email, password } = req.body;
+    const { username, newPassword, session } = req.body;
 
     // Validate input
-    if (!email || !password) {
-      console.log('❌ Missing email or password');
-      throwBffError('Email and password are required', 400);
+    if (!username || !newPassword || !session) {
+      console.log('❌ Missing username, newPassword, or session');
+      throwBffError('Username, new password, and session are required', 400);
     }
 
     // TS hint: inputs are valid strings
-    const validEmail = email as string;
-    const validPassword = password as string;
+    const validUsername = username as string;
+    const validNewPassword = newPassword as string;
+    const validSession = session as string;
 
-    console.log('🔐 Login attempt for:', validEmail);
+    console.log('🔑 New password challenge for:', validUsername);
 
-    // Call Cognito InitiateAuth
-    const cognitoResponse = await signIn(validEmail, validPassword);
+    // Call Cognito RespondToAuthChallenge
+    const cognitoResponse = await respondToNewPasswordChallenge(
+      validUsername,
+      validNewPassword,
+      validSession,
+    );
 
-    // Check if MFA is required
-    if (cognitoResponse.ChallengeName === 'SOFTWARE_TOKEN_MFA') {
-      console.log('🔒 MFA required for:', validEmail);
-      const response: MfaRequiredResponse = {
-        processStatus: ProcessStatus.SUCCESS,
-        message: ['MFA required'],
-        requireMfa: true,
-        challengeName: 'SOFTWARE_TOKEN_MFA',
-        session: cognitoResponse.Session || '',
-      };
-      // Also return username for client to use in MFA request
-      res.setHeader('x-cognito-username', validEmail);
-      return handleNormal(res, response);
-    }
-
-    // Check if new password is required (first login / temp password)
-    if (cognitoResponse.ChallengeName === 'NEW_PASSWORD_REQUIRED') {
-      console.log('🔑 New password required for:', validEmail);
-      const response: NewPasswordRequiredResponse = {
-        processStatus: ProcessStatus.SUCCESS,
-        message: ['New password required'],
-        requireNewPassword: true,
-        challengeName: 'NEW_PASSWORD_REQUIRED',
-        session: cognitoResponse.Session || '',
-        username: validEmail,
-      };
-      return handleNormal(res, response);
-    }
-
-    // No MFA required - process authentication result
+    // Process authentication result
     if (cognitoResponse.AuthenticationResult) {
       const { AccessToken, IdToken, RefreshToken } = cognitoResponse.AuthenticationResult;
 
-      console.log('✅ Login successful, setting cookies');
+      console.log('✅ New password set successfully, setting cookies');
 
       // Set HttpOnly + Secure cookies
       res.cookie('access_token', AccessToken, {
@@ -116,7 +90,7 @@ export const handle = async (
       const firstLogin = userProfile.onboardingStatus === 'PENDING';
       const response: LoginSuccessResponse = {
         processStatus: ProcessStatus.SUCCESS,
-        message: ['Login successful'],
+        message: ['Password updated successfully'],
         user: {
           role: userProfile.role,
           budget: userProfile.budget,
@@ -130,7 +104,7 @@ export const handle = async (
 
     // Unexpected response from Cognito
     console.error('❌ Unexpected Cognito response:', cognitoResponse);
-    throwBffError('Login failed');
+    throwBffError('Failed to set new password');
   } catch (err: any) {
     return handleBackendError(res, err);
   }

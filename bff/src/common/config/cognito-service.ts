@@ -61,3 +61,29 @@ export const respondToMfaChallenge = async (username: string, otp: string, sessi
   });
   return response;
 };
+
+// === Đặt mật khẩu mới (NEW_PASSWORD_REQUIRED) ===
+export const respondToNewPasswordChallenge = async (
+  username: string,
+  newPassword: string,
+  session: string,
+) => {
+  console.log('🔹 New Password Challenge Query:', { username });
+
+  const command = new RespondToAuthChallengeCommand({
+    ClientId: COGNITO_CLIENT_ID,
+    ChallengeName: 'NEW_PASSWORD_REQUIRED',
+    Session: session,
+    ChallengeResponses: {
+      NEW_PASSWORD: newPassword,
+      USERNAME: username,
+      SECRET_HASH: getSecretHash(username),
+    },
+  });
+
+  const response = await cognitoClient.send(command);
+  console.log('✅ New Password Response:', {
+    hasAuthResult: !!response.AuthenticationResult,
+  });
+  return response;
+};

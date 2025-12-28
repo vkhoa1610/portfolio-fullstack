@@ -18,8 +18,25 @@ export interface LoginSuccessResponse extends BaseResponse {
 
 export interface MfaRequiredResponse extends BaseResponse {
   requireMfa: true;
-  challengeName: string;
+  challengeName: 'SOFTWARE_TOKEN_MFA';
   session: string;
 }
 
-export type LoginResponse = LoginSuccessResponse | MfaRequiredResponse;
+export interface NewPasswordRequiredResponse extends BaseResponse {
+  requireNewPassword: true;
+  challengeName: 'NEW_PASSWORD_REQUIRED';
+  session: string;
+  username: string;
+}
+
+export type LoginResponse = LoginSuccessResponse | MfaRequiredResponse | NewPasswordRequiredResponse;
+
+// === NEW PASSWORD (Product-004) ===
+
+export interface NewPasswordRequest {
+  username?: string;
+  newPassword?: string;
+  session?: string;
+}
+
+export type NewPasswordResponse = LoginSuccessResponse;
