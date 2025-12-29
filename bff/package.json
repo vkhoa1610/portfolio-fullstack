@@ -16,14 +16,18 @@
   "dependencies": {
     "@aws-sdk/client-cognito-identity-provider": "^3.908.0",
     "axios": "^1.12.2",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.3",
     "serverless-http": "^3.2.0"
   },
   "devDependencies": {
+    "@types/cookie-parser": "^1.4.10",
     "@types/express": "^4.17.21",
     "@types/jest": "^30.0.0",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^22.19.2",
     "@typescript-eslint/eslint-plugin": "^8.49.0",
     "@typescript-eslint/parser": "^8.49.0",

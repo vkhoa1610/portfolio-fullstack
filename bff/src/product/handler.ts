@@ -1,47 +1,58 @@
 import express, { Request, Response, NextFunction } from 'express';
+import cookieParser from 'cookie-parser';
+import cors from 'cors';
 import { RequestLogger } from '../common/util/RequestLogger.js';
 import { ResponseLogger } from '../common/util/ResponseLogger.js';
-import cors from 'cors';
+import { extractTokens } from '../common/middleware/auth-middleware.js';
 import { createApp } from './app.js';
 
 const mainApp = express();
 
+// Health check endpoint
 mainApp.get('/healthcheck', (_, res) => {
   res.status(200).json({ status: 'ok' });
 });
 
 /**
- * 1️⃣ CORS chính thức bằng thư viện
+ * CORS Configuration
+ * 
+ * In production with nginx reverse proxy:
+ * - Frontend and BFF are same-origin (through nginx)
+ * - CORS is not needed
+ * - Cookies with SameSite=Strict work perfectly
+ * 
+ * In development (direct access without nginx):
+ * - Enable CORS with credentials for local development
  */
-mainApp.use(
-  cors({
-    origin: ['http://localhost:3000'],
-    methods: ['GET', 'POST'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'x-login-session'],
-  }),
-);
+const isDevelopment = process.env.NODE_ENV !== 'production';
 
-/**
- * 2️⃣ CORS thủ công tự thêm header
- */
-mainApp.use((req: Request, res: Response, next: NextFunction) => {
-  res.header('Access-Control-Allow-Origin', '*'); // ⚠️ mâu thuẫn với origin ở trên
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-login-session');
+// if (isDevelopment) {
+//   mainApp.use(
+//     cors({
+//       origin: ['http://localhost:3000', 'http://localhost:3001'],
+//       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+//       allowedHeaders: ['Content-Type', 'Authorization'],
+//       credentials: true, // CRITICAL: Required for cookies
+//     }),
+//   );
+// }
 
-  // Xử lý preflight OPTIONS request
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200);
-  }
+// Parse cookies from requests (REQUIRED for auth)
+mainApp.use(cookieParser());
 
-  next();
-});
-
+// Request/Response logging
 mainApp.use(RequestLogger, ResponseLogger);
+
+// Extract auth tokens from cookies (global middleware)
+mainApp.use(extractTokens);
+
+// Mount the main app with routes
 const app = createApp();
 mainApp.use(app);
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 4000;
 mainApp.listen(PORT, () => {
-  console.log(`🚀 Main app listening at http://localhost:${PORT}`);
+  console.log(`🚀 BFF listening at http://localhost:${PORT}`);
+  console.log(`📦 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🔐 CORS: ${isDevelopment ? 'Enabled for development' : 'Disabled (same-origin via nginx)'}`);
 });

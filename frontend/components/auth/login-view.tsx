@@ -2,21 +2,90 @@
 
 "use client";
 
-import React, { useState } from "react";
-import { Hexagon, Eye, EyeOff, ArrowRight } from "lucide-react";
+import React, { useState, FormEvent } from "react";
+import { Hexagon, Eye, EyeOff, ArrowRight, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { AdInput, AdButton, LanguageSwitcher } from "@/common";
+import { useAuth } from "@/common/context/AuthContext";
+import { useLoginMutation } from "@/ducks/auth/authApi";
+import { isMfaRequired, isNewPasswordRequired, isLoginSuccess } from "@/ducks/auth/types";
 
 export default function LoginView() {
   const { t } = useTranslation();
+  const router = useRouter();
+  const { setSession } = useAuth();
+
+  // Form state
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // API mutation
+  const [login, { isLoading }] = useLoginMutation();
+
+  // ─────────────────────────────────────────────────────────────────
+  // Handle Login Submit
+  // ─────────────────────────────────────────────────────────────────
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    if (!email || !password) {
+      setError(t("auth.login.error_required_fields"));
+      return;
+    }
+
+    try {
+      const result = await login({ email, password }).unwrap();
+
+      // Case 1: MFA Required
+      if (isMfaRequired(result)) {
+        // Pass session and email to MFA page via URL params
+        // Note: session is a temporary Cognito token, safe to pass
+        const params = new URLSearchParams({
+          session: result.session,
+          email: email,
+        });
+        router.push(`/auth/mfa?${params.toString()}`);
+        return;
+      }
+
+      // Case 2: New Password Required
+      if (isNewPasswordRequired(result)) {
+        const params = new URLSearchParams({
+          session: result.session,
+          username: result.username,
+        });
+        router.push(`/auth/new-password?${params.toString()}`);
+        return;
+      }
+
+      // Case 3: Login Success (no MFA)
+      if (isLoginSuccess(result)) {
+        // Store session in AuthContext (in-memory only!)
+        setSession(result.session);
+        // Redirect to appropriate page
+        router.push(result.redirectTo);
+        return;
+      }
+    } catch (err: unknown) {
+      console.error("Login error:", err);
+      // Safe error handling
+      const errorMessage =
+        (err as { data?: { message?: string[] } })?.data?.message?.[0] ||
+        t("auth.login.error_generic");
+      setError(errorMessage);
+    }
+  };
 
   return (
-    <div className="bg-surface-ground flex min-h-screen w-full font-sans text-neutral-900">
+    <div className="flex min-h-screen w-full bg-surface-ground font-sans text-neutral-900">
       {/* --- LEFT SIDE: BRANDING --- */}
-      <div className="bg-primary-900 relative hidden items-center justify-center overflow-hidden lg:flex lg:w-1/2">
-        <div className="from-primary-900 via-primary-800 to-secondary-900 absolute inset-0 z-10 bg-gradient-to-tr opacity-90" />
+      <div className="relative hidden items-center justify-center overflow-hidden bg-primary-900 lg:flex lg:w-1/2">
+        <div className="absolute inset-0 z-10 bg-gradient-to-tr from-primary-900 via-primary-800 to-secondary-900 opacity-90" />
         <img
           src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80"
           alt="Office"
@@ -31,7 +100,7 @@ export default function LoginView() {
           <h2 className="mb-4 text-4xl font-bold tracking-tight">
             {t("auth.login.branding_title")}
           </h2>
-          <p className="text-primary-100 mx-auto max-w-md text-lg">
+          <p className="mx-auto max-w-md text-lg text-primary-100">
             {t("auth.login.branding_subtitle")}
           </p>
         </div>
@@ -40,12 +109,12 @@ export default function LoginView() {
       {/* --- RIGHT SIDE: FORM AREA --- */}
       <div className="relative flex w-full flex-col justify-center bg-white px-8 sm:px-12 md:px-24 lg:w-1/2">
         {/* Language Switcher - Top Right */}
-        <div className="absolute top-6 right-6">
+        <div className="absolute right-6 top-6">
           <LanguageSwitcher />
         </div>
 
         {/* Header */}
-        <div className="text-primary-600 mb-10 flex items-center gap-2">
+        <div className="mb-10 flex items-center gap-2 text-primary-600">
           <Hexagon className="h-8 w-8 fill-current" />
           <span className="text-xl font-bold tracking-tight text-neutral-900">
             {t("auth.login.company_name")}
@@ -57,13 +126,23 @@ export default function LoginView() {
           <p className="text-neutral-500">{t("auth.login.subtitle")}</p>
         </div>
 
+        {/* Error Message */}
+        {error && (
+          <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-600">
+            {error}
+          </div>
+        )}
+
         {/* Form Container */}
-        <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
+        <form className="space-y-5" onSubmit={handleSubmit}>
           {/* Email Input */}
           <AdInput
             label={t("auth.login.email_label")}
             type="email"
             placeholder={t("auth.login.email_placeholder")}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={isLoading}
           />
 
           {/* Password Input */}
@@ -74,7 +153,7 @@ export default function LoginView() {
               </label>
               <Link
                 href="/auth/forgot-password"
-                className="text-primary-600 hover:text-primary-500 text-sm font-medium"
+                className="text-sm font-medium text-primary-600 hover:text-primary-500"
               >
                 {t("auth.login.forgot_password")}
               </Link>
@@ -82,6 +161,9 @@ export default function LoginView() {
             <AdInput
               type={showPassword ? "text" : "password"}
               placeholder={t("auth.login.password_placeholder")}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              disabled={isLoading}
               endIcon={
                 <button
                   type="button"
@@ -99,9 +181,16 @@ export default function LoginView() {
             type="submit"
             variant="primary"
             fullWidth
-            endIcon={<ArrowRight className="h-4 w-4" />}
+            disabled={isLoading}
+            endIcon={
+              isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <ArrowRight className="h-4 w-4" />
+              )
+            }
           >
-            {t("auth.login.btn_submit")}
+            {isLoading ? t("auth.login.btn_loading") : t("auth.login.btn_submit")}
           </AdButton>
 
           {/* Divider */}
@@ -145,10 +234,10 @@ export default function LoginView() {
 
         {/* Footer Links */}
         <div className="mt-8 flex justify-center gap-6 border-t border-neutral-100 pt-6 text-xs font-medium text-neutral-400">
-          <Link href="/impressum" className="hover:text-primary-600 transition-colors">
+          <Link href="/impressum" className="transition-colors hover:text-primary-600">
             {t("common.footer_links.impressum")}
           </Link>
-          <Link href="/datenschutz" className="hover:text-primary-600 transition-colors">
+          <Link href="/datenschutz" className="transition-colors hover:text-primary-600">
             {t("common.footer_links.privacy")}
           </Link>
         </div>

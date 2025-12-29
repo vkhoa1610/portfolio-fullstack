@@ -3,6 +3,7 @@ import {
   CognitoIdentityProviderClient,
   InitiateAuthCommand,
   RespondToAuthChallengeCommand,
+  GlobalSignOutCommand,
 } from '@aws-sdk/client-cognito-identity-provider';
 import { AWS_REGION, COGNITO_CLIENT_ID, COGNITO_CLIENT_SECRET } from './env.js';
 
@@ -87,3 +88,37 @@ export const respondToNewPasswordChallenge = async (
   });
   return response;
 };
+
+// === Refresh Tokens (Silent Re-authentication) ===
+export const refreshTokens = async (refreshToken: string, username: string) => {
+  console.log('🔹 Refresh Token Query:', { username });
+
+  const command = new InitiateAuthCommand({
+    AuthFlow: 'REFRESH_TOKEN_AUTH',
+    ClientId: COGNITO_CLIENT_ID,
+    AuthParameters: {
+      REFRESH_TOKEN: refreshToken,
+      SECRET_HASH: getSecretHash(username),
+    },
+  });
+
+  const response = await cognitoClient.send(command);
+  console.log('✅ Refresh Token Response:', {
+    hasAuthResult: !!response.AuthenticationResult,
+  });
+  return response;
+};
+
+// === Global Sign Out (Invalidate all tokens) ===
+export const globalSignOut = async (accessToken: string) => {
+  console.log('🔹 Global Sign Out Query');
+
+  const command = new GlobalSignOutCommand({
+    AccessToken: accessToken,
+  });
+
+  const response = await cognitoClient.send(command);
+  console.log('✅ Global Sign Out Response: Success');
+  return response;
+};
+

@@ -1,27 +1,16 @@
 import { Request, Response } from 'express';
 import { respondToNewPasswordChallenge } from '@common/config/cognito-service.js';
-import { apiClientGet } from '@common/config/apiClient.js';
-import { JAVA_API_URL } from '@common/config/env.js';
 import { ProcessStatus, ErrorResponse } from '@common/config/common-types.js';
-import { UserProfile } from '@common/api/get-user.js';
+import { setAuthCookies } from '@common/config/cookie-config.js';
 import { handleNormal, handleBackendError, throwBffError } from '@common/util/response-handler.js';
-import {
-  NewPasswordRequest,
-  NewPasswordResponse,
-  LoginSuccessResponse,
-} from '@product/product-003/bff.type.js';
-
-// Cookie options for security
-const COOKIE_OPTIONS = {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'strict' as const,
-  path: '/',
-};
+import { fetchUserProfile, buildUISession, getRedirectUrl } from '@common/util/auth-utils.js';
+import { NewPasswordRequest, NewPasswordResponse } from '@common/types/auth-types.js';
 
 /**
  * POST /api/auth/new-password
  * Handles NEW_PASSWORD_REQUIRED challenge from Cognito
+ *
+ * This is triggered on first login when a user was created with a temporary password
  */
 export const handle = async (
   req: Request<{}, {}, NewPasswordRequest>,
@@ -33,7 +22,7 @@ export const handle = async (
     // Validate input
     if (!username || !newPassword || !session) {
       console.log('❌ Missing username, newPassword, or session');
-      throwBffError('Username, new password, and session are required', 400);
+      return throwBffError('Username, new password, and session are required', 400);
     }
 
     // TS hint: inputs are valid strings
@@ -51,60 +40,38 @@ export const handle = async (
     );
 
     // Process authentication result
-    if (cognitoResponse.AuthenticationResult) {
-      const { AccessToken, IdToken, RefreshToken } = cognitoResponse.AuthenticationResult;
-
-      console.log('✅ New password set successfully, setting cookies');
-
-      // Set HttpOnly + Secure cookies
-      res.cookie('access_token', AccessToken, {
-        ...COOKIE_OPTIONS,
-        maxAge: 1 * 60 * 60 * 1000, // 1 hour
-      });
-      res.cookie('id_token', IdToken, {
-        ...COOKIE_OPTIONS,
-        maxAge: 1 * 60 * 60 * 1000, // 1 hour
-      });
-      res.cookie('refresh_token', RefreshToken, {
-        ...COOKIE_OPTIONS,
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      });
-
-      // Sync profile from Java backend
-      let userProfile: UserProfile = {};
-      try {
-        console.log('📡 Fetching user profile from Java backend');
-        const javaResponse = await apiClientGet<UserProfile>('/api/v1/users/me', {
-          baseURL: JAVA_API_URL,
-          headers: {
-            Authorization: `Bearer ${IdToken}`,
-          },
-        });
-        userProfile = javaResponse.data;
-        console.log('✅ User profile fetched:', userProfile);
-      } catch (javaError: any) {
-        console.warn('⚠️ Failed to fetch user profile from Java:', javaError.message);
-        // Continue without profile data - user can still access the app
-      }
-
-      const firstLogin = userProfile.onboardingStatus === 'PENDING';
-      const response: LoginSuccessResponse = {
-        processStatus: ProcessStatus.SUCCESS,
-        message: ['Password updated successfully'],
-        user: {
-          role: userProfile.role,
-          budget: userProfile.budget,
-          firstLogin,
-        },
-        redirectUrl: firstLogin ? '/onboarding' : '/dashboard',
-      };
-
-      return handleNormal(res, response);
+    if (!cognitoResponse.AuthenticationResult) {
+      console.error('❌ New password challenge failed - no auth result');
+      return throwBffError('Failed to set new password', 401);
     }
 
-    // Unexpected response from Cognito
-    console.error('❌ Unexpected Cognito response:', cognitoResponse);
-    throwBffError('Failed to set new password');
+    const { AccessToken, IdToken, RefreshToken } = cognitoResponse.AuthenticationResult;
+
+    console.log('✅ New password set successfully, setting HttpOnly cookies');
+
+    // Set HttpOnly cookies (tokens NEVER go to frontend!)
+    setAuthCookies(res, {
+      accessToken: AccessToken,
+      idToken: IdToken,
+      refreshToken: RefreshToken,
+    });
+
+    // Fetch user profile from Java backend
+    const userProfile = await fetchUserProfile(IdToken!);
+
+    // Build frontend-safe UI session
+    const uiSession = buildUISession(userProfile, validUsername);
+    const redirectTo = getRedirectUrl(userProfile);
+
+    const response: NewPasswordResponse = {
+      processStatus: ProcessStatus.SUCCESS,
+      message: ['Password updated successfully'],
+      authenticated: true,
+      session: uiSession,
+      redirectTo,
+    };
+
+    return handleNormal(res, response);
   } catch (err: any) {
     return handleBackendError(res, err);
   }
