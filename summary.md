@@ -11,7 +11,7 @@
 portfolio-fullstack/
 ├── frontend/          # Next.js 15 (React 19) - Turbopack
 ├── bff/               # Express.js BFF Layer (TypeScript)
-├── backend/           # Spring Boot 3.5 (Java 21) - Chưa triển khai
+├── backend/           # Spring Boot 3.5 (Java 21) - Đang triển khai (Profile API ✅)
 ├── nginx/             # Reverse Proxy Gateway
 ├── docker-compose.yml # Container orchestration
 └── TableMaster.sql    # Database schema (MySQL 8.0)
@@ -47,7 +47,7 @@ portfolio-fullstack/
 | serverless-http | 3.2.0     | AWS Lambda deployment ready |
 | tsup            | 8.5.1     | Bundler                     |
 
-### Backend (`/backend`) - **CHƯA TRIỂN KHAI**
+### Backend (`/backend`) - **ĐANG TRIỂN KHAI**
 
 | Công nghệ             | Phiên bản | Mục đích                 |
 | --------------------- | --------- | ------------------------ |
@@ -73,7 +73,7 @@ portfolio-fullstack/
 
 ## 🔐 Flow 1: Secure Onboarding & Compliance
 
-### Trạng thái: **Frontend ✅ | BFF ✅ (đang ở bước session) | Backend ❌**
+### Trạng thái: **Frontend ✅ | BFF ✅ | Backend 🔄 (Đã xong Profile API)**
 
 ### Frontend Views (`/frontend/app`)
 
@@ -248,13 +248,13 @@ ducks/
 
 ## 🐳 Docker Services
 
-| Service  | Container       | Port | Status             |
-| -------- | --------------- | ---- | ------------------ |
-| frontend | react-frontend  | 3000 | ✅ Ready           |
-| bff      | nextjs-bff      | 4000 | ✅ Ready           |
-| backend  | spring-backend  | 8081 | ⚠️ Not implemented |
-| mysql    | mysql           | 3307 | ✅ Ready           |
-| gateway  | gateway (nginx) | 8080 | ✅ Ready           |
+| Service  | Container       | Port | Status                 |
+| -------- | --------------- | ---- | ---------------------- |
+| frontend | react-frontend  | 3000 | ✅ Ready               |
+| bff      | nextjs-bff      | 4000 | ✅ Ready               |
+| backend  | spring-backend  | 8081 | ✅ Ready (Profile API) |
+| mysql    | mysql           | 3307 | ✅ Ready               |
+| gateway  | gateway (nginx) | 8080 | ✅ Ready               |
 
 ### Nginx Routing
 
@@ -288,9 +288,9 @@ cd backend && ./mvnw spring-boot:run
 
 ## ⚠️ Lưu ý Quan trọng
 
-1. **Backend chưa triển khai**: Tất cả backend APIs cần được implement trong Spring Boot
-2. **BFF đang ở Flow 1**: Auth flow hoàn thành, cần thêm APIs cho Flow 2-4
-3. **Session handling**: Đang ở bước xử lý session (cookies đã set, cần integrate với backend)
+1. **Backend đang triển khai**: Đã hoàn thành API User Profile (`GET /me`). Các APIs khác cần được implement tiếp.
+2. **BFF đã integrate với Backend**: Auth flow hoàn thành, BFF gọi Backend lấy profile thành công.
+3. **Session handling**: Đã hoàn tất integrate full flow (Cognito → BFF → Backend).
 4. **LocalStack**: Có thể dùng để emulate AWS Cognito locally (xem conversation history)
 5. **Nginx header size**: Đã fix issue `502 Bad Gateway` do Cognito tokens quá lớn
 

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.my_java_app.mapper.UserProfileMapper">
+
+    <resultMap id="UserProfileResultMap" type="com.example.my_java_app.entity.UserProfileEntity">
+        <id     property="userSub"     column="user_sub"     />
+        <result property="firstName"   column="first_name"   />
+        <result property="lastName"    column="last_name"    />
+        <result property="phoneNumber" column="phone_number" />
+        <result property="avatarUrl"   column="avatar_url"   />
+        <result property="address"     column="address"      />
+        <result property="languageCode" column="language_code" />
+    </resultMap>
+
+    <select id="findByUserSub" parameterType="string" resultMap="UserProfileResultMap">
+        SELECT
+            user_sub,
+            first_name,
+            last_name,
+            phone_number,
+            avatar_url,
+            address,
+            language_code
+        FROM user_profiles
+        WHERE user_sub = #{userSub}
+          AND is_deleted = 0
+    </select>
+
+</mapper>
