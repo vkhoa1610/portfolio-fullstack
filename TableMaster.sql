@@ -130,9 +130,11 @@ CREATE TABLE audit_logs (
 
 -- 1. Tạo Users (Admin & Member) với UUID giả
 -- Giả sử '00000000-0000-0000-0000-000000000001' là SYSTEM/ROOT ADMIN
-INSERT INTO users (cognito_sub, username, email, status, created_by) VALUES 
+INSERT INTO users (cognito_sub, username, email, status, created_by) VALUES
 ('a1b2c3d4-0000-0000-0000-111111111111', 'superadmin', 'admin@sys.com', 'active', 'a1b2c3d4-0000-0000-0000-111111111111'),
-('b2c3d4e5-0000-0000-0000-222222222222', 'nguyenvana', 'vana@gmail.com', 'active', 'a1b2c3d4-0000-0000-0000-111111111111');
+('b2c3d4e5-0000-0000-0000-222222222222', 'nguyenvana', 'vana@gmail.com', 'active', 'a1b2c3d4-0000-0000-0000-111111111111'),
+-- DEV/TEST: Real Cognito user for local onboarding testing
+('47b40a38-2091-70e4-b5cb-a04aa64856f8', 'testuser_dev', 'testuser@dev.local', 'active', 'a1b2c3d4-0000-0000-0000-111111111111');
 
 -- 2. Tạo Roles
 INSERT INTO roles (role_name, description, created_by) VALUES

@@ -30,3 +30,5 @@ docker-compose.override.yml
 # LocalStack
 localstack/cognito-secrets.json
 localstack/cognito-secrets.txt
+
+.claude/
