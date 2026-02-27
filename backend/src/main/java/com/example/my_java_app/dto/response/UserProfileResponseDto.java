@@ -1,11 +1,18 @@
 package com.example.my_java_app.dto.response;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 /**
  * Response DTO cho GET /api/v1/users/me
- * 
+ *
  * Khớp với interface UserProfile trong BFF (bff/src/common/api/get-user.ts):
  * { role?, budget?, onboardingStatus? }
  */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserProfileResponseDto {
 
     /** Role của user: "ADMIN" hoặc "MEMBER" (từ bảng roles) */
@@ -23,37 +30,4 @@ public class UserProfileResponseDto {
      * - "PENDING" : chưa hoàn thành profile
      */
     private String onboardingStatus;
-
-    public UserProfileResponseDto() {
-    }
-
-    public UserProfileResponseDto(String role, int budget, String onboardingStatus) {
-        this.role = role;
-        this.budget = budget;
-        this.onboardingStatus = onboardingStatus;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public int getBudget() {
-        return budget;
-    }
-
-    public String getOnboardingStatus() {
-        return onboardingStatus;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
-
-    public void setBudget(int budget) {
-        this.budget = budget;
-    }
-
-    public void setOnboardingStatus(String onboardingStatus) {
-        this.onboardingStatus = onboardingStatus;
-    }
 }
