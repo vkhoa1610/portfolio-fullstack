@@ -29,6 +29,10 @@ COPY . .
 # Disable telemetry
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# Inject BFF URL at build time for next.config.ts rewrites()
+ARG BFF_INTERNAL_URL=http://nextjs-bff:4000
+ENV BFF_INTERNAL_URL=$BFF_INTERNAL_URL
+
 # Build the application
 RUN npm run build
 
