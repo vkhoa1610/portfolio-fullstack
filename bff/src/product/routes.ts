@@ -6,6 +6,8 @@ import { bffProduct004 } from "@product/product-004/index.js";
 import { bffProduct005 } from "@product/product-005/index.js";
 import { bffProduct006 } from "@product/product-006/index.js";
 import { bffProduct007 } from "@product/product-007/index.js";
+import { bffProduct008 } from "@product/product-008/index.js";
+import { bffProduct009 } from "@product/product-009/index.js";
 
 const bffSetting = [
   bffProduct001,
@@ -15,6 +17,8 @@ const bffSetting = [
   bffProduct005, // POST /auth/mfa
   bffProduct006, // GET /auth/session
   bffProduct007, // POST /auth/logout
+  bffProduct008, // POST /onboarding/consent
+  bffProduct009, // POST /onboarding/profile
 ];
 
 export const createRouter = () => {

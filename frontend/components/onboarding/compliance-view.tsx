@@ -3,13 +3,22 @@
 import React, { useState } from "react";
 import { Lock, Shield, ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useRouter } from "next/navigation";
 import { AdCard, AdButton, AdCheckbox, LanguageSwitcher } from "@/common";
+import { useSubmitConsentMutation } from "@/ducks/auth";
 
 export default function ComplianceView() {
   const { t } = useTranslation();
+  const router = useRouter();
   const [checked1, setChecked1] = useState(false);
   const [checked2, setChecked2] = useState(false);
   const canProceed = checked1 && checked2;
+  const [submitConsent, { isLoading }] = useSubmitConsentMutation();
+
+  const handleContinue = async () => {
+    await submitConsent({ policyIds: [1, 2] }).unwrap();
+    router.push('/onboarding/profile');
+  };
 
   return (
     <AdCard className="relative flex max-h-[90vh] w-full max-w-[500px] flex-col">
@@ -72,7 +81,8 @@ export default function ComplianceView() {
 
         {/* Logic Button */}
         <AdButton
-          disabled={!canProceed}
+          disabled={!canProceed || isLoading}
+          onClick={handleContinue}
           variant="secondary"
           fullWidth
           endIcon={<ArrowRight className="h-4 w-4" />}

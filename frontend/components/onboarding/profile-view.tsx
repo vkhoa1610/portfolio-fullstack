@@ -3,15 +3,27 @@
 import React from "react";
 import { UserCog, Globe, ShieldCheck, Info, ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useRouter } from "next/navigation";
 import { AdCard, AdButton, AdSelect } from "@/common";
 import { LANGUAGE_NAMES, type SupportedLanguage } from "@/lib/i18n";
+import { useGetSessionQuery, useSubmitProfileMutation } from "@/ducks/auth";
 
 export default function ProfileView() {
   const { t, i18n } = useTranslation();
+  const router = useRouter();
+  const { data: sessionData } = useGetSessionQuery();
+  const [submitProfile, { isLoading }] = useSubmitProfileMutation();
+
+  const role = sessionData?.session?.user?.role ?? 'EMPLOYEE';
 
   const handleLanguageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const newLanguage = event.target.value as SupportedLanguage;
     i18n.changeLanguage(newLanguage);
+  };
+
+  const handleSubmit = async () => {
+    await submitProfile({ languageCode: i18n.language }).unwrap();
+    router.push('/dashboard');
   };
 
   return (
@@ -63,7 +75,7 @@ export default function ProfileView() {
               </p>
               <div className="flex items-center gap-2">
                 <span className="text-sm font-bold text-neutral-900">
-                  {t("onboarding.profile.role_value")}
+                  {role}
                 </span>
                 <span
                   className="inline-flex h-6 w-6 items-center justify-center rounded bg-neutral-200 text-[10px] font-bold text-neutral-600"
@@ -96,6 +108,8 @@ export default function ProfileView() {
         <AdButton
           variant="secondary"
           fullWidth
+          disabled={isLoading}
+          onClick={handleSubmit}
           endIcon={
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           }

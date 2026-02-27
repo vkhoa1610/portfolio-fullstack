@@ -29,4 +29,13 @@
           AND is_deleted = 0
     </select>
 
+    <insert id="insertProfile">
+        INSERT INTO user_profiles (user_sub, language_code, created_by)
+        VALUES (#{userSub}, #{languageCode}, #{userSub})
+        ON DUPLICATE KEY UPDATE
+            language_code = #{languageCode},
+            updated_by    = #{userSub},
+            updated_at    = CURRENT_TIMESTAMP
+    </insert>
+
 </mapper>

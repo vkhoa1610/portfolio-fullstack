@@ -14,7 +14,7 @@
 export interface UISession {
   user: {
     email: string;
-    role: 'USER' | 'ADMIN';
+    role: 'EMPLOYEE' | 'MANAGER' | 'FINANCE';
   };
   budget: number;
   onboardingStatus: 'PENDING' | 'DONE';
@@ -127,3 +127,25 @@ export const isNewPasswordRequired = (
 export const isLoginSuccess = (response: LoginResponse): response is LoginSuccessResponse => {
   return 'authenticated' in response && response.authenticated === true;
 };
+
+// ============================================================================
+// ONBOARDING TYPES
+// ============================================================================
+
+export interface ConsentRequest {
+  policyIds: number[];
+}
+
+export interface ConsentResponse {
+  processStatus: number;
+  message: string[];
+}
+
+export interface ProfileSetupRequest {
+  languageCode: string;
+}
+
+export interface ProfileSetupResponse {
+  processStatus: number;
+  message: string[];
+}

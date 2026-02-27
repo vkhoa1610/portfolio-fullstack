@@ -1,7 +1,7 @@
 # Portfolio Fullstack - Project Summary
 
 > **Mục đích**: Tài liệu tổng hợp để AI có thể nhanh chóng hiểu cấu trúc project mà không cần scan toàn bộ codebase.
-> **Cập nhật lần cuối**: 2026-01-05
+> **Cập nhật lần cuối**: 2026-02-27
 
 ---
 
@@ -73,52 +73,79 @@ portfolio-fullstack/
 
 ## 🔐 Flow 1: Secure Onboarding & Compliance
 
-### Trạng thái: **Frontend ✅ | BFF ✅ | Backend 🔄 (Đã xong Profile API)**
+### Trạng thái tổng quan
+
+| Layer    | Login | MFA | New Password | Session | Redirect by status | GDPR Consent | Profile Setup |
+| -------- | ----- | --- | ------------ | ------- | ------------------ | ------------ | ------------- |
+| Frontend | ✅    | ✅  | ✅           | ✅      | ✅                 | ✅           | ✅            |
+| BFF      | ✅    | ✅  | ✅           | ✅      | ✅                 | ✅           | ✅            |
+| Backend  | ✅    | -   | -            | ✅      | ✅ (via /me API)   | ✅           | ✅            |
 
 ### Frontend Views (`/frontend/app`)
 
 ```
+middleware.ts                    # ✅ Route protection (redirect /auth/login nếu không có cookie)
 app/
-├── login/page.tsx           # Login screen
-├── auth/                    # Auth routes (SSO callback)
+├── auth/login/page.tsx          # Login screen
+├── auth/mfa/page.tsx            # MFA OTP verification
+├── auth/new-password/page.tsx   # First-login password change
 └── (protected)/
+    ├── layout.tsx               # Protected layout
     └── onboarding/
-        ├── layout.tsx       # Onboarding layout
-        ├── compliance/      # GDPR & Policy consent
-        └── profile/         # Profile localization
+        ├── page.tsx             # ✅ Redirect → /onboarding/compliance
+        ├── layout.tsx           # Onboarding layout
+        ├── compliance/page.tsx  # ✅ GDPR & Policy consent (wire submit done)
+        └── profile/page.tsx     # ✅ Language + role thật (wire submit done)
 ```
 
 ### BFF Endpoints (`/bff/src/product`)
 
-| Endpoint                 | Method | File        | Chức năng                      |
-| ------------------------ | ------ | ----------- | ------------------------------ |
-| `/api/auth/login`        | POST   | product-003 | Email/Password login → Cognito |
-| `/api/auth/mfa`          | POST   | product-005 | MFA verification (TOTP)        |
-| `/api/auth/session`      | GET    | product-006 | Get current session            |
-| `/api/auth/logout`       | POST   | product-007 | Logout & clear cookies         |
-| `/api/auth/new-password` | POST   | product-004 | Handle NEW_PASSWORD_REQUIRED   |
+| Endpoint                    | Method | File        | Chức năng                      | Trạng thái |
+| --------------------------- | ------ | ----------- | ------------------------------ | ---------- |
+| `/api/auth/login`           | POST   | product-003 | Email/Password login → Cognito | ✅ Done    |
+| `/api/auth/mfa`             | POST   | product-005 | MFA verification (TOTP)        | ✅ Done    |
+| `/api/auth/session`         | GET    | product-006 | Get current session            | ✅ Done    |
+| `/api/auth/logout`          | POST   | product-007 | Logout & clear cookies         | ✅ Done    |
+| `/api/auth/new-password`    | POST   | product-004 | Handle NEW_PASSWORD_REQUIRED   | ✅ Done    |
+| `/api/onboarding/consent`   | POST   | product-008 | Ghi nhận GDPR + ToS consent    | ✅ Done    |
+| `/api/onboarding/profile`   | POST   | product-009 | Lưu language → tạo profile     | ✅ Done    |
 
-### Auth Flow Logic (từ `product-003/controller.ts`)
+### Auth Flow Logic
 
 ```
 Login Request
     │
     ├─► MFA Required (SOFTWARE_TOKEN_MFA)
-    │       → Return session token for MFA step
+    │       → product-005: verify OTP → Set HttpOnly cookies → Return session
     │
     ├─► New Password Required (NEW_PASSWORD_REQUIRED)
-    │       → Return session token for password change
+    │       → product-004: set new password → Set HttpOnly cookies → Return session
     │
     └─► Success (AuthenticationResult)
             → Set HttpOnly cookies (access_token, id_token, refresh_token)
-            → Fetch user profile from backend
-            → Return UI session + redirect URL
+            → Fetch user profile từ backend (GET /api/v1/users/me)
+            → Build UISession: { user: { email, role }, budget, onboardingStatus }
+            → Return redirectTo: '/onboarding' (PENDING) | '/dashboard' (DONE)
 ```
+
+### Redirect Logic (hiện tại)
+
+- **Dựa trên `onboardingStatus`** (từ backend `/api/v1/users/me`):
+  - `PENDING` → `/onboarding` → `/onboarding/compliance` (middleware bảo vệ)
+  - `DONE` → `/dashboard`
+- **Role** (`EMPLOYEE`/`MANAGER`/`FINANCE`) có trong UISession
+- ⚠️ Role-based routing sang màn hình riêng (my-expenses/manager/finance) → **cần implement tiếp**
 
 ### Cookie Strategy
 
 - **HttpOnly cookies**: Tokens KHÔNG bao giờ expose ra frontend
 - **Nginx buffer size**: Đã tăng `proxy_buffer_size` để handle large Cognito tokens
+- **SameSite=Strict + Secure**: CSRF protection
+
+### ⚠️ Còn thiếu (Flow 1)
+
+1. **Role-based routing**: Login xong → route theo role (Employee→my-expenses, Manager→manager, Finance→finance)
+2. **SSO (Azure AD/Okta)**: Chưa implement
 
 ---
 
@@ -186,7 +213,7 @@ my-expenses/
 | Table           | Mục đích                                 |
 | --------------- | ---------------------------------------- |
 | `users`         | Core user (PK = `cognito_sub` UUID)      |
-| `roles`         | Role definitions (ADMIN, MEMBER, etc.)   |
+| `roles`         | Role definitions (EMPLOYEE, MANAGER, FINANCE) |
 | `user_roles`    | Many-to-many user ↔ role                 |
 | `user_profiles` | Profile details (name, language, avatar) |
 | `policies`      | GDPR/Legal documents (versioned)         |
@@ -286,6 +313,14 @@ cd backend && ./mvnw spring-boot:run
 
 ---
 
+## 🐛 Bugs đã fix (2026-02-27)
+
+| Bug | Root Cause | Fix |
+| --- | ---------- | --- |
+| `localhost:3000` login không hoạt động | Next.js không có route `/api/*`, requests không đến BFF | Thêm `rewrites()` trong `next.config.ts` để proxy `/api/*` → BFF |
+| BFF không gọi được backend trong Docker | `JAVA_API_URL` không set → default `localhost:8080` trỏ sai | Thêm `JAVA_API_URL=http://spring-backend:8080` vào BFF service |
+| Rewrite vẫn dùng `localhost:4000` dù đã set env | Next.js rewrites compile lúc `next build`, không phải runtime | Thêm `ARG BFF_INTERNAL_URL` vào Dockerfile builder stage trước `npm run build` |
+
 ## ⚠️ Lưu ý Quan trọng
 
 1. **Backend đang triển khai**: Đã hoàn thành API User Profile (`GET /me`). Các APIs khác cần được implement tiếp.
@@ -293,6 +328,7 @@ cd backend && ./mvnw spring-boot:run
 3. **Session handling**: Đã hoàn tất integrate full flow (Cognito → BFF → Backend).
 4. **LocalStack**: Có thể dùng để emulate AWS Cognito locally (xem conversation history)
 5. **Nginx header size**: Đã fix issue `502 Bad Gateway` do Cognito tokens quá lớn
+6. **Next.js rewrites là build-time**: Mọi env var dùng trong `next.config.ts` phải được truyền qua Docker build `ARG`, không phải runtime `ENV`
 
 ---
 

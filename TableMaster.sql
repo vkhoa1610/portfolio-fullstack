@@ -135,14 +135,15 @@ INSERT INTO users (cognito_sub, username, email, status, created_by) VALUES
 ('b2c3d4e5-0000-0000-0000-222222222222', 'nguyenvana', 'vana@gmail.com', 'active', 'a1b2c3d4-0000-0000-0000-111111111111');
 
 -- 2. Tạo Roles
-INSERT INTO roles (role_name, description, created_by) VALUES 
-('ADMIN', 'System Administrator', 'a1b2c3d4-0000-0000-0000-111111111111'),
-('MEMBER', 'Standard User', 'a1b2c3d4-0000-0000-0000-111111111111');
+INSERT INTO roles (role_name, description, created_by) VALUES
+('EMPLOYEE', 'Standard employee', 'a1b2c3d4-0000-0000-0000-111111111111'),
+('MANAGER', 'Team manager', 'a1b2c3d4-0000-0000-0000-111111111111'),
+('FINANCE', 'Finance accountant', 'a1b2c3d4-0000-0000-0000-111111111111');
 
 -- 3. Gán quyền (Dùng UUID user)
-INSERT INTO user_roles (user_sub, role_id, created_by) VALUES 
-('a1b2c3d4-0000-0000-0000-111111111111', 1, 'a1b2c3d4-0000-0000-0000-111111111111'), -- Admin
-('b2c3d4e5-0000-0000-0000-222222222222', 2, 'a1b2c3d4-0000-0000-0000-111111111111'); -- User A
+INSERT INTO user_roles (user_sub, role_id, created_by) VALUES
+('a1b2c3d4-0000-0000-0000-111111111111', 2, 'a1b2c3d4-0000-0000-0000-111111111111'), -- Manager
+('b2c3d4e5-0000-0000-0000-222222222222', 1, 'a1b2c3d4-0000-0000-0000-111111111111'); -- Employee
 
 -- 4. Tạo Profile
 INSERT INTO user_profiles (user_sub, first_name, last_name, created_by) VALUES 

@@ -38,9 +38,9 @@ public class UserProfileService {
         // ─── 1. Lấy danh sách roles ───────────────────────────────────
         List<RoleEntity> roles = roleRepository.findRolesByUserSub(cognitoSub);
 
-        // Lấy role đầu tiên, mặc định "MEMBER" nếu chưa được gán role
+        // Lấy role đầu tiên, mặc định "EMPLOYEE" nếu chưa được gán role
         String role = roles.isEmpty()
-                ? "MEMBER"
+                ? "EMPLOYEE"
                 : roles.get(0).getRoleName();
 
         // ─── 2. Kiểm tra profile để xác định onboardingStatus ─────────

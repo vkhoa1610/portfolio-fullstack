@@ -11,7 +11,7 @@ import { useAuth } from "@/common/context/AuthContext";
 interface ProtectedRouteProps {
   children: React.ReactNode;
   /** Required role to access this route */
-  requiredRole?: "USER" | "ADMIN";
+  requiredRole?: "EMPLOYEE" | "MANAGER" | "FINANCE";
   /** Custom redirect path (default: /auth/login) */
   redirectTo?: string;
   /** Custom loading component */
@@ -32,8 +32,8 @@ interface ProtectedRouteProps {
  *   <DashboardContent />
  * </ProtectedRoute>
  *
- * <ProtectedRoute requiredRole="ADMIN">
- *   <AdminPanel />
+ * <ProtectedRoute requiredRole="MANAGER">
+ *   <ManagerPanel />
  * </ProtectedRoute>
  * ```
  */

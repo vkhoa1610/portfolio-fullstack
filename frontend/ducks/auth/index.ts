@@ -7,6 +7,8 @@ export {
   useGetSessionQuery,
   useLazyGetSessionQuery,
   useLogoutMutation,
+  useSubmitConsentMutation,
+  useSubmitProfileMutation,
 } from './authApi';
 
 // Auth types

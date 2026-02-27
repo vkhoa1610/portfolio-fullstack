@@ -8,6 +8,10 @@ import {
   NewPasswordResponse,
   SessionResponse,
   LogoutResponse,
+  ConsentRequest,
+  ConsentResponse,
+  ProfileSetupRequest,
+  ProfileSetupResponse,
 } from './types';
 
 /**
@@ -78,6 +82,29 @@ export const authApi = createApi({
       }),
       invalidatesTags: ['Session'],
     }),
+
+    // ─────────────────────────────────────────────────────────────────
+    // Onboarding - Submit consent (GDPR + Terms)
+    // ─────────────────────────────────────────────────────────────────
+    submitConsent: builder.mutation<ConsentResponse, ConsentRequest>({
+      query: (body) => ({
+        url: '/onboarding/consent',
+        method: 'POST',
+        body,
+      }),
+    }),
+
+    // ─────────────────────────────────────────────────────────────────
+    // Onboarding - Submit profile (language selection)
+    // ─────────────────────────────────────────────────────────────────
+    submitProfile: builder.mutation<ProfileSetupResponse, ProfileSetupRequest>({
+      query: (body) => ({
+        url: '/onboarding/profile',
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: ['Session'],
+    }),
   }),
 });
 
@@ -89,4 +116,6 @@ export const {
   useGetSessionQuery,
   useLazyGetSessionQuery,
   useLogoutMutation,
+  useSubmitConsentMutation,
+  useSubmitProfileMutation,
 } = authApi;

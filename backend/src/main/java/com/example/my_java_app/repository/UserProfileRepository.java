@@ -15,4 +15,8 @@ public class UserProfileRepository {
     public UserProfileEntity findByUserSub(String userSub) {
         return mapper.findByUserSub(userSub);
     }
+
+    public void saveProfile(String userSub, String languageCode) {
+        mapper.insertProfile(userSub, languageCode);
+    }
 }

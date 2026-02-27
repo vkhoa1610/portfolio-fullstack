@@ -6,4 +6,6 @@ export const BFF_ENDPOINTS = {
   AUTH_005: '/auth/session',
   AUTH_006: '/auth/logout',
   AUTH_007: '/auth/refresh',
+  ONBOARDING_001: '/onboarding/consent',
+  ONBOARDING_002: '/onboarding/profile',
 } as const;
