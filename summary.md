@@ -1,7 +1,7 @@
 # Portfolio Fullstack - Project Summary
 
 > **Mục đích**: Tài liệu tổng hợp để AI có thể nhanh chóng hiểu cấu trúc project mà không cần scan toàn bộ codebase.
-> **Cập nhật lần cuối**: 2026-02-28
+> **Cập nhật lần cuối**: 2026-02-28 (Session 2: MinIO S3 storage)
 
 ---
 
@@ -55,6 +55,7 @@ portfolio-fullstack/
 | Java                  | 21        | Runtime                  |
 | MyBatis               | 3.0.5     | ORM                      |
 | MySQL Connector       | -         | Database driver          |
+| AWS SDK v2 (S3)       | 2.25.0    | MinIO/S3 presigned URLs  |
 | Spring Cloud (Eureka) | 2025.0.0  | Microservices (optional) |
 | SpringDoc OpenAPI     | 2.8.9     | API Documentation        |
 | Lombok                | -         | Boilerplate reduction    |
@@ -67,6 +68,7 @@ portfolio-fullstack/
 | Nginx Alpine   | Reverse proxy (port 8080) |
 | MySQL 8.0      | Database (port 3307)      |
 | AWS Cognito    | Authentication service    |
+| MinIO          | S3-compatible object storage (receipts, port 9000/9001) |
 | LocalStack     | Local AWS emulation (dev) |
 
 ---
@@ -198,7 +200,7 @@ app/(protected)/
 components/
 ├── expenses/
 │   ├── expense-type-selector.tsx    # 3 card buttons (Camera/Calendar/Car)
-│   ├── scan-view.tsx                # Upload step + OCR result split view
+│   ├── scan-view.tsx                # Presigned PUT upload → MinIO → Mock OCR split view
 │   ├── per-diem-view.tsx            # Country rates (DE=28€, AT=26.4€, CH=35€)
 │   ├── mileage-view.tsx             # RATE_PER_KM=0.30, auto-calc total
 │   ├── expense-list-view.tsx        # List with status badges
@@ -211,7 +213,7 @@ components/
     └── overview-view.tsx            # KPI + expenses table
 ```
 
-### BFF Endpoints (product-010 → product-017)
+### BFF Endpoints (product-010 → product-018)
 
 | Product | Method | Endpoint | Chức năng |
 | ------- | ------ | -------- | --------- |
@@ -223,6 +225,7 @@ components/
 | product-015 | GET | `/manager/expenses` | Pending queue cho Manager |
 | product-016 | PUT | `/manager/expenses/:id/approve` | Approve expense |
 | product-017 | PUT | `/manager/expenses/:id/reject` | Reject (cần rejectionReason) |
+| product-018 | GET | `/expenses/upload-url?filename=xxx` | Lấy presigned PUT URL để upload thẳng lên MinIO |
 
 ### Expense Types (German Compliance)
 
@@ -236,8 +239,9 @@ components/
 
 ```
 ducks/expenses/
-├── types.ts        # ExpenseType, ExpenseStatus, Expense, ScanResponse
-├── expenseApi.ts   # 8 endpoints với cache invalidation (tags: Expense, ManagerQueue)
+├── types.ts        # ExpenseType, ExpenseStatus, Expense, ScanResponse, UploadUrlResponse
+├── expenseApi.ts   # 9 endpoints với cache invalidation (tags: Expense, ManagerQueue)
+│                   # Thêm: getUploadUrl (GET presigned URL), scanReceipt nhận { fileUrl }
 └── index.ts        # Re-exports
 ```
 
@@ -342,13 +346,15 @@ ducks/
 
 ## 🐳 Docker Services
 
-| Service  | Container       | Port | Status                 |
-| -------- | --------------- | ---- | ---------------------- |
-| frontend | react-frontend  | 3000 | ✅ Ready               |
-| bff      | nextjs-bff      | 4000 | ✅ Ready               |
-| backend  | spring-backend  | 8081 | ✅ Ready (Profile API) |
-| mysql    | mysql           | 3307 | ✅ Ready               |
-| gateway  | gateway (nginx) | 8080 | ✅ Ready               |
+| Service    | Container       | Port      | Status                 |
+| ---------- | --------------- | --------- | ---------------------- |
+| frontend   | react-frontend  | 3000      | ✅ Ready               |
+| bff        | nextjs-bff      | 4000      | ✅ Ready               |
+| backend    | spring-backend  | 8081      | ✅ Ready (Profile API) |
+| mysql      | mysql           | 3307      | ✅ Ready               |
+| gateway    | gateway (nginx) | 8080      | ✅ Ready               |
+| minio      | minio           | 9000/9001 | ✅ Ready (S3-compatible object storage) |
+| minio-init | minio-init      | —         | ✅ Init-only (tạo bucket `receipts` + CORS) |
 
 ### Nginx Routing
 
@@ -390,14 +396,17 @@ cd backend && ./mvnw spring-boot:run
 
 ## ⚠️ Lưu ý Quan trọng
 
-1. **Backend Flow 2 hoàn thành**: Expense APIs + Manager APIs đã implement đầy đủ.
-2. **BFF products 001–017**: Auth (001-009) + Expense/Manager (010-017) đều done.
+1. **Backend Flow 2 hoàn thành**: Expense APIs + Manager APIs + Storage APIs đã implement đầy đủ.
+2. **BFF products 001–018**: Auth (001-009) + Expense/Manager/Storage (010-018) đều done.
 3. **Session handling**: Đã hoàn tất integrate full flow (Cognito → BFF → Backend).
 4. **Mock OCR**: `ExpenseService.mockScan()` trả hardcoded data (REWE GmbH, 47.80€). Thay bằng real OCR sau.
-5. **Route ordering quan trọng**: BFF `/expenses/scan` (product-014) phải register **trước** `/expenses/:id` (product-012) để tránh route conflict.
-6. **LocalStack**: Có thể dùng để emulate AWS Cognito locally (xem conversation history)
-7. **Nginx header size**: Đã fix issue `502 Bad Gateway` do Cognito tokens quá lớn
-8. **Next.js rewrites là build-time**: Mọi env var dùng trong `next.config.ts` phải được truyền qua Docker build `ARG`, không phải runtime `ENV`
+5. **Route ordering quan trọng**: BFF phải register theo thứ tự: product-018 (`/expenses/upload-url`) → product-014 (`/expenses/scan`) → product-012 (`/expenses/:id`) để tránh route conflict.
+6. **MinIO presigned URL — path-style bắt buộc**: `S3Presigner` cần `S3Configuration.pathStyleAccessEnabled(true)`, không thì SDK dùng virtual-hosted style (`bucket.localhost:9000`) → browser 400.
+7. **MinIO endpoint phân ly**: `S3Client` dùng internal endpoint (`http://minio:9000`); `S3Presigner` dùng public endpoint (`http://localhost:9000`) để browser truy cập được URL được sign.
+8. **CORS MinIO**: Được cấu hình qua `minio-init` container (`mc cors set`). Không nên dùng Java SDK để init CORS/bucket vì MinIO XML parser có thể lỗi.
+9. **LocalStack**: Có thể dùng để emulate AWS Cognito locally (xem conversation history)
+10. **Nginx header size**: Đã fix issue `502 Bad Gateway` do Cognito tokens quá lớn
+11. **Next.js rewrites là build-time**: Mọi env var dùng trong `next.config.ts` phải được truyền qua Docker build `ARG`, không phải runtime `ENV`
 
 ---
 

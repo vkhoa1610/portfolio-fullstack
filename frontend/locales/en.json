@@ -93,6 +93,7 @@
       "label_vat": "VAT",
       "btn_save": "Save",
       "saving": "Saving…",
+      "uploading": "Uploading…",
       "analyzing": "Analyzing…",
       "ai_complete": "AI Extraction Complete",
       "ai_warnings": "AI Warnings"
@@ -189,5 +190,18 @@
       "kpi_approved": "Approved",
       "btn_export": "Export CSV"
     }
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "my_expenses": "My Expenses",
+    "create": "New Expense",
+    "scan": "Scan Receipt",
+    "per_diem": "Per Diem",
+    "mileage": "Mileage",
+    "review": "Review",
+    "approvals": "Approvals",
+    "finance": "Finance",
+    "overview": "Overview",
+    "detail": "Detail"
   }
 }

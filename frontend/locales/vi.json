@@ -93,6 +93,7 @@
       "label_vat": "Thuế VAT",
       "btn_save": "Lưu",
       "saving": "Đang lưu…",
+      "uploading": "Đang tải lên…",
       "analyzing": "Đang phân tích…",
       "ai_complete": "AI đã trích xuất xong",
       "ai_warnings": "Cảnh báo AI"
@@ -189,5 +190,18 @@
       "kpi_approved": "Đã duyệt",
       "btn_export": "Xuất CSV"
     }
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "my_expenses": "Chi phí của tôi",
+    "create": "Tạo chi phí",
+    "scan": "Quét hóa đơn",
+    "per_diem": "Phụ cấp công tác",
+    "mileage": "Phụ cấp km",
+    "review": "Xem xét",
+    "approvals": "Phê duyệt",
+    "finance": "Tài chính",
+    "overview": "Tổng quan",
+    "detail": "Chi tiết"
   }
 }

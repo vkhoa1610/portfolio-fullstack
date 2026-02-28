@@ -93,6 +93,7 @@
       "label_vat": "MwSt",
       "btn_save": "Speichern",
       "saving": "Speichern…",
+      "uploading": "Hochladen…",
       "analyzing": "Analysieren…",
       "ai_complete": "KI-Extraktion abgeschlossen",
       "ai_warnings": "KI-Warnungen"
@@ -189,5 +190,18 @@
       "kpi_approved": "Genehmigt",
       "btn_export": "CSV exportieren"
     }
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "my_expenses": "Meine Ausgaben",
+    "create": "Neue Ausgabe",
+    "scan": "Beleg scannen",
+    "per_diem": "Verpflegung",
+    "mileage": "Kilometerpauschale",
+    "review": "Überprüfen",
+    "approvals": "Genehmigungen",
+    "finance": "Finanzen",
+    "overview": "Übersicht",
+    "detail": "Details"
   }
 }

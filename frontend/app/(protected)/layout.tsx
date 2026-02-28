@@ -1,5 +1,6 @@
 // app/(protected)/layout.tsx
 import React from "react";
+import { Breadcrumb } from "@/common";
 
 export default function ProtectedDashboardLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -48,9 +49,9 @@ export default function ProtectedDashboardLayout({ children }: { children: React
 
       {/* 3. MAIN CONTENT AREA */}
       <main className="relative z-10 flex flex-1 flex-col overflow-hidden">
-        {/* Header (Mobile menu + Breadcrumbs) */}
+        {/* Header (Breadcrumbs + Actions) */}
         <header className="flex h-16 items-center justify-between border-b border-black/5 bg-white/30 px-6 backdrop-blur-sm">
-          <h1 className="text-lg font-semibold text-gray-800">Dashboard</h1>
+          <Breadcrumb />
           <div className="flex items-center gap-4">
             {/* Bell Icon Mockup */}
             <button className="h-8 w-8 rounded-full bg-white/50 p-1.5 text-gray-600 hover:bg-white">

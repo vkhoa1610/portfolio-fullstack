@@ -12,6 +12,7 @@ export const BFF_ENDPOINTS = {
   EXPENSE_002: '/expenses/:id',
   EXPENSE_003: '/expenses/:id/submit',
   EXPENSE_004: '/expenses/scan',
+  EXPENSE_005: '/expenses/upload-url',
   MANAGER_001: '/manager/expenses',
   MANAGER_002: '/manager/expenses/:id/approve',
   MANAGER_003: '/manager/expenses/:id/reject',

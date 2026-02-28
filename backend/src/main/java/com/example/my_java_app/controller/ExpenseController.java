@@ -3,12 +3,15 @@ package com.example.my_java_app.controller;
 import com.example.my_java_app.dto.request.CreateExpenseRequestDto;
 import com.example.my_java_app.dto.response.ExpenseResponseDto;
 import com.example.my_java_app.dto.response.ScanResponseDto;
+import com.example.my_java_app.dto.response.UploadUrlResponseDto;
 import com.example.my_java_app.service.ExpenseService;
+import com.example.my_java_app.service.StorageService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Expense API (v1)
@@ -19,9 +22,11 @@ import java.util.List;
 public class ExpenseController extends BaseController {
 
     private final ExpenseService expenseService;
+    private final StorageService storageService;
 
-    public ExpenseController(ExpenseService expenseService) {
+    public ExpenseController(ExpenseService expenseService, StorageService storageService) {
         this.expenseService = expenseService;
+        this.storageService = storageService;
     }
 
     /** POST /api/v1/expenses — tạo expense (lưu DRAFT) */
@@ -53,9 +58,15 @@ public class ExpenseController extends BaseController {
         return ResponseEntity.ok().build();
     }
 
-    /** POST /api/v1/expenses/scan — Mock OCR: trả dữ liệu giả từ ảnh */
+    /** GET /api/v1/expenses/upload-url?filename=xxx — Presigned PUT URL để upload thẳng lên MinIO */
+    @GetMapping("/upload-url")
+    public ResponseEntity<UploadUrlResponseDto> getUploadUrl(@RequestParam String filename) {
+        return ok(storageService.generateUploadUrl(filename));
+    }
+
+    /** POST /api/v1/expenses/scan — Mock OCR (fileUrl ignored for now, returns test data) */
     @PostMapping("/scan")
-    public ResponseEntity<ScanResponseDto> scan() {
+    public ResponseEntity<ScanResponseDto> scan(@RequestBody(required = false) Map<String, String> body) {
         return ok(expenseService.mockScan());
     }
 }

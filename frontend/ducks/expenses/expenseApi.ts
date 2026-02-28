@@ -3,6 +3,7 @@ import {
   Expense,
   CreateExpenseRequest,
   ScanResponse,
+  UploadUrlResponse,
   RejectExpenseRequest,
 } from './types';
 
@@ -55,13 +56,23 @@ export const expenseApi = createApi({
     }),
 
     // ─────────────────────────────────────────────────────
-    // EMPLOYEE: Upload receipt → Mock OCR
+    // EMPLOYEE: Get presigned PUT URL để upload thẳng lên MinIO
     // ─────────────────────────────────────────────────────
-    scanReceipt: builder.mutation<ScanResponse, FormData>({
-      query: (formData) => ({
+    getUploadUrl: builder.mutation<UploadUrlResponse, string>({
+      query: (filename) => ({
+        url: `/expenses/upload-url?filename=${encodeURIComponent(filename)}`,
+        method: 'GET',
+      }),
+    }),
+
+    // ─────────────────────────────────────────────────────
+    // EMPLOYEE: Scan receipt (gửi fileUrl sau khi upload xong) → Mock OCR
+    // ─────────────────────────────────────────────────────
+    scanReceipt: builder.mutation<ScanResponse, { fileUrl: string }>({
+      query: (body) => ({
         url: '/expenses/scan',
         method: 'POST',
-        body: formData,
+        body,
       }),
     }),
 
@@ -103,6 +114,7 @@ export const {
   useGetExpenseByIdQuery,
   useCreateExpenseMutation,
   useSubmitExpenseMutation,
+  useGetUploadUrlMutation,
   useScanReceiptMutation,
   useGetManagerQueueQuery,
   useApproveExpenseMutation,

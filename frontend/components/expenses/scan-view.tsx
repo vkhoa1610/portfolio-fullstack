@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { Upload, AlertTriangle, CheckCircle2 } from "lucide-react";
-import { useScanReceiptMutation, useCreateExpenseMutation } from "@/ducks/expenses";
+import { useGetUploadUrlMutation, useScanReceiptMutation, useCreateExpenseMutation } from "@/ducks/expenses";
 import type { ScanResponse } from "@/ducks/expenses";
 
 export default function ScanView() {
@@ -14,28 +14,57 @@ export default function ScanView() {
 
   const [scanResult, setScanResult] = useState<ScanResponse | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [uploadedFileUrl, setUploadedFileUrl] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [form, setForm] = useState({ vendor: "", date: "", amount: "", vatAmount: "" });
 
+  const [getUploadUrl] = useGetUploadUrlMutation();
   const [scanReceipt, { isLoading: isScanning }] = useScanReceiptMutation();
   const [createExpense, { isLoading: isSaving }] = useCreateExpenseMutation();
+
+  const isProcessing = isUploading || isScanning;
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // 1. Show local preview immediately
     setPreviewUrl(URL.createObjectURL(file));
+    setIsUploading(true);
 
-    const formData = new FormData();
-    formData.append("file", file);
+    setUploadError(null);
+    try {
+      // 2. Get presigned PUT URL from backend (via BFF)
+      const { uploadUrl, fileUrl } = await getUploadUrl(file.name).unwrap();
 
-    const result = await scanReceipt(formData).unwrap();
-    setScanResult(result);
-    setForm({
-      vendor: result.vendor,
-      date: result.date,
-      amount: String(result.amount),
-      vatAmount: String(result.vatAmount),
-    });
+      // 3. Upload file directly to MinIO (bypasses backend)
+      const putRes = await fetch(uploadUrl, {
+        method: "PUT",
+        body: file,
+        headers: { "Content-Type": file.type },
+      });
+      if (!putRes.ok) throw new Error(`MinIO upload failed: ${putRes.status}`);
+
+      setUploadedFileUrl(fileUrl);
+      setIsUploading(false);
+
+      // 4. Call mock OCR with the stored fileUrl
+      const result = await scanReceipt({ fileUrl }).unwrap();
+      setScanResult(result);
+      setForm({
+        vendor: result.vendor,
+        date: result.date,
+        amount: String(result.amount),
+        vatAmount: String(result.vatAmount),
+      });
+    } catch (err: unknown) {
+      setIsUploading(false);
+      setPreviewUrl(null);
+      const msg = err instanceof Error ? err.message : "Upload failed";
+      setUploadError(msg);
+      console.error("[ScanView] upload error:", err);
+    }
   };
 
   const handleSave = async () => {
@@ -46,6 +75,7 @@ export default function ScanView() {
       vendorName: form.vendor,
       receiptDate: form.date,
       vatAmount: parseFloat(form.vatAmount),
+      receiptFileUrl: uploadedFileUrl ?? undefined,
       aiExtractedData: scanResult ? JSON.stringify(scanResult) : undefined,
       aiFlags: scanResult?.flags?.length ? JSON.stringify(scanResult.flags) : undefined,
     }).unwrap();
@@ -59,14 +89,23 @@ export default function ScanView() {
         <p className="mt-1 text-sm text-neutral-500">{t("expense.scan.subtitle")}</p>
       </div>
 
+      {uploadError && (
+        <div className="mb-4 flex items-center gap-2 rounded-xl border border-error-200 bg-error-50 p-3 text-sm text-error-700">
+          <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+          <span>{uploadError}</span>
+        </div>
+      )}
+
       {!scanResult ? (
         /* ── Upload Area ── */
         <label className="flex h-64 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-neutral-300 bg-neutral-50 transition-colors hover:border-primary-400 hover:bg-primary-50">
           <input ref={fileRef} type="file" accept="image/*,.pdf" className="hidden" onChange={handleFileChange} />
-          {isScanning ? (
+          {isProcessing ? (
             <div className="flex flex-col items-center gap-2">
               <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary-200 border-t-primary-600" />
-              <p className="text-sm text-neutral-500">{t("expense.scan.analyzing")}</p>
+              <p className="text-sm text-neutral-500">
+                {isUploading ? t("expense.scan.uploading") : t("expense.scan.analyzing")}
+              </p>
             </div>
           ) : (
             <>
@@ -79,11 +118,13 @@ export default function ScanView() {
       ) : (
         /* ── Split View: Preview + Form ── */
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          {/* Left: Preview */}
+          {/* Left: Preview (blob URL for instant display) */}
           <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
             <p className="mb-2 text-xs font-semibold uppercase text-neutral-400">{t("expense.scan.preview")}</p>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            {previewUrl && <img src={previewUrl} alt="Receipt" className="max-h-80 w-full rounded-lg object-contain" />}
+            {previewUrl && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={previewUrl} alt="Receipt" className="max-h-80 w-full rounded-lg object-contain" />
+            )}
           </div>
 
           {/* Right: Extracted Form */}

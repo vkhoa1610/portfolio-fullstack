@@ -16,6 +16,7 @@ import { bffProduct014 } from "@product/product-014/index.js";
 import { bffProduct015 } from "@product/product-015/index.js";
 import { bffProduct016 } from "@product/product-016/index.js";
 import { bffProduct017 } from "@product/product-017/index.js";
+import { bffProduct018 } from "@product/product-018/index.js";
 
 const bffSetting = [
   bffProduct001,
@@ -27,7 +28,8 @@ const bffSetting = [
   bffProduct007, // POST /auth/logout
   bffProduct008, // POST /onboarding/consent
   bffProduct009, // POST /onboarding/profile
-  bffProduct014, // POST /expenses/scan   ← scan trước để không bị override bởi :id
+  bffProduct018, // GET  /expenses/upload-url ← trước :id để tránh conflict
+  bffProduct014, // POST /expenses/scan        ← scan trước để không bị override bởi :id
   bffProduct010, // POST /expenses
   bffProduct011, // GET  /expenses
   bffProduct012, // GET  /expenses/:id

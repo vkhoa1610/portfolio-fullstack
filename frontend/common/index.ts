@@ -31,6 +31,7 @@ export { AdErrorBox } from "./error";
 export { AdLink } from "./link";
 export { AdLogo } from "./logo";
 export { AdFooter } from "./footer";
+export { Breadcrumb } from "./breadcrumb";
 
 // Utility Components
 export { LanguageSwitcher } from "./language-switcher";
