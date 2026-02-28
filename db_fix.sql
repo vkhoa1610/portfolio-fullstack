@@ -1,5 +1,5 @@
 SET FOREIGN_KEY_CHECKS = 0;
-DROP TABLE IF EXISTS audit_logs, user_consents, policies, user_profiles, user_roles, roles, users;
+DROP TABLE IF EXISTS expenses, audit_logs, user_consents, policies, user_profiles, user_roles, roles, users;
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- ============================================
@@ -69,6 +69,50 @@ CREATE TABLE user_consents (
     CONSTRAINT fk_uc_policy FOREIGN KEY (policy_id) REFERENCES policies(id)
 );
 
+CREATE TABLE expenses (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_sub VARCHAR(36) NOT NULL,
+    type ENUM('RECEIPT', 'PER_DIEM', 'MILEAGE') NOT NULL,
+    title VARCHAR(255),
+    amount DECIMAL(10,2),
+    currency VARCHAR(3) DEFAULT 'EUR',
+    status ENUM('DRAFT', 'PENDING_REVIEW', 'APPROVED', 'REJECTED') DEFAULT 'DRAFT',
+
+    -- Receipt fields
+    vendor_name VARCHAR(255),
+    receipt_date DATE,
+    vat_amount DECIMAL(10,2),
+    receipt_file_url VARCHAR(500),
+    ai_extracted_data JSON,
+    ai_flags JSON,
+
+    -- Per Diem fields
+    trip_from DATE,
+    trip_to DATE,
+    country_code VARCHAR(3),
+    per_diem_rate DECIMAL(8,2),
+    per_diem_days INT,
+
+    -- Mileage fields
+    distance_km DECIMAL(8,2),
+    rate_per_km DECIMAL(5,2) DEFAULT 0.30,
+
+    -- Workflow
+    submitted_at TIMESTAMP NULL,
+    reviewed_at TIMESTAMP NULL,
+    reviewed_by VARCHAR(36) NULL,
+    rejection_reason TEXT,
+
+    -- Audit
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_by VARCHAR(36) NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_by VARCHAR(36) NULL,
+    is_deleted TINYINT(1) DEFAULT 0,
+
+    CONSTRAINT fk_exp_user FOREIGN KEY (user_sub) REFERENCES users(cognito_sub)
+);
+
 -- ============================================
 -- SEED DATA
 -- ============================================
@@ -89,3 +133,10 @@ INSERT INTO users (cognito_sub, username, email, status) VALUES
 
 INSERT INTO user_roles (user_sub, role_id) VALUES
 ('47b40a38-2091-70e4-b5cb-a04aa64856f8', 1); -- EMPLOYEE
+
+-- Manager test user
+INSERT INTO users (cognito_sub, username, email, status) VALUES
+('37e4ca68-3051-7093-ee11-658d3aa0a191', 'vkhoajap1610', 'vkhoajap1610@gmail.com', 'active');
+
+INSERT INTO user_roles (user_sub, role_id) VALUES
+('37e4ca68-3051-7093-ee11-658d3aa0a191', 2); -- MANAGER

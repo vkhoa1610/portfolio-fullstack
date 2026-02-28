@@ -105,7 +105,56 @@ CREATE TABLE user_consents (
 );
 
 -- =============================================
--- 4. GROUP AUDIT TRAIL
+-- 4. GROUP EXPENSES
+-- =============================================
+
+-- 4.1 Table: expenses
+CREATE TABLE expenses (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_sub VARCHAR(36) NOT NULL,
+    type ENUM('RECEIPT', 'PER_DIEM', 'MILEAGE') NOT NULL,
+    title VARCHAR(255),
+    amount DECIMAL(10,2),
+    currency VARCHAR(3) DEFAULT 'EUR',
+    status ENUM('DRAFT', 'PENDING_REVIEW', 'APPROVED', 'REJECTED') DEFAULT 'DRAFT',
+
+    -- Receipt fields
+    vendor_name VARCHAR(255),
+    receipt_date DATE,
+    vat_amount DECIMAL(10,2),
+    receipt_file_url VARCHAR(500),
+    ai_extracted_data JSON,
+    ai_flags JSON,
+
+    -- Per Diem fields
+    trip_from DATE,
+    trip_to DATE,
+    country_code VARCHAR(3),
+    per_diem_rate DECIMAL(8,2),
+    per_diem_days INT,
+
+    -- Mileage fields
+    distance_km DECIMAL(8,2),
+    rate_per_km DECIMAL(5,2) DEFAULT 0.30,
+
+    -- Workflow
+    submitted_at TIMESTAMP NULL,
+    reviewed_at TIMESTAMP NULL,
+    reviewed_by VARCHAR(36) NULL,
+    rejection_reason TEXT,
+
+    -- Audit
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_by VARCHAR(36) NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_by VARCHAR(36) NULL,
+    is_deleted TINYINT(1) DEFAULT 0,
+
+    CONSTRAINT fk_exp_user FOREIGN KEY (user_sub) REFERENCES users(cognito_sub)
+);
+
+-- =============================================
+-- 5. GROUP AUDIT TRAIL
 -- =============================================
 
 -- 4.1 Table: audit_logs

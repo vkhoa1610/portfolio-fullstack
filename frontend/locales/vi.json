@@ -60,5 +60,134 @@
       "impressum": "Impressum",
       "privacy": "Bảo mật dữ liệu"
     }
+  },
+  "expense": {
+    "list": {
+      "title": "Chi phí của tôi",
+      "btn_new": "Thêm chi phí",
+      "empty": "Chưa có chi phí nào.",
+      "status_draft": "Nháp",
+      "status_pending": "Chờ duyệt",
+      "status_approved": "Đã duyệt",
+      "status_rejected": "Đã từ chối"
+    },
+    "create": {
+      "title": "Chi phí mới",
+      "subtitle": "Chọn loại chi phí",
+      "type_receipt_title": "Chứng từ",
+      "type_receipt_sub": "Hóa đơn — tải ảnh hoặc PDF",
+      "type_perdiem_title": "Phụ cấp ăn uống",
+      "type_perdiem_sub": "Theo ngày — tính tự động theo luật",
+      "type_mileage_title": "Chi phí đi lại",
+      "type_mileage_sub": "Km — khoảng cách × 0,30 €/km"
+    },
+    "scan": {
+      "title": "Tải hóa đơn",
+      "subtitle": "Tải hóa đơn — AI sẽ trích xuất dữ liệu",
+      "click_to_upload": "Nhấn để tải lên",
+      "supported_formats": "Hỗ trợ JPG, PNG, PDF",
+      "preview": "Xem trước hóa đơn",
+      "label_vendor": "Nhà cung cấp",
+      "label_date": "Ngày",
+      "label_amount": "Số tiền (€)",
+      "label_vat": "Thuế VAT",
+      "btn_save": "Lưu",
+      "saving": "Đang lưu…",
+      "analyzing": "Đang phân tích…",
+      "ai_complete": "AI đã trích xuất xong",
+      "ai_warnings": "Cảnh báo AI"
+    },
+    "per_diem": {
+      "title": "Phụ cấp ăn uống",
+      "subtitle": "Phụ cấp — tính tự động theo luật Đức",
+      "label_title": "Tiêu đề (tùy chọn)",
+      "label_from": "Từ ngày",
+      "label_to": "Đến ngày",
+      "label_country": "Quốc gia",
+      "calc_title": "Tính tự động theo mức BMF:",
+      "rate_label": "Mức / ngày",
+      "days_label": "Số ngày",
+      "total_label": "Tổng cộng",
+      "btn_save": "Lưu",
+      "saving": "Đang lưu…"
+    },
+    "mileage": {
+      "title": "Chi phí đi lại",
+      "subtitle": "Hoàn tiền đi lại — 0,30 €/km",
+      "label_title": "Tiêu đề (tùy chọn)",
+      "label_from": "Từ",
+      "label_to": "Đến",
+      "label_date": "Ngày",
+      "label_distance": "Khoảng cách (km)",
+      "distance_label": "Khoảng cách",
+      "rate_label": "Mức / km",
+      "total_label": "Tổng cộng",
+      "btn_save": "Lưu",
+      "saving": "Đang lưu…"
+    },
+    "detail": {
+      "status_draft": "Nháp",
+      "status_pending": "Chờ duyệt",
+      "status_approved": "Đã duyệt",
+      "status_rejected": "Đã từ chối",
+      "label_reason": "Lý do",
+      "label_receipt": "Hóa đơn",
+      "no_image": "Không có ảnh",
+      "not_found": "Không tìm thấy chi phí.",
+      "ai_flags": "Cảnh báo AI",
+      "field_type": "Loại",
+      "field_amount": "Số tiền",
+      "field_currency": "Tiền tệ",
+      "field_vendor": "Nhà cung cấp",
+      "field_date": "Ngày",
+      "field_vat": "Thuế VAT (MwSt)",
+      "field_from": "Từ ngày",
+      "field_to": "Đến ngày",
+      "field_country": "Quốc gia",
+      "field_days": "Số ngày",
+      "field_distance": "Khoảng cách",
+      "field_rate_km": "Đơn giá/km",
+      "btn_submit": "Gửi duyệt"
+    },
+    "review": {
+      "title": "Kiểm tra & Gửi",
+      "subtitle": "Kiểm tra trước khi gửi duyệt",
+      "budget_ok": "Trong ngân sách",
+      "budget_over": "Vượt ngân sách!",
+      "remaining_budget": "Ngân sách còn lại",
+      "confirm_check": "Tôi xác nhận thông tin là chính xác và đầy đủ.",
+      "btn_submit": "Xác nhận gửi",
+      "submitting": "Đang gửi…",
+      "not_found": "Không tìm thấy chi phí."
+    }
+  },
+  "manager": {
+    "approvals": {
+      "title": "Phê duyệt",
+      "subtitle": "Chi phí chờ phê duyệt từ nhóm của bạn",
+      "pending_count": "{{count}} chờ duyệt",
+      "empty": "Không có chi phí chờ duyệt.",
+      "btn_approve": "Phê duyệt",
+      "btn_reject": "Từ chối",
+      "detail_title": "Kiểm tra chi phí",
+      "detail_subtitle": "Xem xét và phê duyệt hoặc từ chối chi phí này",
+      "ai_warnings": "Cảnh báo AI",
+      "reject_title": "Từ chối — Cần lý do",
+      "reject_placeholder": "Nhập lý do từ chối...",
+      "btn_cancel": "Hủy",
+      "approving": "Đang phê duyệt…",
+      "rejecting": "Đang từ chối…",
+      "not_found": "Không tìm thấy chi phí.",
+      "field_submitted": "Ngày gửi"
+    }
+  },
+  "finance": {
+    "overview": {
+      "title": "Tổng quan tài chính",
+      "kpi_total": "Tổng đã gửi",
+      "kpi_pending": "Chờ duyệt",
+      "kpi_approved": "Đã duyệt",
+      "btn_export": "Xuất CSV"
+    }
   }
 }

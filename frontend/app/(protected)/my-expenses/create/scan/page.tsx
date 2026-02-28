@@ -1,3 +1,5 @@
-export default function MyExpensesPerDiemPage() {
-  return <div>Per Diem</div>;
+import ScanView from "@/components/expenses/scan-view";
+
+export default function MyExpensesScanPage() {
+  return <ScanView />;
 }

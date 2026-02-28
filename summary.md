@@ -1,7 +1,7 @@
 # Portfolio Fullstack - Project Summary
 
 > **Mục đích**: Tài liệu tổng hợp để AI có thể nhanh chóng hiểu cấu trúc project mà không cần scan toàn bộ codebase.
-> **Cập nhật lần cuối**: 2026-02-27
+> **Cập nhật lần cuối**: 2026-02-28
 
 ---
 
@@ -83,7 +83,7 @@ portfolio-fullstack/
 
 ### Frontend Views (`/frontend/app`)
 
-```
+``` 
 middleware.ts                    # ✅ Route protection (redirect /auth/login nếu không có cookie)
 app/
 ├── auth/login/page.tsx          # Login screen
@@ -151,57 +151,122 @@ Login Request
 
 ## 📝 Flow 2: Smart Expense Capture (Germanized)
 
-### Trạng thái: **Frontend ✅ (UI hoàn thành) | BFF ❌ | Backend ❌**
+### Trạng thái: **✅ HOÀN THÀNH TOÀN BỘ (DB + Backend + BFF + Frontend + i18n)**
 
-### Frontend Views (`/frontend/app/(protected)/my-expenses`)
+### 10 Màn hình theo Role
+
+| Screen | Route | Role |
+| ------ | ----- | ---- |
+| Dashboard redirect | `/dashboard` | All |
+| Expense List | `/my-expenses` | EMPLOYEE, MANAGER |
+| Type Selector | `/my-expenses/create` | EMPLOYEE, MANAGER |
+| Receipt Upload + OCR | `/my-expenses/create/scan` | EMPLOYEE, MANAGER |
+| Per Diem Form | `/my-expenses/create/per-diem` | EMPLOYEE, MANAGER |
+| Mileage Form | `/my-expenses/create/mileage` | EMPLOYEE, MANAGER |
+| Expense Detail | `/my-expenses/[id]` | EMPLOYEE, MANAGER |
+| Review & Submit | `/my-expenses/[id]/review` | EMPLOYEE, MANAGER |
+| Approval Queue | `/manager/approvals` | MANAGER |
+| Approval Detail | `/manager/approvals/[id]` | MANAGER |
+| Finance Overview | `/finance/overview` | FINANCE |
+
+### Frontend Views
 
 ```
-my-expenses/
-├── layout.tsx           # Expenses layout
-├── page.tsx             # Expense list
-├── create/              # Create new expense
-│   ├── page.tsx
-│   ├── mileage/         # Kilometerpauschale
-│   ├── per-diem/        # Verpflegungsmehraufwand
-│   └── receipt/         # Beleg upload
-└── [id]/                # Expense detail view
+app/(protected)/
+├── dashboard/page.tsx               # Role-based redirect (MANAGER→/manager/approvals, FINANCE→/finance/overview, else→/my-expenses)
+├── my-expenses/
+│   ├── page.tsx                     # Expense list (RTK Query)
+│   ├── create/
+│   │   ├── page.tsx                 # Type selector (Receipt/Per Diem/Mileage)
+│   │   ├── scan/page.tsx            # Upload + Mock OCR split view
+│   │   ├── per-diem/page.tsx        # Auto-calc Verpflegungsmehraufwand
+│   │   └── mileage/page.tsx         # 0.30€/km Kilometerpauschale auto-calc
+│   └── [id]/
+│       ├── page.tsx                 # Expense detail + status banner
+│       └── review/page.tsx          # Budget check + confirm submit
+├── manager/
+│   └── approvals/
+│       ├── page.tsx                 # Pending approval queue + AI flags
+│       └── [id]/page.tsx            # Approve / Reject with rejection form
+└── finance/
+    └── overview/page.tsx            # KPI cards + full expense table
 ```
+
+### Components
+
+```
+components/
+├── expenses/
+│   ├── expense-type-selector.tsx    # 3 card buttons (Camera/Calendar/Car)
+│   ├── scan-view.tsx                # Upload step + OCR result split view
+│   ├── per-diem-view.tsx            # Country rates (DE=28€, AT=26.4€, CH=35€)
+│   ├── mileage-view.tsx             # RATE_PER_KM=0.30, auto-calc total
+│   ├── expense-list-view.tsx        # List with status badges
+│   ├── expense-detail-view.tsx      # Detail with conditional split for RECEIPT
+│   └── expense-review-view.tsx      # Budget check from session.budget
+├── manager/
+│   ├── approvals-view.tsx           # Queue with AI flag indicator
+│   └── approval-detail-view.tsx     # Approve/reject inline
+└── finance/
+    └── overview-view.tsx            # KPI + expenses table
+```
+
+### BFF Endpoints (product-010 → product-017)
+
+| Product | Method | Endpoint | Chức năng |
+| ------- | ------ | -------- | --------- |
+| product-010 | POST | `/expenses` | Tạo DRAFT expense |
+| product-011 | GET | `/expenses` | Danh sách expense của user |
+| product-012 | GET | `/expenses/:id` | Chi tiết expense |
+| product-013 | POST | `/expenses/:id/submit` | Submit → PENDING_REVIEW |
+| product-014 | POST | `/expenses/scan` | Mock OCR (REWE GmbH data) |
+| product-015 | GET | `/manager/expenses` | Pending queue cho Manager |
+| product-016 | PUT | `/manager/expenses/:id/approve` | Approve expense |
+| product-017 | PUT | `/manager/expenses/:id/reject` | Reject (cần rejectionReason) |
 
 ### Expense Types (German Compliance)
 
-| Type     | German Term             | Logic                                 |
-| -------- | ----------------------- | ------------------------------------- |
-| Receipt  | Beleg                   | Photo/PDF upload, OCR extraction      |
-| Per Diem | Verpflegungsmehraufwand | Auto-calculate by law (dates/country) |
-| Mileage  | Kilometerpauschale      | Distance × rate (e.g., 0.30€/km)      |
+| Type | German Term | Logic |
+| ---- | ----------- | ----- |
+| RECEIPT | Beleg | Photo/PDF upload, Mock OCR extraction |
+| PER_DIEM | Verpflegungsmehraufwand | Auto-calculate by country/dates |
+| MILEAGE | Kilometerpauschale | Distance × 0.30€/km |
+
+### RTK Query (`ducks/expenses/`)
+
+```
+ducks/expenses/
+├── types.ts        # ExpenseType, ExpenseStatus, Expense, ScanResponse
+├── expenseApi.ts   # 8 endpoints với cache invalidation (tags: Expense, ManagerQueue)
+└── index.ts        # Re-exports
+```
 
 ---
 
 ## 🔍 Flow 3: Intelligent Approval Matrix
 
-### Trạng thái: **Frontend ✅ (UI) | BFF ❌ | Backend ❌**
+### Trạng thái: **✅ UI + BFF + Backend HOÀN THÀNH** (implement chung trong Flow 2)
 
 ### Frontend Views
 
 ```
 (protected)/
-└── manager/             # Manager approval views
-    ├── page.tsx         # Pending list (Kanban/List)
-    └── [id]/            # Detail review with AI flags
+└── manager/approvals/
+    ├── page.tsx           # Pending list + AI flag indicator
+    └── [id]/page.tsx      # Detail review: approve / reject
 ```
 
 ---
 
 ## 💰 Flow 4: Settlement & Fiscal Reporting
 
-### Trạng thái: **Frontend ✅ (UI) | BFF ❌ | Backend ❌**
+### Trạng thái: **✅ UI + BFF + Backend (Finance Overview) HOÀN THÀNH**
 
 ### Frontend Views
 
 ```
 (protected)/
-└── finance/             # Finance/Accountant views
-    └── page.tsx         # SEPA batch, E-Invoicing, Dashboard
+└── finance/overview/page.tsx   # KPI cards + full expense table (FINANCE role)
 ```
 
 ---
@@ -218,6 +283,7 @@ my-expenses/
 | `user_profiles` | Profile details (name, language, avatar) |
 | `policies`      | GDPR/Legal documents (versioned)         |
 | `user_consents` | User consent records with IP/UA          |
+| `expenses`      | Expense records (RECEIPT/PER_DIEM/MILEAGE) — Flow 2 |
 | `audit_logs`    | Immutable action trail                   |
 
 ### Key Design Decisions
@@ -261,6 +327,7 @@ ducks/
 ├── store.ts         # Redux store configuration
 ├── apiSlice.ts      # RTK Query base API
 ├── auth/            # Auth slice & endpoints
+├── expenses/        # Expense API slice (Flow 2) — types, expenseApi, index
 ├── login/           # Login specific state
 ├── slice/           # Feature slices
 └── types/           # TypeScript types
@@ -323,12 +390,14 @@ cd backend && ./mvnw spring-boot:run
 
 ## ⚠️ Lưu ý Quan trọng
 
-1. **Backend đang triển khai**: Đã hoàn thành API User Profile (`GET /me`). Các APIs khác cần được implement tiếp.
-2. **BFF đã integrate với Backend**: Auth flow hoàn thành, BFF gọi Backend lấy profile thành công.
+1. **Backend Flow 2 hoàn thành**: Expense APIs + Manager APIs đã implement đầy đủ.
+2. **BFF products 001–017**: Auth (001-009) + Expense/Manager (010-017) đều done.
 3. **Session handling**: Đã hoàn tất integrate full flow (Cognito → BFF → Backend).
-4. **LocalStack**: Có thể dùng để emulate AWS Cognito locally (xem conversation history)
-5. **Nginx header size**: Đã fix issue `502 Bad Gateway` do Cognito tokens quá lớn
-6. **Next.js rewrites là build-time**: Mọi env var dùng trong `next.config.ts` phải được truyền qua Docker build `ARG`, không phải runtime `ENV`
+4. **Mock OCR**: `ExpenseService.mockScan()` trả hardcoded data (REWE GmbH, 47.80€). Thay bằng real OCR sau.
+5. **Route ordering quan trọng**: BFF `/expenses/scan` (product-014) phải register **trước** `/expenses/:id` (product-012) để tránh route conflict.
+6. **LocalStack**: Có thể dùng để emulate AWS Cognito locally (xem conversation history)
+7. **Nginx header size**: Đã fix issue `502 Bad Gateway` do Cognito tokens quá lớn
+8. **Next.js rewrites là build-time**: Mọi env var dùng trong `next.config.ts` phải được truyền qua Docker build `ARG`, không phải runtime `ENV`
 
 ---
 

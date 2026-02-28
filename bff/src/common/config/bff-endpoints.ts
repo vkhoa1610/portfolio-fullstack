@@ -8,4 +8,11 @@ export const BFF_ENDPOINTS = {
   AUTH_007: '/auth/refresh',
   ONBOARDING_001: '/onboarding/consent',
   ONBOARDING_002: '/onboarding/profile',
+  EXPENSE_001: '/expenses',
+  EXPENSE_002: '/expenses/:id',
+  EXPENSE_003: '/expenses/:id/submit',
+  EXPENSE_004: '/expenses/scan',
+  MANAGER_001: '/manager/expenses',
+  MANAGER_002: '/manager/expenses/:id/approve',
+  MANAGER_003: '/manager/expenses/:id/reject',
 } as const;

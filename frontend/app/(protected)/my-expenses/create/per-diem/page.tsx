@@ -1,3 +1,5 @@
+import PerDiemView from "@/components/expenses/per-diem-view";
+
 export default function MyExpensesPerDiemPage() {
-  return <div>Per Diem</div>;
+  return <PerDiemView />;
 }

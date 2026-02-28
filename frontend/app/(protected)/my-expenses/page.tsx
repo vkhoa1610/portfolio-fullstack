@@ -1,4 +1,5 @@
+import ExpenseListView from "@/components/expenses/expense-list-view";
 
 export default function MyExpensesPage() {
-  return <div>My Expenses</div>;
+  return <ExpenseListView />;
 }

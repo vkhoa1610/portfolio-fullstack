@@ -60,5 +60,134 @@
       "impressum": "Impressum",
       "privacy": "Datenschutz"
     }
+  },
+  "expense": {
+    "list": {
+      "title": "Meine Ausgaben",
+      "btn_new": "Neue Ausgabe",
+      "empty": "Noch keine Ausgaben.",
+      "status_draft": "Entwurf",
+      "status_pending": "Ausstehend",
+      "status_approved": "Genehmigt",
+      "status_rejected": "Abgelehnt"
+    },
+    "create": {
+      "title": "Neue Ausgabe",
+      "subtitle": "Art der Ausgabe wählen",
+      "type_receipt_title": "Beleg",
+      "type_receipt_sub": "Beleg — Foto- oder PDF-Upload",
+      "type_perdiem_title": "Verpflegungsmehraufwand",
+      "type_perdiem_sub": "Tagegeld — automatisch nach Gesetz berechnet",
+      "type_mileage_title": "Kilometerpauschale",
+      "type_mileage_sub": "Kilometer — Distanz × 0,30 €/km"
+    },
+    "scan": {
+      "title": "Beleg hochladen",
+      "subtitle": "Beleg hochladen — KI extrahiert die Daten",
+      "click_to_upload": "Zum Hochladen klicken",
+      "supported_formats": "JPG, PNG, PDF unterstützt",
+      "preview": "Belegvorschau",
+      "label_vendor": "Anbieter",
+      "label_date": "Datum",
+      "label_amount": "Betrag (€)",
+      "label_vat": "MwSt",
+      "btn_save": "Speichern",
+      "saving": "Speichern…",
+      "analyzing": "Analysieren…",
+      "ai_complete": "KI-Extraktion abgeschlossen",
+      "ai_warnings": "KI-Warnungen"
+    },
+    "per_diem": {
+      "title": "Verpflegungsmehraufwand",
+      "subtitle": "Verpflegungsmehraufwand — automatisch nach deutschem Recht berechnet",
+      "label_title": "Titel (optional)",
+      "label_from": "Von",
+      "label_to": "Bis",
+      "label_country": "Land",
+      "calc_title": "Automatische Berechnung (BMF-Sätze):",
+      "rate_label": "Satz / Tag",
+      "days_label": "Tage",
+      "total_label": "Gesamt",
+      "btn_save": "Speichern",
+      "saving": "Speichern…"
+    },
+    "mileage": {
+      "title": "Kilometerpauschale",
+      "subtitle": "Kilometerpauschale — 0,30 €/km",
+      "label_title": "Titel (optional)",
+      "label_from": "Von",
+      "label_to": "Nach",
+      "label_date": "Datum",
+      "label_distance": "Distanz (km)",
+      "distance_label": "Distanz",
+      "rate_label": "Satz / km",
+      "total_label": "Gesamt",
+      "btn_save": "Speichern",
+      "saving": "Speichern…"
+    },
+    "detail": {
+      "status_draft": "Entwurf",
+      "status_pending": "Ausstehend",
+      "status_approved": "Genehmigt",
+      "status_rejected": "Abgelehnt",
+      "label_reason": "Grund",
+      "label_receipt": "Beleg",
+      "no_image": "Kein Bild",
+      "not_found": "Ausgabe nicht gefunden.",
+      "ai_flags": "KI-Markierungen",
+      "field_type": "Typ",
+      "field_amount": "Betrag",
+      "field_currency": "Währung",
+      "field_vendor": "Anbieter",
+      "field_date": "Datum",
+      "field_vat": "MwSt",
+      "field_from": "Von",
+      "field_to": "Bis",
+      "field_country": "Land",
+      "field_days": "Tage",
+      "field_distance": "Distanz",
+      "field_rate_km": "Satz/km",
+      "btn_submit": "Einreichen"
+    },
+    "review": {
+      "title": "Überprüfung & Einreichen",
+      "subtitle": "Überprüfung vor der endgültigen Einreichung",
+      "budget_ok": "Im Budget",
+      "budget_over": "Budget überschritten!",
+      "remaining_budget": "Verbleibendes Budget",
+      "confirm_check": "Ich bestätige, dass die Angaben korrekt und vollständig sind.",
+      "btn_submit": "Endgültig einreichen",
+      "submitting": "Wird eingereicht…",
+      "not_found": "Ausgabe nicht gefunden."
+    }
+  },
+  "manager": {
+    "approvals": {
+      "title": "Genehmigungen",
+      "subtitle": "Ausstehende Ausgabengenehmigungen Ihres Teams",
+      "pending_count": "{{count}} ausstehend",
+      "empty": "Keine ausstehenden Genehmigungen.",
+      "btn_approve": "Genehmigen",
+      "btn_reject": "Ablehnen",
+      "detail_title": "Ausgabe prüfen",
+      "detail_subtitle": "Ausgabe überprüfen und genehmigen oder ablehnen",
+      "ai_warnings": "KI-Warnungen",
+      "reject_title": "Ablehnen — Begründung erforderlich",
+      "reject_placeholder": "Ablehnungsgrund eingeben...",
+      "btn_cancel": "Abbrechen",
+      "approving": "Wird genehmigt…",
+      "rejecting": "Wird abgelehnt…",
+      "not_found": "Ausgabe nicht gefunden.",
+      "field_submitted": "Eingereicht"
+    }
+  },
+  "finance": {
+    "overview": {
+      "title": "Finanzübersicht",
+      "kpi_total": "Gesamt eingereicht",
+      "kpi_pending": "Ausstehend",
+      "kpi_approved": "Genehmigt",
+      "btn_export": "CSV exportieren"
+    }
   }
 }

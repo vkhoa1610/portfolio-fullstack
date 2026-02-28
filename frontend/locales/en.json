@@ -60,5 +60,134 @@
       "impressum": "Imprint",
       "privacy": "Privacy Policy"
     }
+  },
+  "expense": {
+    "list": {
+      "title": "My Expenses",
+      "btn_new": "New Expense",
+      "empty": "No expenses yet.",
+      "status_draft": "Draft",
+      "status_pending": "Pending",
+      "status_approved": "Approved",
+      "status_rejected": "Rejected"
+    },
+    "create": {
+      "title": "New Expense",
+      "subtitle": "Select expense type",
+      "type_receipt_title": "Receipt",
+      "type_receipt_sub": "Receipt — photo or PDF upload",
+      "type_perdiem_title": "Per Diem",
+      "type_perdiem_sub": "Per Diem — auto-calculated by law",
+      "type_mileage_title": "Mileage",
+      "type_mileage_sub": "Mileage — distance × 0.30 €/km"
+    },
+    "scan": {
+      "title": "Upload Receipt",
+      "subtitle": "Upload a receipt — AI will extract the data",
+      "click_to_upload": "Click to upload",
+      "supported_formats": "JPG, PNG, PDF supported",
+      "preview": "Receipt Preview",
+      "label_vendor": "Vendor",
+      "label_date": "Date",
+      "label_amount": "Amount (€)",
+      "label_vat": "VAT",
+      "btn_save": "Save",
+      "saving": "Saving…",
+      "analyzing": "Analyzing…",
+      "ai_complete": "AI Extraction Complete",
+      "ai_warnings": "AI Warnings"
+    },
+    "per_diem": {
+      "title": "Per Diem",
+      "subtitle": "Per diem — automatically calculated by German law",
+      "label_title": "Title (optional)",
+      "label_from": "From",
+      "label_to": "To",
+      "label_country": "Country",
+      "calc_title": "Automatic calculation (BMF rates):",
+      "rate_label": "Rate / day",
+      "days_label": "Days",
+      "total_label": "Total",
+      "btn_save": "Save",
+      "saving": "Saving…"
+    },
+    "mileage": {
+      "title": "Mileage",
+      "subtitle": "Mileage reimbursement — 0.30 €/km",
+      "label_title": "Title (optional)",
+      "label_from": "From",
+      "label_to": "To",
+      "label_date": "Date",
+      "label_distance": "Distance (km)",
+      "distance_label": "Distance",
+      "rate_label": "Rate / km",
+      "total_label": "Total",
+      "btn_save": "Save",
+      "saving": "Saving…"
+    },
+    "detail": {
+      "status_draft": "Draft",
+      "status_pending": "Pending Review",
+      "status_approved": "Approved",
+      "status_rejected": "Rejected",
+      "label_reason": "Reason",
+      "label_receipt": "Receipt",
+      "no_image": "No image",
+      "not_found": "Expense not found.",
+      "ai_flags": "AI Flags",
+      "field_type": "Type",
+      "field_amount": "Amount",
+      "field_currency": "Currency",
+      "field_vendor": "Vendor",
+      "field_date": "Date",
+      "field_vat": "VAT (MwSt)",
+      "field_from": "From",
+      "field_to": "To",
+      "field_country": "Country",
+      "field_days": "Days",
+      "field_distance": "Distance",
+      "field_rate_km": "Rate/km",
+      "btn_submit": "Submit"
+    },
+    "review": {
+      "title": "Review & Submit",
+      "subtitle": "Review before final submission",
+      "budget_ok": "Within budget",
+      "budget_over": "Over budget!",
+      "remaining_budget": "Remaining budget",
+      "confirm_check": "I confirm that the information is correct and complete.",
+      "btn_submit": "Submit Final",
+      "submitting": "Submitting…",
+      "not_found": "Expense not found."
+    }
+  },
+  "manager": {
+    "approvals": {
+      "title": "Approvals",
+      "subtitle": "Pending expense approvals from your team",
+      "pending_count": "{{count}} pending",
+      "empty": "No pending approvals.",
+      "btn_approve": "Approve",
+      "btn_reject": "Reject",
+      "detail_title": "Review Expense",
+      "detail_subtitle": "Review and approve or reject this expense",
+      "ai_warnings": "AI Warnings",
+      "reject_title": "Reject — Reason Required",
+      "reject_placeholder": "Enter rejection reason...",
+      "btn_cancel": "Cancel",
+      "approving": "Approving…",
+      "rejecting": "Rejecting…",
+      "not_found": "Expense not found.",
+      "field_submitted": "Submitted"
+    }
+  },
+  "finance": {
+    "overview": {
+      "title": "Finance Overview",
+      "kpi_total": "Total Submitted",
+      "kpi_pending": "Pending",
+      "kpi_approved": "Approved",
+      "btn_export": "Export CSV"
+    }
   }
 }

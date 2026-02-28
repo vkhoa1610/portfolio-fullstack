@@ -1,3 +1,5 @@
+import MileageView from "@/components/expenses/mileage-view";
+
 export default function MyExpensesMileagePage() {
-  return <div>Mileage</div>;
+  return <MileageView />;
 }
