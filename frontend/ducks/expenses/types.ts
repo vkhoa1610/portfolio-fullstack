@@ -3,7 +3,7 @@
 // ============================================================================
 
 export type ExpenseType = 'RECEIPT' | 'PER_DIEM' | 'MILEAGE';
-export type ExpenseStatus = 'DRAFT' | 'PENDING_REVIEW' | 'APPROVED' | 'REJECTED';
+export type ExpenseStatus = 'DRAFT' | 'PENDING_REVIEW' | 'APPROVED' | 'REJECTED' | 'PAID';
 
 export interface Expense {
   id: number;
@@ -101,4 +101,24 @@ export interface ScanResponse {
 export interface RejectExpenseRequest {
   id: number;
   rejectionReason: string;
+}
+
+// ============================================================================
+// FINANCE TYPES
+// ============================================================================
+
+export interface MarkAsPaidRequest {
+  ids: number[];
+}
+
+/** Analytics: tổng hợp chi tiêu theo type/tháng từ danh sách expenses */
+export interface SpendByType {
+  type: ExpenseType;
+  total: number;
+  count: number;
+}
+
+export interface SpendByMonth {
+  month: string; // "2025-01"
+  total: number;
 }

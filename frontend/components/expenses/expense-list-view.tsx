@@ -11,6 +11,7 @@ const STATUS_STYLE: Record<ExpenseStatus, string> = {
   PENDING_REVIEW: "bg-warning-100 text-warning-700",
   APPROVED: "bg-success-100 text-success-700",
   REJECTED: "bg-error-100 text-error-700",
+  PAID: "bg-primary-100 text-primary-700",
 };
 
 const TYPE_ICON = {
@@ -29,6 +30,7 @@ export default function ExpenseListView() {
     PENDING_REVIEW: t("expense.list.status_pending"),
     APPROVED: t("expense.list.status_approved"),
     REJECTED: t("expense.list.status_rejected"),
+    PAID: "Paid",
   };
 
   return (

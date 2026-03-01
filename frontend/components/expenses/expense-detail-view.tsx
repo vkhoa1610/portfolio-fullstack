@@ -16,6 +16,7 @@ export default function ExpenseDetailView({ id }: { id: number }) {
     PENDING_REVIEW: { icon: Clock, color: "text-warning-600 bg-warning-50 border-warning-200", label: t("expense.detail.status_pending") },
     APPROVED: { icon: CheckCircle2, color: "text-success-600 bg-success-50 border-success-200", label: t("expense.detail.status_approved") },
     REJECTED: { icon: XCircle, color: "text-error-600 bg-error-50 border-error-200", label: t("expense.detail.status_rejected") },
+    PAID: { icon: CheckCircle2, color: "text-primary-600 bg-primary-50 border-primary-200", label: "Paid" },
   };
 
   if (isLoading) return <div className="flex h-40 items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-200 border-t-primary-600" /></div>;

@@ -11,4 +11,6 @@ export {
   useGetManagerExpenseByIdQuery,
   useApproveExpenseMutation,
   useRejectExpenseMutation,
+  useGetFinanceExpensesQuery,
+  useMarkAsPaidMutation,
 } from './expenseApi';

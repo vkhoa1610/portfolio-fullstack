@@ -140,3 +140,10 @@ INSERT INTO users (cognito_sub, username, email, status) VALUES
 
 INSERT INTO user_roles (user_sub, role_id) VALUES
 ('37e4ca68-3051-7093-ee11-658d3aa0a191', 2); -- MANAGER
+
+-- Finance test user
+INSERT INTO users (cognito_sub, username, email, status) VALUES
+('a7e4fa28-1051-704f-042a-f7fe9f450d8c', 'sample-finance', 'sample-finance@gmail.com', 'active');
+
+INSERT INTO user_roles (user_sub, role_id) VALUES
+('a7e4fa28-1051-704f-042a-f7fe9f450d8c', 3); -- FINANCE

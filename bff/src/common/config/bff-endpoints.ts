@@ -23,5 +23,5 @@ export const BFF_ENDPOINTS = {
   MGR_004: '/mgr-004/:id',  // GET expenses/:id (re-export từ emp-005)
 
   // ─── Finance ──────────────────────────────────────────────────────
-  // FIN_001: '/fin-001',
+  FIN_001: '/fin-001',  // GET  finance/expenses (all expenses for accountant)
 } as const;

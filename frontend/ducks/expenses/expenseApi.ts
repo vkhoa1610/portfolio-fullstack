@@ -5,6 +5,7 @@ import {
   ScanResponse,
   UploadUrlResponse,
   RejectExpenseRequest,
+  MarkAsPaidRequest,
 } from './types';
 
 export const expenseApi = createApi({
@@ -13,7 +14,7 @@ export const expenseApi = createApi({
     baseUrl: process.env.NEXT_PUBLIC_BFF_URL || '/api',
     credentials: 'include',
   }),
-  tagTypes: ['Expense', 'ManagerQueue'],
+  tagTypes: ['Expense', 'ManagerQueue', 'FinanceQueue'],
   endpoints: (builder) => ({
 
     // ─────────────────────────────────────────────────────
@@ -114,6 +115,28 @@ export const expenseApi = createApi({
       }),
       invalidatesTags: ['ManagerQueue', 'Expense'],
     }),
+
+    // ─────────────────────────────────────────────────────
+    // FINANCE: All expenses (for accountant — FIN_001)
+    // ─────────────────────────────────────────────────────
+    getFinanceExpenses: builder.query<Expense[], void>({
+      query: () => '/fin-001',
+      providesTags: ['FinanceQueue'],
+    }),
+
+    // ─────────────────────────────────────────────────────
+    // FINANCE: Mark selected expenses as PAID (mock — no backend yet)
+    // Returns optimistic success; real endpoint TBD.
+    // ─────────────────────────────────────────────────────
+    markAsPaid: builder.mutation<void, MarkAsPaidRequest>({
+      query: (body) => ({
+        url: '/fin-002',
+        method: 'POST',
+        body,
+      }),
+      // Invalidate so lists refresh; silently ignore 404 until backend ready
+      invalidatesTags: ['FinanceQueue', 'ManagerQueue'],
+    }),
   }),
 });
 
@@ -128,4 +151,6 @@ export const {
   useGetManagerExpenseByIdQuery,
   useApproveExpenseMutation,
   useRejectExpenseMutation,
+  useGetFinanceExpensesQuery,
+  useMarkAsPaidMutation,
 } = expenseApi;
