@@ -1,12 +1,17 @@
 import express from "express";
-import { createRouter } from "./routes.js"
+import { createCommonRouter } from "@product/common/routes.js";
+import { createEmployeeRouter } from "@product/employee/routes.js";
+import { createManagerRouter } from "@product/manager/routes.js";
+import { createFinanceRouter } from "@product/finance/routes.js";
 
 export const createApp = () => {
   const app = express();
   app.use(express.json());
 
-  const router = createRouter();
-  app.use("/", router);
+  app.use("/", createCommonRouter());
+  app.use("/", createEmployeeRouter());
+  app.use("/", createManagerRouter());
+  app.use("/", createFinanceRouter());
 
   return app;
 };

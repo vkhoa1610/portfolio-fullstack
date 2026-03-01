@@ -5,8 +5,10 @@ export {
   useGetExpenseByIdQuery,
   useCreateExpenseMutation,
   useSubmitExpenseMutation,
+  useGetUploadUrlMutation,
   useScanReceiptMutation,
   useGetManagerQueueQuery,
+  useGetManagerExpenseByIdQuery,
   useApproveExpenseMutation,
   useRejectExpenseMutation,
 } from './expenseApi';

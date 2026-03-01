@@ -20,7 +20,7 @@ export const expenseApi = createApi({
     // EMPLOYEE: List own expenses
     // ─────────────────────────────────────────────────────
     getExpenses: builder.query<Expense[], void>({
-      query: () => '/expenses',
+      query: () => '/emp-004',
       providesTags: ['Expense'],
     }),
 
@@ -28,7 +28,7 @@ export const expenseApi = createApi({
     // EMPLOYEE: Get expense detail
     // ─────────────────────────────────────────────────────
     getExpenseById: builder.query<Expense, number>({
-      query: (id) => `/expenses/${id}`,
+      query: (id) => `/emp-005/${id}`,
       providesTags: (_result, _err, id) => [{ type: 'Expense', id }],
     }),
 
@@ -37,7 +37,7 @@ export const expenseApi = createApi({
     // ─────────────────────────────────────────────────────
     createExpense: builder.mutation<Expense, CreateExpenseRequest>({
       query: (body) => ({
-        url: '/expenses',
+        url: '/emp-003',
         method: 'POST',
         body,
       }),
@@ -49,7 +49,7 @@ export const expenseApi = createApi({
     // ─────────────────────────────────────────────────────
     submitExpense: builder.mutation<void, number>({
       query: (id) => ({
-        url: `/expenses/${id}/submit`,
+        url: `/emp-006/${id}`,
         method: 'POST',
       }),
       invalidatesTags: ['Expense', 'ManagerQueue'],
@@ -60,7 +60,7 @@ export const expenseApi = createApi({
     // ─────────────────────────────────────────────────────
     getUploadUrl: builder.mutation<UploadUrlResponse, string>({
       query: (filename) => ({
-        url: `/expenses/upload-url?filename=${encodeURIComponent(filename)}`,
+        url: `/emp-001?filename=${encodeURIComponent(filename)}`,
         method: 'GET',
       }),
     }),
@@ -70,7 +70,7 @@ export const expenseApi = createApi({
     // ─────────────────────────────────────────────────────
     scanReceipt: builder.mutation<ScanResponse, { fileUrl: string }>({
       query: (body) => ({
-        url: '/expenses/scan',
+        url: '/emp-002',
         method: 'POST',
         body,
       }),
@@ -80,8 +80,16 @@ export const expenseApi = createApi({
     // MANAGER: Pending approval queue
     // ─────────────────────────────────────────────────────
     getManagerQueue: builder.query<Expense[], void>({
-      query: () => '/manager/expenses',
+      query: () => '/mgr-001',
       providesTags: ['ManagerQueue'],
+    }),
+
+    // ─────────────────────────────────────────────────────
+    // MANAGER: Get expense detail (for review)
+    // ─────────────────────────────────────────────────────
+    getManagerExpenseById: builder.query<Expense, number>({
+      query: (id) => `/mgr-004/${id}`,
+      providesTags: (_result, _err, id) => [{ type: 'Expense', id }],
     }),
 
     // ─────────────────────────────────────────────────────
@@ -89,7 +97,7 @@ export const expenseApi = createApi({
     // ─────────────────────────────────────────────────────
     approveExpense: builder.mutation<void, number>({
       query: (id) => ({
-        url: `/manager/expenses/${id}/approve`,
+        url: `/mgr-002/${id}`,
         method: 'PUT',
       }),
       invalidatesTags: ['ManagerQueue', 'Expense'],
@@ -100,7 +108,7 @@ export const expenseApi = createApi({
     // ─────────────────────────────────────────────────────
     rejectExpense: builder.mutation<void, RejectExpenseRequest>({
       query: ({ id, rejectionReason }) => ({
-        url: `/manager/expenses/${id}/reject`,
+        url: `/mgr-003/${id}`,
         method: 'PUT',
         body: { rejectionReason },
       }),
@@ -117,6 +125,7 @@ export const {
   useGetUploadUrlMutation,
   useScanReceiptMutation,
   useGetManagerQueueQuery,
+  useGetManagerExpenseByIdQuery,
   useApproveExpenseMutation,
   useRejectExpenseMutation,
 } = expenseApi;

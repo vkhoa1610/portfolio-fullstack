@@ -33,7 +33,7 @@ export const authApi = createApi({
     // ─────────────────────────────────────────────────────────────────
     login: builder.mutation<LoginResponse, LoginRequest>({
       query: (body) => ({
-        url: '/auth/login',
+        url: '/com-001',
         method: 'POST',
         body,
       }),
@@ -45,7 +45,7 @@ export const authApi = createApi({
     // ─────────────────────────────────────────────────────────────────
     verifyMfa: builder.mutation<MfaVerifyResponse, MfaVerifyRequest>({
       query: (body) => ({
-        url: '/auth/mfa',
+        url: '/com-002',
         method: 'POST',
         body,
       }),
@@ -57,7 +57,7 @@ export const authApi = createApi({
     // ─────────────────────────────────────────────────────────────────
     setNewPassword: builder.mutation<NewPasswordResponse, NewPasswordRequest>({
       query: (body) => ({
-        url: '/auth/new-password',
+        url: '/com-003',
         method: 'POST',
         body,
       }),
@@ -68,7 +68,7 @@ export const authApi = createApi({
     // Session - Re-hydrate UI session from cookies (after page refresh)
     // ─────────────────────────────────────────────────────────────────
     getSession: builder.query<SessionResponse, void>({
-      query: () => '/auth/session',
+      query: () => '/com-004',
       providesTags: ['Session'],
     }),
 
@@ -77,7 +77,7 @@ export const authApi = createApi({
     // ─────────────────────────────────────────────────────────────────
     logout: builder.mutation<LogoutResponse, void>({
       query: () => ({
-        url: '/auth/logout',
+        url: '/com-005',
         method: 'POST',
       }),
       invalidatesTags: ['Session'],
@@ -88,7 +88,7 @@ export const authApi = createApi({
     // ─────────────────────────────────────────────────────────────────
     submitConsent: builder.mutation<ConsentResponse, ConsentRequest>({
       query: (body) => ({
-        url: '/onboarding/consent',
+        url: '/com-006',
         method: 'POST',
         body,
       }),
@@ -99,7 +99,7 @@ export const authApi = createApi({
     // ─────────────────────────────────────────────────────────────────
     submitProfile: builder.mutation<ProfileSetupResponse, ProfileSetupRequest>({
       query: (body) => ({
-        url: '/onboarding/profile',
+        url: '/com-007',
         method: 'POST',
         body,
       }),

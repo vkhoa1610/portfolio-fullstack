@@ -1,19 +1,27 @@
 export const BFF_ENDPOINTS = {
-  AUTH_001: '/auth/login',
-  AUTH_002: '/auth/mfa',
-  AUTH_003: '/auth/otp',
-  AUTH_004: '/auth/new-password',
-  AUTH_005: '/auth/session',
-  AUTH_006: '/auth/logout',
-  AUTH_007: '/auth/refresh',
-  ONBOARDING_001: '/onboarding/consent',
-  ONBOARDING_002: '/onboarding/profile',
-  EXPENSE_001: '/expenses',
-  EXPENSE_002: '/expenses/:id',
-  EXPENSE_003: '/expenses/:id/submit',
-  EXPENSE_004: '/expenses/scan',
-  EXPENSE_005: '/expenses/upload-url',
-  MANAGER_001: '/manager/expenses',
-  MANAGER_002: '/manager/expenses/:id/approve',
-  MANAGER_003: '/manager/expenses/:id/reject',
+  // ─── Common (auth + onboarding) ───────────────────────────────────
+  COM_001: '/com-001',  // POST auth/login
+  COM_002: '/com-002',  // POST auth/mfa
+  COM_003: '/com-003',  // POST auth/new-password
+  COM_004: '/com-004',  // GET  auth/session
+  COM_005: '/com-005',  // POST auth/logout
+  COM_006: '/com-006',  // POST onboarding/consent
+  COM_007: '/com-007',  // POST onboarding/profile
+
+  // ─── Employee ─────────────────────────────────────────────────────
+  EMP_001: '/emp-001',      // GET  expenses/upload-url
+  EMP_002: '/emp-002',      // POST expenses/scan
+  EMP_003: '/emp-003',      // POST expenses (create)
+  EMP_004: '/emp-004',      // GET  expenses (list own)
+  EMP_005: '/emp-005/:id',  // GET  expenses/:id — canonical (shared với mgr-004)
+  EMP_006: '/emp-006/:id',  // POST expenses/:id/submit
+
+  // ─── Manager ──────────────────────────────────────────────────────
+  MGR_001: '/mgr-001',      // GET manager/expenses
+  MGR_002: '/mgr-002/:id',  // PUT manager/expenses/:id/approve
+  MGR_003: '/mgr-003/:id',  // PUT manager/expenses/:id/reject
+  MGR_004: '/mgr-004/:id',  // GET expenses/:id (re-export từ emp-005)
+
+  // ─── Finance ──────────────────────────────────────────────────────
+  // FIN_001: '/fin-001',
 } as const;

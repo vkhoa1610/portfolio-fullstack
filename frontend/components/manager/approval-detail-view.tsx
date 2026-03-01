@@ -4,12 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
-import { useGetExpenseByIdQuery, useApproveExpenseMutation, useRejectExpenseMutation } from "@/ducks/expenses";
+import { useGetManagerExpenseByIdQuery, useApproveExpenseMutation, useRejectExpenseMutation } from "@/ducks/expenses";
 
 export default function ApprovalDetailView({ id }: { id: number }) {
   const { t } = useTranslation();
   const router = useRouter();
-  const { data: expense, isLoading } = useGetExpenseByIdQuery(id);
+  const { data: expense, isLoading } = useGetManagerExpenseByIdQuery(id);
   const [approveExpense, { isLoading: isApproving }] = useApproveExpenseMutation();
   const [rejectExpense, { isLoading: isRejecting }] = useRejectExpenseMutation();
 
