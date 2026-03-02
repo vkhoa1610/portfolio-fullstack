@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.my_java_app.mapper.FunctionMapper">
+
+    <!-- List all function_ids granted to a user -->
+    <select id="findFunctionIdsByUserSub" resultType="java.lang.Integer">
+        SELECT function_id
+        FROM items
+        WHERE cognito_sub = #{cognitoSub}
+    </select>
+
+    <!-- Look up function_id by its string key -->
+    <select id="findFunctionIdByKey" resultType="java.lang.Integer">
+        SELECT function_id
+        FROM functions
+        WHERE function_key = #{functionKey}
+          AND is_deleted = 0
+        LIMIT 1
+    </select>
+
+    <!-- Grant a function to a user (idempotent) -->
+    <insert id="grantFunction">
+        INSERT IGNORE INTO items (cognito_sub, function_id, granted_by)
+        VALUES (#{cognitoSub}, #{functionId}, #{grantedBy})
+    </insert>
+
+    <!-- Revoke a function from a user -->
+    <delete id="revokeFunction">
+        DELETE FROM items
+        WHERE cognito_sub = #{cognitoSub}
+          AND function_id = #{functionId}
+    </delete>
+
+</mapper>

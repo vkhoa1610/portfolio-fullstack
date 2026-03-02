@@ -1,17 +1,27 @@
 "use client";
 
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { Camera, Calendar, Car, ChevronRight, AlertTriangle } from "lucide-react";
 import { useGetManagerQueueQuery } from "@/ducks/expenses";
 import type { Expense } from "@/ducks/expenses";
+import { useAuth } from "@/common/context/AuthContext";
 
 const TYPE_ICON = { RECEIPT: Camera, PER_DIEM: Calendar, MILEAGE: Car };
 
 export default function ApprovalsView() {
   const { t } = useTranslation();
   const router = useRouter();
+  const { session, isLoading: isAuthLoading, hasPermission } = useAuth();
   const { data: expenses = [], isLoading } = useGetManagerQueueQuery();
+
+  // Permission check: must have EXPENSE_APPROVE to access this page
+  useEffect(() => {
+    if (!isAuthLoading && session !== null && !hasPermission("EXPENSE_APPROVE")) {
+      router.replace("/not-found");
+    }
+  }, [isAuthLoading, session, hasPermission, router]);
 
   return (
     <div className="space-y-4">

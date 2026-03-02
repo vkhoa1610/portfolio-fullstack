@@ -3,7 +3,7 @@ import { respondToMfaChallenge } from '@common/config/cognito-service.js';
 import { ProcessStatus, ErrorResponse } from '@common/config/common-types.js';
 import { setAuthCookies } from '@common/config/cookie-config.js';
 import { handleNormal, handleBackendError, throwBffError } from '@common/util/response-handler.js';
-import { fetchUserProfile, buildUISession, getRedirectUrl } from '@common/util/auth-utils.js';
+import { fetchUserProfile, fetchUserPermissions, fetchUserFunctions, buildUISession, getRedirectUrl } from '@common/util/auth-utils.js';
 import { MfaVerifyRequest, MfaVerifyResponse } from '@common/types/auth-types.js';
 
 /**
@@ -57,12 +57,15 @@ export const handle = async (
       refreshToken: RefreshToken,
     });
 
-    // Fetch user profile from Java backend
-    const userProfile = await fetchUserProfile(IdToken!);
-
+    // Fetch user profile + permissions + functions from Java backend
+    const [userProfile, permissions, functions] = await Promise.all([
+      fetchUserProfile(IdToken!),
+      fetchUserPermissions(IdToken!),
+      fetchUserFunctions(IdToken!),
+    ]);
 
     // Build frontend-safe UI session
-    const uiSession = buildUISession(userProfile, validEmail);
+    const uiSession = buildUISession(userProfile, validEmail, permissions, functions);
     const redirectTo = getRedirectUrl(userProfile);
 
     const response: MfaVerifyResponse = {

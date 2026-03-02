@@ -23,6 +23,12 @@ interface AuthContextType {
 
   /** Clear session (logout) */
   clearSession: () => void;
+
+  /** Check if current user has a specific permission code */
+  hasPermission: (permissionCode: string) => boolean;
+
+  /** Check if current user has a specific UI function ID (for CMS rendering) */
+  hasFunctionId: (functionId: number) => boolean;
 }
 
 // ============================================================================
@@ -88,6 +94,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setSessionState(null);
   }, []);
 
+  // Check if user has a specific permission
+  const hasPermission = useCallback((permissionCode: string): boolean => {
+    return session?.permissions?.includes(permissionCode) ?? false;
+  }, [session]);
+
+  // Check if user has a specific UI function ID
+  const hasFunctionId = useCallback((functionId: number): boolean => {
+    return session?.functions?.includes(functionId) ?? false;
+  }, [session]);
+
   // Determine loading state
   const isLoading = !isHydrated && (isQueryLoading || isFetching);
 
@@ -99,6 +115,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         session,
         setSession,
         clearSession,
+        hasPermission,
+        hasFunctionId,
       }}
     >
       {children}

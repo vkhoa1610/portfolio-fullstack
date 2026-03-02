@@ -150,7 +150,9 @@
       "field_days": "Days",
       "field_distance": "Distance",
       "field_rate_km": "Rate/km",
-      "btn_submit": "Submit"
+      "btn_submit": "Submit",
+      "field_submitted_at": "Submitted",
+      "field_vendor_name": "Vendor"
     },
     "review": {
       "title": "Review & Submit",
@@ -165,6 +167,12 @@
     }
   },
   "manager": {
+    "btn": {
+      "accept": "Approve",
+      "reject": "Reject",
+      "confirm_reject": "Confirm Rejection"
+    },
+    "rejection_reason": "Rejection Reason",
     "approvals": {
       "title": "Approvals",
       "subtitle": "Pending expense approvals from your team",

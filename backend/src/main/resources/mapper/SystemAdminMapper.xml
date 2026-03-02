@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.my_java_app.mapper.SystemAdminMapper">
+
+    <resultMap id="SystemAdminResultMap" type="com.example.my_java_app.entity.SystemAdminEntity">
+        <id     property="cognitoSub" column="cognito_sub" />
+        <result property="email"      column="email" />
+        <result property="createdAt"  column="created_at" />
+    </resultMap>
+
+    <select id="findBySub" resultMap="SystemAdminResultMap">
+        SELECT cognito_sub, email, created_at
+        FROM system_admins
+        WHERE cognito_sub = #{cognitoSub}
+          AND is_deleted = 0
+        LIMIT 1
+    </select>
+
+</mapper>

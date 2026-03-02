@@ -132,6 +132,72 @@ CREATE TABLE expenses (
 
 
 -- =============================================
+-- 5. GROUP AUTHORIZATION (PERMISSION-BASED)
+-- =============================================
+
+-- 5.1 Table: permissions — master list of permission codes
+CREATE TABLE permissions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    permission_code VARCHAR(50) NOT NULL UNIQUE,
+    description VARCHAR(255),
+    is_deleted TINYINT(1) DEFAULT 0
+);
+
+-- 5.2 Table: user_permissions — maps cognito_sub → permission
+CREATE TABLE user_permissions (
+    user_sub VARCHAR(36) NOT NULL,
+    permission_id INT NOT NULL,
+    granted_by VARCHAR(36) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_sub, permission_id),
+    CONSTRAINT fk_uperm_user FOREIGN KEY (user_sub) REFERENCES users(cognito_sub) ON DELETE CASCADE,
+    CONSTRAINT fk_uperm_perm FOREIGN KEY (permission_id) REFERENCES permissions(id) ON DELETE CASCADE
+);
+
+-- 5.3 Table: system_admins — separate Cognito pool, not in users table
+CREATE TABLE system_admins (
+    cognito_sub VARCHAR(36) NOT NULL PRIMARY KEY,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_deleted TINYINT(1) DEFAULT 0
+);
+
+-- =============================================
+-- 6. GROUP UI FUNCTIONS (CMS-DRIVEN)
+-- =============================================
+
+-- 6.1 Table: functions — master list of in-page actions
+CREATE TABLE functions (
+    function_id  INT AUTO_INCREMENT PRIMARY KEY,
+    function_key VARCHAR(50) NOT NULL UNIQUE,   -- 'EXPENSE_ACCEPT', 'EXPENSE_REJECT'
+    module       VARCHAR(30) NOT NULL,           -- 'MANAGER', 'FINANCE', 'EMPLOYEE'
+    description  VARCHAR(255),
+    is_deleted   TINYINT(1) DEFAULT 0
+);
+
+-- 6.2 Table: items — map cognito_sub → function_id
+CREATE TABLE items (
+    cognito_sub  VARCHAR(36) NOT NULL,
+    function_id  INT NOT NULL,
+    granted_by   VARCHAR(36) NOT NULL,
+    created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (cognito_sub, function_id),
+    CONSTRAINT fk_item_user FOREIGN KEY (cognito_sub) REFERENCES users(cognito_sub) ON DELETE CASCADE,
+    CONSTRAINT fk_item_func FOREIGN KEY (function_id) REFERENCES functions(function_id) ON DELETE CASCADE
+);
+
+-- 6.3 Table: screen_configs — CMS JSON per screen, versioned
+CREATE TABLE screen_configs (
+    screen_key   VARCHAR(100) NOT NULL,
+    version      INT NOT NULL DEFAULT 1,
+    config_json  JSON NOT NULL,
+    is_active    TINYINT(1) DEFAULT 1,
+    updated_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_by   VARCHAR(36),
+    PRIMARY KEY (screen_key, version)
+);
+
+-- =============================================
 -- SEED DATA
 -- =============================================
 
@@ -165,3 +231,102 @@ INSERT INTO users (cognito_sub, username, email, status) VALUES
 ('a7e4fa28-1051-704f-042a-f7fe9f450d8c', 'sample-finance', 'sample-fin@gmail.com', 'active');
 INSERT INTO user_roles (user_sub, role_id) VALUES
 ('a7e4fa28-1051-704f-042a-f7fe9f450d8c', 3); -- FINANCE
+
+-- 4. Permissions
+INSERT INTO permissions (id, permission_code, description) VALUES
+(1, 'EXPENSE_APPROVE', 'Approve expense reports'),
+(2, 'EXPENSE_REJECT',  'Reject expense reports'),
+(3, 'FINANCE_VIEW',    'View finance overview'),
+(4, 'FINANCE_EXPORT',  'Export finance reports');
+
+-- 5. Grant manager test user approve + reject permissions
+INSERT INTO user_permissions (user_sub, permission_id, granted_by) VALUES
+('37e4ca68-3051-7093-ee11-658d3aa0a191', 1, 'system'),
+('37e4ca68-3051-7093-ee11-658d3aa0a191', 2, 'system');
+
+-- Grant finance test user view + export permissions
+INSERT INTO user_permissions (user_sub, permission_id, granted_by) VALUES
+('a7e4fa28-1051-704f-042a-f7fe9f450d8c', 3, 'system'),
+('a7e4fa28-1051-704f-042a-f7fe9f450d8c', 4, 'system');
+
+-- 6. Functions
+INSERT INTO functions (function_id, function_key, module, description) VALUES
+(1, 'EXPENSE_ACCEPT',        'MANAGER',  'Accept an expense report'),
+(2, 'EXPENSE_REJECT',        'MANAGER',  'Reject an expense report'),
+(3, 'FINANCE_VIEW_OVERVIEW', 'FINANCE',  'View finance overview page'),
+(4, 'FINANCE_EXPORT',        'FINANCE',  'Export finance reports');
+
+-- 7. Items — grant manager test user
+INSERT INTO items (cognito_sub, function_id, granted_by) VALUES
+('37e4ca68-3051-7093-ee11-658d3aa0a191', 1, 'system'),
+('37e4ca68-3051-7093-ee11-658d3aa0a191', 2, 'system');
+
+-- Grant finance test user
+INSERT INTO items (cognito_sub, function_id, granted_by) VALUES
+('a7e4fa28-1051-704f-042a-f7fe9f450d8c', 3, 'system'),
+('a7e4fa28-1051-704f-042a-f7fe9f450d8c', 4, 'system');
+
+-- 8. Screen configs — manager approvals detail (mẫu)
+INSERT INTO screen_configs (screen_key, version, config_json, updated_by) VALUES
+('manager.approvals.detail', 1, '{
+  "screen_key": "manager.approvals.detail",
+  "root": {
+    "id": "page",
+    "type": "layout.page",
+    "parts": [
+      {
+        "id": "expense-info",
+        "type": "layout.card",
+        "parts": [
+          { "id": "field-amount",   "type": "display.field", "data_key": "amount" },
+          { "id": "field-type",     "type": "display.field", "data_key": "type" },
+          { "id": "field-date",     "type": "display.field", "data_key": "submitted_at" },
+          { "id": "field-vendor",   "type": "display.field", "data_key": "vendor_name" }
+        ]
+      },
+      {
+        "id": "action-bar",
+        "type": "layout.action-bar",
+        "auto_hide_if_empty": true,
+        "parts": [
+          {
+            "id": "btn-accept",
+            "type": "input.button",
+            "label_key": "manager.btn.accept",
+            "variant": "primary",
+            "action": "EXPENSE_ACCEPT",
+            "function_id": 1
+          },
+          {
+            "id": "btn-reject",
+            "type": "input.button",
+            "label_key": "manager.btn.reject",
+            "variant": "danger",
+            "action": "EXPENSE_REJECT",
+            "function_id": 2
+          }
+        ]
+      },
+      {
+        "id": "reject-form",
+        "type": "layout.form",
+        "function_id": 2,
+        "parts": [
+          {
+            "id": "txt-reason",
+            "type": "input.textarea",
+            "label_key": "manager.rejection_reason",
+            "required": true
+          },
+          {
+            "id": "btn-confirm-reject",
+            "type": "input.button",
+            "label_key": "manager.btn.confirm_reject",
+            "variant": "danger",
+            "action": "EXPENSE_REJECT_SUBMIT"
+          }
+        ]
+      }
+    ]
+  }
+}', 'system');

@@ -18,6 +18,8 @@ export interface UISession {
   };
   budget: number;
   onboardingStatus: 'PENDING' | 'DONE';
+  permissions: string[];
+  functions: number[];
 }
 
 // ============================================================================

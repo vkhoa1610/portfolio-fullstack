@@ -26,7 +26,6 @@ export const fetchUserProfile = async (idToken: string): Promise<UserProfile> =>
     return response.data;
   } catch (error: any) {
     console.warn('⚠️ Failed to fetch user profile from Java:', error.message);
-    // Return default profile - user can still use the app
     return {
       role: 'ADMIN',
       budget: 0,
@@ -36,13 +35,53 @@ export const fetchUserProfile = async (idToken: string): Promise<UserProfile> =>
 };
 
 /**
- * Builds a frontend-safe UI session from user profile
- * This is the ONLY data that gets sent to the frontend
- * 
+ * Fetches permission codes for the current user from Java backend
+ */
+export const fetchUserPermissions = async (idToken: string): Promise<string[]> => {
+  try {
+    const response = await apiClientGet<string[]>('/api/v1/users/me/permissions', {
+      baseURL: JAVA_API_URL,
+      headers: {
+        Authorization: `Bearer ${idToken}`,
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    console.warn('⚠️ Failed to fetch user permissions from Java:', error.message);
+    return [];
+  }
+};
+
+/**
+ * Fetches granted UI function IDs for the current user from Java backend
+ */
+export const fetchUserFunctions = async (idToken: string): Promise<number[]> => {
+  try {
+    const response = await apiClientGet<number[]>('/api/v1/users/me/functions', {
+      baseURL: JAVA_API_URL,
+      headers: {
+        Authorization: `Bearer ${idToken}`,
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    console.warn('⚠️ Failed to fetch user functions from Java:', error.message);
+    return [];
+  }
+};
+
+/**
+ * Builds a frontend-safe UI session from user profile + permissions + functions
+ *
  * ❌ No tokens
  * ❌ No sensitive data
  */
-export const buildUISession = (profile: UserProfile, email: string): UISession => {
+export const buildUISession = (
+  profile: UserProfile,
+  email: string,
+  permissions: string[],
+  functions: number[],
+): UISession => {
   return {
     user: {
       email,
@@ -50,6 +89,8 @@ export const buildUISession = (profile: UserProfile, email: string): UISession =
     },
     budget: profile.budget || 0,
     onboardingStatus: (profile.onboardingStatus as 'PENDING' | 'DONE') || 'PENDING',
+    permissions,
+    functions,
   };
 };
 

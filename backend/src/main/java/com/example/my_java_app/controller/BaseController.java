@@ -20,5 +20,9 @@ public abstract class BaseController {
     protected <T> ResponseEntity<T> notFound(T body) {
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
+
+    protected <T> ResponseEntity<T> forbidden(T body) {
+        return new ResponseEntity<>(body, HttpStatus.FORBIDDEN);
+    }
 }
 

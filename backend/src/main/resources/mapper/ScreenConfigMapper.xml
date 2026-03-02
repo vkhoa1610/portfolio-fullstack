@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.my_java_app.mapper.ScreenConfigMapper">
+
+    <resultMap id="screenConfigResult" type="com.example.my_java_app.entity.ScreenConfigEntity">
+        <result property="screenKey"  column="screen_key"/>
+        <result property="version"    column="version"/>
+        <result property="configJson" column="config_json"/>
+        <result property="isActive"   column="is_active"/>
+        <result property="updatedBy"  column="updated_by"/>
+    </resultMap>
+
+    <!-- Get the currently active config for a screen -->
+    <select id="findActiveByScreenKey" resultMap="screenConfigResult">
+        SELECT screen_key, version, config_json, is_active, updated_by
+        FROM screen_configs
+        WHERE screen_key = #{screenKey}
+          AND is_active = 1
+        LIMIT 1
+    </select>
+
+    <!-- Get the highest version number for a screen (null if no rows yet) -->
+    <select id="findMaxVersionByScreenKey" resultType="java.lang.Integer">
+        SELECT MAX(version)
+        FROM screen_configs
+        WHERE screen_key = #{screenKey}
+    </select>
+
+    <!-- Insert a new version row -->
+    <insert id="insertVersion" parameterType="com.example.my_java_app.entity.ScreenConfigEntity">
+        INSERT INTO screen_configs (screen_key, version, config_json, is_active, updated_by)
+        VALUES (#{screenKey}, #{version}, #{configJson}, 1, #{updatedBy})
+    </insert>
+
+    <!-- Deactivate all versions except the new current one -->
+    <update id="deactivatePreviousVersions">
+        UPDATE screen_configs
+        SET is_active = 0
+        WHERE screen_key = #{screenKey}
+          AND version != #{currentVersion}
+    </update>
+
+</mapper>

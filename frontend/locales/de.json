@@ -150,7 +150,9 @@
       "field_days": "Tage",
       "field_distance": "Distanz",
       "field_rate_km": "Satz/km",
-      "btn_submit": "Einreichen"
+      "btn_submit": "Einreichen",
+      "field_submitted_at": "Eingereicht am",
+      "field_vendor_name": "Anbieter"
     },
     "review": {
       "title": "Überprüfung & Einreichen",
@@ -165,6 +167,12 @@
     }
   },
   "manager": {
+    "btn": {
+      "accept": "Genehmigen",
+      "reject": "Ablehnen",
+      "confirm_reject": "Ablehnung bestätigen"
+    },
+    "rejection_reason": "Ablehnungsgrund",
     "approvals": {
       "title": "Genehmigungen",
       "subtitle": "Ausstehende Ausgabengenehmigungen Ihres Teams",

@@ -150,7 +150,9 @@
       "field_days": "Số ngày",
       "field_distance": "Khoảng cách",
       "field_rate_km": "Đơn giá/km",
-      "btn_submit": "Gửi duyệt"
+      "btn_submit": "Gửi duyệt",
+      "field_submitted_at": "Ngày gửi",
+      "field_vendor_name": "Nhà cung cấp"
     },
     "review": {
       "title": "Kiểm tra & Gửi",
@@ -165,6 +167,12 @@
     }
   },
   "manager": {
+    "btn": {
+      "accept": "Phê duyệt",
+      "reject": "Từ chối",
+      "confirm_reject": "Xác nhận từ chối"
+    },
+    "rejection_reason": "Lý do từ chối",
     "approvals": {
       "title": "Phê duyệt",
       "subtitle": "Chi phí chờ phê duyệt từ nhóm của bạn",

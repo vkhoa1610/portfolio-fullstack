@@ -26,6 +26,8 @@ export interface UISession {
   user: UISessionUser;
   budget: number;
   onboardingStatus: 'PENDING' | 'DONE';
+  permissions: string[];
+  functions: number[];
 }
 
 // ============================================================================

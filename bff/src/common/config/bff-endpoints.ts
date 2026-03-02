@@ -24,4 +24,7 @@ export const BFF_ENDPOINTS = {
 
   // ─── Finance ──────────────────────────────────────────────────────
   FIN_001: '/fin-001',  // GET  finance/expenses (all expenses for accountant)
+
+  // ─── Screen Config (CMS) ──────────────────────────────────────────
+  SCR_001: '/scr-001/:screenKey',  // GET screen config JSON for a screen
 } as const;

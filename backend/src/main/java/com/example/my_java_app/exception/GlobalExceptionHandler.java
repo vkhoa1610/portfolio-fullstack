@@ -12,6 +12,19 @@ import java.time.LocalDateTime;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+    // ✅ Handle ForbiddenException (403)
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<ErrorResponse> handleForbidden(ForbiddenException ex, WebRequest request) {
+        ErrorResponse error = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.FORBIDDEN.value(),
+                "Forbidden",
+                ex.getMessage(),
+                request.getDescription(false)
+        );
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+    }
+
     // ✅ Handle NotFoundException (404)
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFound(NotFoundException ex, WebRequest request) {

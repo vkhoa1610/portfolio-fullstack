@@ -4,7 +4,7 @@ import { ProcessStatus, ErrorResponse } from '@common/config/common-types.js';
 import { getAuthCookies, clearAuthCookies, setAuthCookies } from '@common/config/cookie-config.js';
 import { refreshTokens } from '@common/config/cognito-service.js';
 import { handleNormal, handleBackendError } from '@common/util/response-handler.js';
-import { fetchUserProfile, buildUISession } from '@common/util/auth-utils.js';
+import { fetchUserProfile, fetchUserPermissions, fetchUserFunctions, buildUISession } from '@common/util/auth-utils.js';
 import { SessionResponse } from '@common/types/auth-types.js';
 
 /**
@@ -111,11 +111,15 @@ export const handle = async (req: Request, res: Response<SessionResponse | Error
       }
     }
 
-    // Fetch fresh user profile from Java backend
-    const userProfile = await fetchUserProfile(tokens.idToken);
+    // Fetch fresh user profile + permissions + functions from Java backend
+    const [userProfile, permissions, functions] = await Promise.all([
+      fetchUserProfile(tokens.idToken),
+      fetchUserPermissions(tokens.idToken),
+      fetchUserFunctions(tokens.idToken),
+    ]);
 
     // Build frontend-safe UI session
-    const uiSession = buildUISession(userProfile, email);
+    const uiSession = buildUISession(userProfile, email, permissions, functions);
 
     console.log('✅ Session hydration successful for:', email);
 
