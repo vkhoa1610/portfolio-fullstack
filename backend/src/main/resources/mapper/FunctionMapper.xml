@@ -5,11 +5,12 @@
 
 <mapper namespace="com.example.my_java_app.mapper.FunctionMapper">
 
-    <!-- List all function_ids granted to a user -->
+    <!-- Active functions only (is_active = 1) -->
     <select id="findFunctionIdsByUserSub" resultType="java.lang.Integer">
-        SELECT function_id
-        FROM items
-        WHERE cognito_sub = #{cognitoSub}
+        SELECT i.function_id
+        FROM items i
+        WHERE i.cognito_sub = #{cognitoSub}
+          AND i.is_active = 1
     </select>
 
     <!-- Look up function_id by its string key -->
@@ -21,17 +22,51 @@
         LIMIT 1
     </select>
 
-    <!-- Grant a function to a user (idempotent) -->
+    <!-- UPSERT: grant or re-activate a function -->
     <insert id="grantFunction">
-        INSERT IGNORE INTO items (cognito_sub, function_id, granted_by)
-        VALUES (#{cognitoSub}, #{functionId}, #{grantedBy})
+        INSERT INTO items (cognito_sub, function_id, granted_by, is_active)
+        VALUES (#{cognitoSub}, #{functionId}, #{grantedBy}, 1)
+        ON DUPLICATE KEY UPDATE is_active = 1, granted_by = #{grantedBy}
     </insert>
 
-    <!-- Revoke a function from a user -->
-    <delete id="revokeFunction">
-        DELETE FROM items
+    <!-- Soft delete: deactivate instead of hard delete -->
+    <update id="revokeFunction">
+        UPDATE items
+        SET is_active = 0
         WHERE cognito_sub = #{cognitoSub}
           AND function_id = #{functionId}
-    </delete>
+    </update>
+
+    <!-- Admin: all functions with 3-state status for a user -->
+    <resultMap id="functionStatusMap" type="com.example.my_java_app.dto.response.UserFunctionStatusDto">
+        <result property="functionId"   column="function_id"/>
+        <result property="functionKey"  column="function_key"/>
+        <result property="module"       column="module"/>
+        <result property="description"  column="description"/>
+        <result property="state"        column="state"/>
+        <result property="grantedBy"    column="granted_by"/>
+        <result property="createdAt"    column="created_at"/>
+    </resultMap>
+
+    <select id="findAllFunctionsWithStateForUser" resultMap="functionStatusMap">
+        SELECT
+            f.function_id,
+            f.function_key,
+            f.module,
+            f.description,
+            CASE
+                WHEN i.cognito_sub IS NULL THEN 'NEVER_GRANTED'
+                WHEN i.is_active = 1       THEN 'ACTIVE'
+                ELSE 'INACTIVE'
+            END AS state,
+            i.granted_by,
+            i.created_at
+        FROM functions f
+        LEFT JOIN items i
+            ON i.function_id = f.function_id
+            AND i.cognito_sub = #{cognitoSub}
+        WHERE f.is_deleted = 0
+        ORDER BY f.function_id
+    </select>
 
 </mapper>

@@ -5,11 +5,13 @@
 
 <mapper namespace="com.example.my_java_app.mapper.PermissionMapper">
 
+    <!-- Active permissions only (is_active = 1) -->
     <select id="findPermissionCodesByUserSub" resultType="string">
         SELECT p.permission_code
         FROM user_permissions up
         JOIN permissions p ON p.id = up.permission_id
         WHERE up.user_sub = #{userSub}
+          AND up.is_active = 1
           AND p.is_deleted = 0
     </select>
 
@@ -20,15 +22,47 @@
         LIMIT 1
     </select>
 
+    <!-- UPSERT: grant or re-activate a permission -->
     <insert id="grantPermission">
-        INSERT IGNORE INTO user_permissions (user_sub, permission_id, granted_by)
-        VALUES (#{userSub}, #{permissionId}, #{grantedBy})
+        INSERT INTO user_permissions (user_sub, permission_id, granted_by, is_active)
+        VALUES (#{userSub}, #{permissionId}, #{grantedBy}, 1)
+        ON DUPLICATE KEY UPDATE is_active = 1, granted_by = #{grantedBy}
     </insert>
 
-    <delete id="revokePermission">
-        DELETE FROM user_permissions
+    <!-- Soft delete: deactivate instead of hard delete -->
+    <update id="revokePermission">
+        UPDATE user_permissions
+        SET is_active = 0
         WHERE user_sub = #{userSub}
           AND permission_id = #{permissionId}
-    </delete>
+    </update>
+
+    <!-- Admin: all permissions with 3-state status for a user -->
+    <resultMap id="permissionStatusMap" type="com.example.my_java_app.dto.response.UserPermissionStatusDto">
+        <result property="permissionCode" column="permission_code"/>
+        <result property="description"    column="description"/>
+        <result property="state"          column="state"/>
+        <result property="grantedBy"      column="granted_by"/>
+        <result property="createdAt"      column="created_at"/>
+    </resultMap>
+
+    <select id="findAllPermissionsWithStateForUser" resultMap="permissionStatusMap">
+        SELECT
+            p.permission_code,
+            p.description,
+            CASE
+                WHEN up.user_sub IS NULL THEN 'NEVER_GRANTED'
+                WHEN up.is_active = 1    THEN 'ACTIVE'
+                ELSE 'INACTIVE'
+            END AS state,
+            up.granted_by,
+            up.created_at
+        FROM permissions p
+        LEFT JOIN user_permissions up
+            ON up.permission_id = p.id
+            AND up.user_sub = #{userSub}
+        WHERE p.is_deleted = 0
+        ORDER BY p.id
+    </select>
 
 </mapper>

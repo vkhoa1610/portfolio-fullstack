@@ -18,4 +18,8 @@ public class SystemAdminRepository {
     public Optional<SystemAdminEntity> findBySub(String cognitoSub) {
         return Optional.ofNullable(systemAdminMapper.findBySub(cognitoSub));
     }
+
+    public boolean existsBySub(String sub) {
+        return systemAdminMapper.countBySub(sub) > 0;
+    }
 }

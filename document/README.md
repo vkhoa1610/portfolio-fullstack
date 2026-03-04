@@ -6,6 +6,7 @@
 document/
 ├── README.md               ← File này
 ├── FLOWS.md                ← Tổng quan flows & trạng thái implement
+├── RULES.md                ← Quy tắc triển khai (backend/BFF/frontend patterns)
 │
 ├── common/                 ← Shared concepts & domain overview
 │   ├── common/             → Auth flow, error format, shared types
@@ -26,17 +27,17 @@ document/
 │   │   └── expense-detail.md
 │   ├── manager/            → Approval screens
 │   │   ├── approval-queue.md
-│   │   └── approval-detail.md
+│   │   └── approval-detail.md (CMS-driven, permission guard)
 │   └── finance/            → (placeholder)
 │
 ├── bff/                    ← BFF layer documentation
-│   ├── common/             → com-001 đến com-007 (auth + onboarding)
+│   ├── common/             → com-001 đến com-007 (auth + onboarding), scr-001 (CMS proxy)
 │   ├── employee/           → emp-001 đến emp-006 (expense)
 │   ├── manager/            → mgr-001 đến mgr-004 (approval)
 │   └── finance/            → (placeholder)
 │
 └── backend/                ← Java Backend API documentation
-    ├── common/             → users/me, onboarding APIs
+    ├── common/             → users/me, permissions, functions, screen-configs, admin APIs
     ├── employee/           → expense CRUD APIs
     ├── manager/            → manager approval APIs
     └── finance/            → (placeholder)
@@ -71,3 +72,5 @@ document/
 | Employee | EMP (1-6)  | /api/v1/expenses/        | EMPLOYEE, MANAGER |
 | Manager  | MGR (1-4)  | /api/v1/manager/expenses/| MANAGER     |
 | Finance  | FIN (TBD)  | TBD                      | FINANCE     |
+| CMS / Screen Config | SCR (1+) | /api/v1/screen-configs/ | All authenticated |
+| Admin (Permission/Function) | — | /api/v1/admin/ | system_admins only |

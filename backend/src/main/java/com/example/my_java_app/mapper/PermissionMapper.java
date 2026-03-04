@@ -1,5 +1,6 @@
 package com.example.my_java_app.mapper;
 
+import com.example.my_java_app.dto.response.UserPermissionStatusDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -18,4 +19,6 @@ public interface PermissionMapper {
 
     void revokePermission(@Param("userSub") String userSub,
                           @Param("permissionId") int permissionId);
+
+    List<UserPermissionStatusDto> findAllPermissionsWithStateForUser(@Param("userSub") String userSub);
 }

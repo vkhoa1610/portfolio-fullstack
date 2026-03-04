@@ -166,6 +166,7 @@ CREATE TABLE user_permissions (
     user_sub VARCHAR(36) NOT NULL,
     permission_id INT NOT NULL,
     granted_by VARCHAR(36) NOT NULL,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (user_sub, permission_id),
     CONSTRAINT fk_uperm_user FOREIGN KEY (user_sub) REFERENCES users(cognito_sub) ON DELETE CASCADE,
@@ -178,6 +179,17 @@ CREATE TABLE system_admins (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     is_deleted TINYINT(1) DEFAULT 0
 );
+
+-- System admin seed
+-- Must insert into users first (FK referenced by user_consents, user_profiles, etc.)
+INSERT INTO users (cognito_sub, username, email, status) VALUES
+('d704fab8-8021-7066-8f76-bc9f3f147975', 'sample-admin', 'sample-admin@gmail.com', 'active');
+
+INSERT INTO system_admins (cognito_sub, email) VALUES
+('d704fab8-8021-7066-8f76-bc9f3f147975', 'sample-admin@gmail.com');
+
+INSERT INTO user_profiles (user_sub) VALUES
+('d704fab8-8021-7066-8f76-bc9f3f147975');
 
 -- Permissions seed
 INSERT INTO permissions (id, permission_code, description) VALUES
@@ -212,6 +224,7 @@ CREATE TABLE items (
     cognito_sub  VARCHAR(36) NOT NULL,
     function_id  INT NOT NULL,
     granted_by   VARCHAR(36) NOT NULL,
+    is_active    TINYINT(1) NOT NULL DEFAULT 1,
     created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (cognito_sub, function_id),
     CONSTRAINT fk_item_user FOREIGN KEY (cognito_sub) REFERENCES users(cognito_sub) ON DELETE CASCADE,

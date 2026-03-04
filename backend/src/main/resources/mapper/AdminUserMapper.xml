@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.my_java_app.mapper.AdminUserMapper">
+
+    <select id="findAllUsers" resultType="java.util.LinkedHashMap">
+        SELECT
+            u.cognito_sub        AS cognitoSub,
+            u.email              AS email,
+            r.role_name          AS role,
+            p.onboarding_status  AS onboardingStatus,
+            p.budget             AS budget
+        FROM users u
+        LEFT JOIN user_roles ur ON u.cognito_sub = ur.user_sub
+        LEFT JOIN roles r       ON ur.role_id = r.id
+        LEFT JOIN user_profiles p ON u.cognito_sub = p.user_sub
+        WHERE u.is_deleted = 0
+        ORDER BY u.email
+    </select>
+
+    <select id="findCognitoSubByEmail" resultType="string">
+        SELECT cognito_sub FROM users
+        WHERE email = #{email}
+          AND is_deleted = 0
+        LIMIT 1
+    </select>
+
+    <select id="findRoleIdByName" resultType="java.lang.Integer">
+        SELECT id FROM roles
+        WHERE role_name = #{roleName}
+          AND is_deleted = 0
+        LIMIT 1
+    </select>
+
+    <!-- Replace user role (upsert via ON DUPLICATE KEY) -->
+    <insert id="upsertUserRole">
+        INSERT INTO user_roles (user_sub, role_id)
+        VALUES (#{cognitoSub}, #{roleId})
+        ON DUPLICATE KEY UPDATE role_id = #{roleId}
+    </insert>
+
+    <!-- Upsert budget into user_profiles -->
+    <insert id="upsertUserBudget">
+        INSERT INTO user_profiles (user_sub, budget)
+        VALUES (#{cognitoSub}, #{budget})
+        ON DUPLICATE KEY UPDATE budget = #{budget}
+    </insert>
+
+</mapper>

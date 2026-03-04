@@ -1,5 +1,6 @@
 package com.example.my_java_app.repository;
 
+import com.example.my_java_app.dto.response.UserFunctionStatusDto;
 import com.example.my_java_app.mapper.FunctionMapper;
 import org.springframework.stereotype.Repository;
 
@@ -28,5 +29,9 @@ public class FunctionRepository {
 
     public void revokeFunction(String cognitoSub, int functionId) {
         functionMapper.revokeFunction(cognitoSub, functionId);
+    }
+
+    public List<UserFunctionStatusDto> findAllWithStateForUser(String cognitoSub) {
+        return functionMapper.findAllFunctionsWithStateForUser(cognitoSub);
     }
 }

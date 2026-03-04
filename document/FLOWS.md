@@ -1,7 +1,7 @@
 # Flows Implementation Status
 
 > Tài liệu tổng hợp trạng thái triển khai từng flow theo layer.
-> **Cập nhật lần cuối**: 2026-02-28 (Session 2: MinIO S3 storage, product-018)
+> **Cập nhật lần cuối**: 2026-03-03 (Session 3: Permission + CMS System)
 
 ---
 
@@ -13,6 +13,7 @@
 | Flow 2 | Smart Expense Capture | ✅ | ✅ | ✅ | ✅ | ✅ | **DONE** |
 | Flow 3 | Intelligent Approval Matrix | ✅ | ✅ | ✅ | ✅ | ✅ | **DONE** |
 | Flow 4 | Settlement & Fiscal Reporting | ✅ | ⚠️ | ⚠️ | ⚠️ | ✅ | **PARTIAL** |
+| Flow 5 | Permission-Based Authorization & CMS UI | ✅ | ✅ | ✅ | ✅ | ✅ | **DONE** |
 
 ---
 
@@ -169,14 +170,113 @@ Login → [MFA?] → [New Password?] → Set HttpOnly cookies
 
 ---
 
+---
+
+## Flow 5: Permission-Based Authorization & CMS UI ✅
+
+**Mục tiêu**: Thêm hai lớp phân quyền granular (page-level + element-level) và CMS-driven UI rendering — bắt đầu với màn hình Manager Approvals Detail.
+
+### Kiến trúc hai lớp
+
+```
+Layer 1 — permissions (string[])
+  → Kiểm tra cấp trang (page-level guard)
+  → Ví dụ: EXPENSE_APPROVE, EXPENSE_REJECT, FINANCE_VIEW, FINANCE_EXPORT
+  → Frontend: hasPermission("CODE") → redirect /not-found nếu thiếu
+
+Layer 2 — functions (number[])
+  → Kiểm tra cấp phần tử UI (element-level)
+  → Ví dụ: function_id=1 (EXPENSE_ACCEPT), function_id=2 (EXPENSE_REJECT)
+  → CMS: function_id trên node → hasFunctionId() → ẩn nếu user không có
+```
+
+### DB Tables mới (trong `TableMaster.sql` / `db_fix.sql`)
+
+| Bảng | Mô tả |
+|------|-------|
+| `permissions` | Danh sách permission codes, PK=id, UNIQUE=permission_code |
+| `user_permissions` | Map cognito_sub → permission_id, PK=(user_sub, permission_id) |
+| `system_admins` | Admin pool riêng, tách khỏi bảng users |
+| `functions` | Danh sách UI action IDs với function_key |
+| `items` | Map cognito_sub → function_id (tên bảng là `items`) |
+| `screen_configs` | CMS JSON, PK=(screen_key, version), `is_active` flag |
+
+**Seed data:** 4 permissions + 4 functions, manager test user có permission 1+2 & function 1+2.
+
+### Phase 2 — Backend APIs (`/api/v1/`)
+
+| Method | Endpoint | Chức năng |
+|--------|----------|-----------|
+| GET | `/users/me/permissions` | List permission codes của current user |
+| GET | `/users/me/functions` | List function IDs của current user |
+| GET | `/screen-configs/{screenKey}` | Lấy active CMS config JSON |
+| POST | `/admin/screen-configs/{screenKey}/patch` | CSV patch → new version |
+| GET | `/admin/users/{sub}/permissions` | Admin: xem permissions của user |
+| POST | `/admin/users/{sub}/permissions` | Admin: grant permission |
+| DELETE | `/admin/users/{sub}/permissions/{code}` | Admin: revoke permission |
+| GET | `/admin/users/{sub}/functions` | Admin: xem functions của user |
+| POST | `/admin/users/{sub}/functions` | Admin: grant function |
+| DELETE | `/admin/users/{sub}/functions/{key}` | Admin: revoke function |
+
+**Java files mới:** PermissionEntity, FunctionEntity, ScreenConfigEntity, SystemAdminEntity, UserPermissionEntity + tương ứng Mapper interface + XML + Repository + Service + Controller.
+
+### Phase 3 — BFF
+
+| Product | Endpoint | Chức năng |
+|---------|----------|-----------|
+| scr-001 | GET `/scr-001/:screenKey` | Proxy → Java `/api/v1/screen-configs/{key}`, parse JSON string |
+
+**Thay đổi `buildUISession`:** thêm `functions: number[]` — gọi `fetchUserFunctions()` trong `Promise.all` của com-001/002/003/004.
+
+### Phase 4 — Frontend
+
+| Tính năng | Mô tả |
+|-----------|-------|
+| `UISession.functions` | Thêm `functions: number[]` vào `ducks/auth/types.ts` |
+| `AuthContext.hasFunctionId` | `(functionId: number) => boolean` — kiểm tra element-level |
+| `AuthContext.hasPermission` | `(code: string) => boolean` — kiểm tra page-level |
+| CMS Schema | `lib/cms/schema.ts` — Zod recursive `CmsNodeSchema` (`z.lazy()`) |
+| CMS Renderer | `lib/cms/renderNode.tsx` — dispatch theo `node.type`, check `function_id`, i18n qua `t(label_key)` |
+| CMS RTK Query | `ducks/cms/cmsApi.ts` — `useGetScreenConfigQuery(screenKey)` |
+| NodeErrorBoundary | `lib/cms/NodeErrorBoundary.tsx` — bad node render → null, không crash trang |
+| StaticFallback | Render khi Zod parse fail hoặc config fetch fail |
+| not-found page | `app/not-found.tsx` — dùng Next.js built-in convention |
+
+### CMS JSON Flow
+
+```
+screen_configs (DB)
+  → GET /api/v1/screen-configs/{key} (Java)
+  → GET /scr-001/{key} (BFF — parse string → JSON object)
+  → useGetScreenConfigQuery() (RTK Query)
+  → Zod safeParse → CmsNode tree
+  → renderNode() + RenderContext
+       ├── hasFunctionId → ẩn node
+       ├── t(label_key)  → i18n en/vi/de
+       ├── data_key      → map → Expense field
+       └── actionHandlers → EXPENSE_ACCEPT / EXPENSE_REJECT / EXPENSE_REJECT_SUBMIT
+```
+
+### CSV Patch Admin Workflow
+
+```
+Admin POST /admin/screen-configs/{key}/patch (body: CSV)
+  → ScreenConfigService.applyPatch()
+  → DFS tìm node theo id
+  → set nested property (dot-path)
+  → saveNewVersion() = INSERT + deactivatePreviousVersions()
+```
+
+---
+
 ## Ghi chú chung
 
 | Hạng mục | Chi tiết |
 | -------- | -------- |
 | **Auth** | AWS Cognito — HttpOnly cookies, SameSite=Strict |
 | **DB** | MySQL 8.0 — Docker port 3307, `db_fix.sql` là reset script |
-| **BFF pattern** | Mỗi product = `controller.ts` + `index.ts`, đánh số product-001 → product-018 |
-| **RTK Query** | `authApi` (auth/onboarding) + `expenseApi` (expense/manager/storage) |
+| **BFF pattern** | Mỗi product = `controller.ts` + `index.ts`, đánh số product-001 → product-018; screen config = scr-001+ |
+| **RTK Query** | `authApi` (auth/onboarding) + `expenseApi` (expense/manager/storage) + `cmsApi` (screen configs) |
 | **i18n** | de-DE, en-US, vi-VN |
 | **Mock OCR** | `ExpenseService.mockScan()` — thay bằng real OCR khi cần |
 | **Route ordering** | BFF: `/expenses/upload-url` (018) → `/expenses/scan` (014) → `/expenses/:id` (012) |

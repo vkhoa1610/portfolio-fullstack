@@ -29,6 +29,9 @@ interface AuthContextType {
 
   /** Check if current user has a specific UI function ID (for CMS rendering) */
   hasFunctionId: (functionId: number) => boolean;
+
+  /** Whether the current user is a system admin */
+  isAdmin: boolean;
 }
 
 // ============================================================================
@@ -117,6 +120,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         clearSession,
         hasPermission,
         hasFunctionId,
+        isAdmin: session?.isAdmin ?? false,
       }}
     >
       {children}

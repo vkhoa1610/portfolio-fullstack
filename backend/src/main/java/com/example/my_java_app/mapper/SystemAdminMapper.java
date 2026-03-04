@@ -8,4 +8,6 @@ import org.apache.ibatis.annotations.Param;
 public interface SystemAdminMapper {
 
     SystemAdminEntity findBySub(@Param("cognitoSub") String cognitoSub);
+
+    int countBySub(@Param("sub") String sub);
 }

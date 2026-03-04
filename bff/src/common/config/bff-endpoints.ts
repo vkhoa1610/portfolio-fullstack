@@ -27,4 +27,16 @@ export const BFF_ENDPOINTS = {
 
   // ─── Screen Config (CMS) ──────────────────────────────────────────
   SCR_001: '/scr-001/:screenKey',  // GET screen config JSON for a screen
+
+  // ─── Admin ────────────────────────────────────────────────────────
+  ADM_001: '/adm-001/users',                   // GET  list all users
+  ADM_002: '/adm-002/:sub/permissions',         // GET  permission status (3-state)
+  ADM_003: '/adm-003/:sub/permissions',         // POST grant permission
+  ADM_004: '/adm-004/:sub/permissions/:code',   // DELETE revoke permission
+  ADM_005: '/adm-005/:sub/functions',           // GET  function status (3-state)
+  ADM_006: '/adm-006/:sub/functions',           // POST grant function
+  ADM_007: '/adm-007/:sub/functions/:key',      // DELETE revoke function
+  ADM_008: '/adm-008/import/users',             // POST import users CSV
+  ADM_009: '/adm-009/import/permissions',       // POST import permissions CSV
+  ADM_010: '/adm-010/template/:type',           // GET  download CSV template
 } as const;

@@ -1,5 +1,6 @@
 package com.example.my_java_app.repository;
 
+import com.example.my_java_app.dto.response.UserPermissionStatusDto;
 import com.example.my_java_app.mapper.PermissionMapper;
 import org.springframework.stereotype.Repository;
 
@@ -28,5 +29,9 @@ public class PermissionRepository {
 
     public void revokePermission(String userSub, int permissionId) {
         permissionMapper.revokePermission(userSub, permissionId);
+    }
+
+    public List<UserPermissionStatusDto> findAllWithStateForUser(String userSub) {
+        return permissionMapper.findAllPermissionsWithStateForUser(userSub);
     }
 }

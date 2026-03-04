@@ -53,6 +53,24 @@ export const fetchUserPermissions = async (idToken: string): Promise<string[]> =
 };
 
 /**
+ * Checks whether the current user is a system admin
+ */
+export const fetchUserAdminStatus = async (idToken: string): Promise<boolean> => {
+  try {
+    const response = await apiClientGet<{ isAdmin: boolean }>('/api/v1/users/me/is-admin', {
+      baseURL: JAVA_API_URL,
+      headers: {
+        Authorization: `Bearer ${idToken}`,
+      },
+    });
+    return response.data.isAdmin ?? false;
+  } catch (error: any) {
+    console.warn('⚠️ Failed to fetch admin status from Java:', error.message);
+    return false;
+  }
+};
+
+/**
  * Fetches granted UI function IDs for the current user from Java backend
  */
 export const fetchUserFunctions = async (idToken: string): Promise<number[]> => {
@@ -81,6 +99,7 @@ export const buildUISession = (
   email: string,
   permissions: string[],
   functions: number[],
+  isAdmin: boolean,
 ): UISession => {
   return {
     user: {
@@ -91,12 +110,14 @@ export const buildUISession = (
     onboardingStatus: (profile.onboardingStatus as 'PENDING' | 'DONE') || 'PENDING',
     permissions,
     functions,
+    isAdmin,
   };
 };
 
 /**
- * Determines the redirect URL based on user profile
+ * Determines the redirect URL based on user profile and admin status
  */
-export const getRedirectUrl = (profile: UserProfile): '/onboarding' | '/dashboard' => {
+export const getRedirectUrl = (profile: UserProfile, isAdmin: boolean = false): '/onboarding' | '/dashboard' | '/admin' => {
+  if (isAdmin) return '/admin';
   return profile.onboardingStatus === 'PENDING' ? '/onboarding' : '/dashboard';
 };

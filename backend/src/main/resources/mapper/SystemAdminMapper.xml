@@ -19,4 +19,11 @@
         LIMIT 1
     </select>
 
+    <select id="countBySub" resultType="int">
+        SELECT COUNT(*)
+        FROM system_admins
+        WHERE cognito_sub = #{sub}
+          AND is_deleted = 0
+    </select>
+
 </mapper>

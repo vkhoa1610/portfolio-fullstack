@@ -20,6 +20,7 @@ export interface UISession {
   onboardingStatus: 'PENDING' | 'DONE';
   permissions: string[];
   functions: number[];
+  isAdmin: boolean;
 }
 
 // ============================================================================
@@ -37,7 +38,7 @@ export interface LoginSuccessResponse {
   message: string[];
   authenticated: true;
   session: UISession;
-  redirectTo: '/onboarding' | '/dashboard';
+  redirectTo: '/onboarding' | '/dashboard' | '/admin';
 }
 
 /** MFA required - user needs to provide OTP */

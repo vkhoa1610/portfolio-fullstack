@@ -3,7 +3,7 @@ import { respondToNewPasswordChallenge } from '@common/config/cognito-service.js
 import { ProcessStatus, ErrorResponse } from '@common/config/common-types.js';
 import { setAuthCookies } from '@common/config/cookie-config.js';
 import { handleNormal, handleBackendError, throwBffError } from '@common/util/response-handler.js';
-import { fetchUserProfile, fetchUserPermissions, fetchUserFunctions, buildUISession, getRedirectUrl } from '@common/util/auth-utils.js';
+import { fetchUserProfile, fetchUserPermissions, fetchUserFunctions, fetchUserAdminStatus, buildUISession, getRedirectUrl } from '@common/util/auth-utils.js';
 import { NewPasswordRequest, NewPasswordResponse } from '@common/types/auth-types.js';
 
 /**
@@ -56,16 +56,17 @@ export const handle = async (
       refreshToken: RefreshToken,
     });
 
-    // Fetch user profile + permissions + functions from Java backend
-    const [userProfile, permissions, functions] = await Promise.all([
+    // Fetch user profile + permissions + functions + admin status from Java backend
+    const [userProfile, permissions, functions, isAdmin] = await Promise.all([
       fetchUserProfile(IdToken!),
       fetchUserPermissions(IdToken!),
       fetchUserFunctions(IdToken!),
+      fetchUserAdminStatus(IdToken!),
     ]);
 
     // Build frontend-safe UI session
-    const uiSession = buildUISession(userProfile, validUsername, permissions, functions);
-    const redirectTo = getRedirectUrl(userProfile);
+    const uiSession = buildUISession(userProfile, validUsername, permissions, functions, isAdmin);
+    const redirectTo = getRedirectUrl(userProfile, isAdmin);
 
     const response: NewPasswordResponse = {
       processStatus: ProcessStatus.SUCCESS,

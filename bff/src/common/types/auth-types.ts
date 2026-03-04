@@ -28,6 +28,7 @@ export interface UISession {
   onboardingStatus: 'PENDING' | 'DONE';
   permissions: string[];
   functions: number[];
+  isAdmin: boolean;
 }
 
 // ============================================================================
@@ -43,7 +44,7 @@ export interface LoginRequest {
 export interface LoginSuccessResponse extends BaseResponse {
   authenticated: true;
   session: UISession;
-  redirectTo: '/onboarding' | '/dashboard';
+  redirectTo: '/onboarding' | '/dashboard' | '/admin';
 }
 
 /** MFA required - user needs to provide OTP */
