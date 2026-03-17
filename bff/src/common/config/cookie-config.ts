@@ -1,17 +1,19 @@
 import { Response, CookieOptions } from 'express';
 
-const isProduction = process.env.NODE_ENV === 'production';
+// Use explicit SECURE_COOKIES env var so cookies work on HTTP (local Docker)
+// In real production (HTTPS), set SECURE_COOKIES=true
+const isSecure = process.env.SECURE_COOKIES === 'true';
 
 /**
  * Secure cookie configuration for authentication tokens.
  * - HttpOnly: Prevents JavaScript access (XSS protection)
- * - Secure: Only sent over HTTPS (in production)
- * - SameSite: Strict to prevent CSRF attacks
+ * - Secure: Only sent over HTTPS (when SECURE_COOKIES=true)
+ * - SameSite: Lax allows cross-page navigation cookies
  */
 export const AUTH_COOKIE_OPTIONS: CookieOptions = {
   httpOnly: true,
-  secure: isProduction,
-  sameSite: 'strict',
+  secure: isSecure,
+  sameSite: 'lax',
   path: '/',
 };
 

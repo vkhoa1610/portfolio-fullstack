@@ -129,12 +129,15 @@ INSERT INTO policies (id, title, slug, version, content) VALUES
 (1, 'Terms of Service', 'tos', '1.0', 'By using this platform you agree to our terms and conditions.'),
 (2, 'Privacy Policy', 'privacy', '1.0', 'We collect and process your data in accordance with GDPR.');
 
--- DEV test user (Cognito sub from local testing)
+-- Employee test user
 INSERT INTO users (cognito_sub, username, email, status) VALUES
-('47b40a38-2091-70e4-b5cb-a04aa64856f8', 'nguyenvanb', 'vanb@gmail.com', 'active');
+('47b40a38-2091-70e4-b5cb-a04aa64856f8', 'vkhoa1610', 'vkhoa1610@gmail.com', 'active');
 
 INSERT INTO user_roles (user_sub, role_id) VALUES
 ('47b40a38-2091-70e4-b5cb-a04aa64856f8', 1); -- EMPLOYEE
+
+INSERT INTO user_profiles (user_sub) VALUES
+('47b40a38-2091-70e4-b5cb-a04aa64856f8');
 
 -- Manager test user
 INSERT INTO users (cognito_sub, username, email, status) VALUES
@@ -143,12 +146,18 @@ INSERT INTO users (cognito_sub, username, email, status) VALUES
 INSERT INTO user_roles (user_sub, role_id) VALUES
 ('37e4ca68-3051-7093-ee11-658d3aa0a191', 2); -- MANAGER
 
+INSERT INTO user_profiles (user_sub) VALUES
+('37e4ca68-3051-7093-ee11-658d3aa0a191');
+
 -- Finance test user
 INSERT INTO users (cognito_sub, username, email, status) VALUES
-('a7e4fa28-1051-704f-042a-f7fe9f450d8c', 'sample-finance', 'sample-finance@gmail.com', 'active');
+('a7e4fa28-1051-704f-042a-f7fe9f450d8c', 'sample-fin', 'sample-fin@gmail.com', 'active');
 
 INSERT INTO user_roles (user_sub, role_id) VALUES
 ('a7e4fa28-1051-704f-042a-f7fe9f450d8c', 3); -- FINANCE
+
+INSERT INTO user_profiles (user_sub) VALUES
+('a7e4fa28-1051-704f-042a-f7fe9f450d8c');
 
 -- ============================================
 -- AUTHORIZATION TABLES
