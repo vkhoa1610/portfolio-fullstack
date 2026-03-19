@@ -90,4 +90,13 @@
         ORDER BY submitted_at ASC
     </select>
 
+    <select id="findApprovedByPeriod" resultMap="ExpenseResultMap">
+        SELECT * FROM expenses
+        WHERE status IN ('APPROVED', 'REJECTED')
+          AND YEAR(created_at)  = #{year}
+          AND MONTH(created_at) = #{month}
+          AND is_deleted = 0
+        ORDER BY amount DESC
+    </select>
+
 </mapper>

@@ -39,4 +39,9 @@ export const BFF_ENDPOINTS = {
   ADM_008: '/adm-008/import/users',             // POST import users CSV
   ADM_009: '/adm-009/import/permissions',       // POST import permissions CSV
   ADM_010: '/adm-010/template/:type',           // GET  download CSV template
+
+  // ─── Admin: AI Report ─────────────────────────────────────────
+  ADM_011: '/adm-011/reports/generate',         // POST trigger report job
+  ADM_012: '/adm-012/reports/status/:jobId',    // GET  poll job status
+  ADM_013: '/adm-013/reports/latest',           // GET  latest DONE report
 } as const;

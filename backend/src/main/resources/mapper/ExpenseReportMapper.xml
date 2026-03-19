@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.my_java_app.mapper.ExpenseReportMapper">
+
+    <resultMap id="expenseReportResult" type="com.example.my_java_app.entity.ExpenseReportEntity">
+        <result property="id"           column="id"/>
+        <result property="period"       column="period"/>
+        <result property="status"       column="status"/>
+        <result property="reportData"   column="report_data"/>
+        <result property="markdown"     column="markdown"/>
+        <result property="errorMsg"     column="error_msg"/>
+        <result property="generatedAt"  column="generated_at"/>
+        <result property="createdAt"    column="created_at"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.example.my_java_app.entity.ExpenseReportEntity"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO expense_reports (period, status, created_at)
+        VALUES (#{period}, 'PENDING', NOW())
+    </insert>
+
+    <select id="findById" resultMap="expenseReportResult">
+        SELECT id, period, status, report_data, markdown, error_msg, generated_at, created_at
+        FROM expense_reports
+        WHERE id = #{id}
+    </select>
+
+    <select id="findLatestDone" resultMap="expenseReportResult">
+        SELECT id, period, status, report_data, markdown, error_msg, generated_at, created_at
+        FROM expense_reports
+        WHERE status = 'DONE'
+        ORDER BY generated_at DESC
+        LIMIT 1
+    </select>
+
+    <update id="updateDone">
+        UPDATE expense_reports
+        SET status       = 'DONE',
+            report_data  = #{reportData},
+            markdown     = #{markdown},
+            generated_at = #{generatedAt}
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateFailed">
+        UPDATE expense_reports
+        SET status       = 'FAILED',
+            error_msg    = #{errorMsg},
+            generated_at = #{generatedAt}
+        WHERE id = #{id}
+    </update>
+
+</mapper>

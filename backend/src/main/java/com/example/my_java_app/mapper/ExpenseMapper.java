@@ -26,4 +26,6 @@ public interface ExpenseMapper {
                       @Param("rejectionReason") String rejectionReason);
 
     List<ExpenseEntity> findPendingForManager();
+
+    List<ExpenseEntity> findApprovedByPeriod(@Param("year") int year, @Param("month") int month);
 }

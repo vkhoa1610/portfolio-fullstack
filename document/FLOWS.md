@@ -1,7 +1,7 @@
 # Flows Implementation Status
 
 > Tài liệu tổng hợp trạng thái triển khai từng flow theo layer.
-> **Cập nhật lần cuối**: 2026-03-03 (Session 3: Permission + CMS System)
+> **Cập nhật lần cuối**: 2026-03-19 (Session 4: AI Report Generator)
 
 ---
 
@@ -14,6 +14,7 @@
 | Flow 3 | Intelligent Approval Matrix | ✅ | ✅ | ✅ | ✅ | ✅ | **DONE** |
 | Flow 4 | Settlement & Fiscal Reporting | ✅ | ⚠️ | ⚠️ | ⚠️ | ✅ | **PARTIAL** |
 | Flow 5 | Permission-Based Authorization & CMS UI | ✅ | ✅ | ✅ | ✅ | ✅ | **DONE** |
+| Flow 6 | AI-Powered Expense Report Generator | ✅ | ✅ | ✅ | ✅ | — | **DONE (mock AI)** |
 
 ---
 
@@ -269,6 +270,64 @@ Admin POST /admin/screen-configs/{key}/patch (body: CSV)
 
 ---
 
+---
+
+## Flow 6: AI-Powered Expense Report Generator ✅ (mock AI)
+
+**Mục tiêu**: Admin trigger job → backend aggregate expense data từ DB → gọi AI (mock) → sinh markdown → frontend render report.
+
+### DB Table mới
+
+| Bảng | Mô tả |
+|------|-------|
+| `expense_reports` | Lưu job status, report_data JSON, markdown output |
+
+### Backend APIs (`/api/v1/admin/reports/`)
+
+| Method | Endpoint | Chức năng |
+|--------|----------|-----------|
+| POST | `/generate?period=2026-03` | Tạo PENDING job, trigger async runJob |
+| GET | `/status/{jobId}` | Poll job status (PENDING / DONE / FAILED) |
+| GET | `/latest` | Lấy report DONE mới nhất |
+
+**Java files:** `ExpenseReportEntity`, `ExpenseReportMapper` + XML, `ExpenseReportRepository`, `ExpenseReportService`, `ExpenseReportController`
+
+**`@EnableAsync`** thêm vào `MyJavaAppApplication` để hỗ trợ `CompletableFuture.runAsync`.
+
+### BFF Endpoints
+
+| Endpoint | Chức năng |
+|----------|-----------|
+| `adm-011` POST `/adm-011/reports/generate` | Forward generate |
+| `adm-012` GET `/adm-012/reports/status/:jobId` | Forward poll |
+| `adm-013` GET `/adm-013/reports/latest` | Forward latest |
+
+### Frontend
+
+| File | Mô tả |
+|------|-------|
+| `components/admin/ai-report-view.tsx` | UI: dropdown period + Generate button + poll + markdown display |
+| `common/markdown-renderer/MarkdownRenderer.tsx` | Render markdown nội bộ (h1/h2/h3/p/ul/bold) |
+| `ducks/admin/adminApi.ts` | RTK: `useGenerateReportMutation`, `useGetReportStatusQuery`, `useGetLatestReportQuery` |
+| `app/(protected)/admin/ai-report/page.tsx` | Page wrapper |
+
+### Async Job Flow
+
+```
+Admin click "Generate"
+  → POST adm-011 → Backend tạo job PENDING → trả jobId ngay
+  → Frontend setJobId → poll mỗi 2 giây (adm-012)
+  → Backend background: aggregate DB → mockAI → UPDATE DONE
+  → Frontend nhận DONE → hiện markdown, dừng poll
+```
+
+### TODO
+
+- Thay `mockAiCall()` bằng POST thật đến LM Studio (`/v1/chat/completions`)
+- Thêm i18n cho UI labels nếu cần đa ngôn ngữ
+
+---
+
 ## Ghi chú chung
 
 | Hạng mục | Chi tiết |
@@ -282,3 +341,4 @@ Admin POST /admin/screen-configs/{key}/patch (body: CSV)
 | **Route ordering** | BFF: `/expenses/upload-url` (018) → `/expenses/scan` (014) → `/expenses/:id` (012) |
 | **MinIO** | S3-compatible, Docker port 9000 (API) / 9001 (Console). Bucket: `receipts` |
 | **Presigned URL** | S3Presigner dùng public endpoint; S3Client dùng internal endpoint. Cả hai cần path-style |
+| **Mock AI** | `ExpenseReportService.mockAiCall()` — thay bằng POST đến LM Studio khi sẵn sàng |

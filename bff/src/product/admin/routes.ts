@@ -9,18 +9,24 @@ import { bffAdm007 } from '@product/admin/adm-007/index.js';
 import { bffAdm008 } from '@product/admin/adm-008/index.js';
 import { bffAdm009 } from '@product/admin/adm-009/index.js';
 import { bffAdm010 } from '@product/admin/adm-010/index.js';
+import { bffAdm011 } from '@product/admin/adm-011/index.js';
+import { bffAdm012 } from '@product/admin/adm-012/index.js';
+import { bffAdm013 } from '@product/admin/adm-013/index.js';
 
 const bffList = [
-  bffAdm001, // GET  /adm-001/users
-  bffAdm002, // GET  /adm-002/:sub/permissions
-  bffAdm003, // POST /adm-003/:sub/permissions
+  bffAdm001, // GET    /adm-001/users
+  bffAdm002, // GET    /adm-002/:sub/permissions
+  bffAdm003, // POST   /adm-003/:sub/permissions
   bffAdm004, // DELETE /adm-004/:sub/permissions/:code
-  bffAdm005, // GET  /adm-005/:sub/functions
-  bffAdm006, // POST /adm-006/:sub/functions
+  bffAdm005, // GET    /adm-005/:sub/functions
+  bffAdm006, // POST   /adm-006/:sub/functions
   bffAdm007, // DELETE /adm-007/:sub/functions/:key
-  bffAdm008, // POST /adm-008/import/users
-  bffAdm009, // POST /adm-009/import/permissions
-  bffAdm010, // GET  /adm-010/template/:type
+  bffAdm008, // POST   /adm-008/import/users
+  bffAdm009, // POST   /adm-009/import/permissions
+  bffAdm010, // GET    /adm-010/template/:type
+  bffAdm011, // POST   /adm-011/reports/generate
+  bffAdm012, // GET    /adm-012/reports/status/:jobId
+  bffAdm013, // GET    /adm-013/reports/latest
 ];
 
 export const createAdminRouter = () => createBffRouter('admin', bffList);

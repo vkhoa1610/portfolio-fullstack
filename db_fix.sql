@@ -1,5 +1,5 @@
 SET FOREIGN_KEY_CHECKS = 0;
-DROP TABLE IF EXISTS expenses, audit_logs, user_consents, policies, user_profiles,
+DROP TABLE IF EXISTS expense_reports, expenses, audit_logs, user_consents, policies, user_profiles,
     items, screen_configs, functions,
     user_permissions, user_roles, roles, permissions, system_admins, users;
 SET FOREIGN_KEY_CHECKS = 1;
@@ -266,6 +266,21 @@ INSERT INTO items (cognito_sub, function_id, granted_by) VALUES
 INSERT INTO items (cognito_sub, function_id, granted_by) VALUES
 ('a7e4fa28-1051-704f-042a-f7fe9f450d8c', 3, 'system'),
 ('a7e4fa28-1051-704f-042a-f7fe9f450d8c', 4, 'system');
+
+-- ============================================
+-- AI REPORT TABLE
+-- ============================================
+
+CREATE TABLE expense_reports (
+    id            BIGINT AUTO_INCREMENT PRIMARY KEY,
+    period        VARCHAR(7)  NOT NULL,
+    status        ENUM('PENDING', 'DONE', 'FAILED') DEFAULT 'PENDING',
+    report_data   JSON,
+    markdown      LONGTEXT,
+    error_msg     VARCHAR(500),
+    generated_at  DATETIME,
+    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
 -- Screen config: manager approvals detail
 INSERT INTO screen_configs (screen_key, version, config_json, updated_by) VALUES

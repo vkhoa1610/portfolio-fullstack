@@ -1,5 +1,8 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { AdminUser, PermissionStatus, FunctionStatus, ImportResult } from './types';
+import {
+  AdminUser, PermissionStatus, FunctionStatus, ImportResult,
+  ExpenseReport, GenerateReportResponse, LatestReportResponse, NoReportResponse,
+} from './types';
 
 export const adminApi = createApi({
   reducerPath: 'adminApi',
@@ -7,7 +10,7 @@ export const adminApi = createApi({
     baseUrl: process.env.NEXT_PUBLIC_BFF_URL || '/api',
     credentials: 'include',
   }),
-  tagTypes: ['AdminUsers', 'UserPermissions', 'UserFunctions'],
+  tagTypes: ['AdminUsers', 'UserPermissions', 'UserFunctions', 'ExpenseReport'],
   endpoints: (builder) => ({
 
     // ── Users ─────────────────────────────────────────────────────────
@@ -79,6 +82,23 @@ export const adminApi = createApi({
         body: formData,
       }),
     }),
+
+    // ── AI Expense Reports ────────────────────────────────────────
+    generateReport: builder.mutation<GenerateReportResponse, string>({
+      query: (period) => ({
+        url: `/adm-011/reports/generate?period=${encodeURIComponent(period)}`,
+        method: 'POST',
+      }),
+    }),
+
+    getReportStatus: builder.query<ExpenseReport, number>({
+      query: (jobId) => `/adm-012/reports/status/${jobId}`,
+    }),
+
+    getLatestReport: builder.query<LatestReportResponse | NoReportResponse, void>({
+      query: () => '/adm-013/reports/latest',
+      providesTags: ['ExpenseReport'],
+    }),
   }),
 });
 
@@ -92,4 +112,7 @@ export const {
   useRevokeFunctionMutation,
   useImportUsersMutation,
   useImportPermissionsMutation,
+  useGenerateReportMutation,
+  useGetReportStatusQuery,
+  useGetLatestReportQuery,
 } = adminApi;

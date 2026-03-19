@@ -35,3 +35,30 @@ export interface ImportResult {
   failCount: number;
   errors: Array<{ row: string; message: string }>;
 }
+
+// ─── AI Expense Report ────────────────────────────────────────────────────────
+
+export type ReportStatus = 'PENDING' | 'DONE' | 'FAILED';
+
+export interface ExpenseReport {
+  id: number;
+  period: string;
+  status: ReportStatus;
+  markdown: string | null;
+  reportData: string | null;  // JSON string
+  errorMsg: string | null;
+  generatedAt: string | null;
+}
+
+export interface GenerateReportResponse {
+  jobId: number;
+  status: 'PENDING';
+}
+
+export interface LatestReportResponse extends ExpenseReport {
+  exists: true;
+}
+
+export interface NoReportResponse {
+  exists: false;
+}

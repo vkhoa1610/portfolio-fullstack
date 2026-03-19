@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Users, Upload, FileText, Settings, Layout } from "lucide-react";
+import { Users, Upload, FileText, Settings, Layout, Sparkles } from "lucide-react";
 import { useAuth } from "@/common/context/AuthContext";
 
 export default function AdminDashboardView() {
@@ -48,6 +48,12 @@ export default function AdminDashboardView() {
           title="Import Permissions"
           description="Bulk assign permissions via CSV file"
           onClick={() => router.push("/admin/import?tab=permissions")}
+        />
+        <DashboardCard
+          icon={<Sparkles className="h-6 w-6" />}
+          title="AI Report Generator"
+          description="Generate AI-powered financial summaries from expense data"
+          onClick={() => router.push("/admin/ai-report")}
         />
         <DashboardCard
           icon={<Layout className="h-6 w-6" />}
