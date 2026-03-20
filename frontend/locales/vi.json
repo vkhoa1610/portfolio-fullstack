@@ -304,6 +304,10 @@
     "detail": "Chi tiết",
     "group_core": "Chính",
     "group_management": "Quản lý",
-    "group_finance": "Tài chính"
+    "group_finance": "Tài chính",
+    "group_admin": "Quản trị",
+    "user_management": "Quản lý người dùng",
+    "import_users": "Nhập người dùng",
+    "ai_report": "Báo cáo AI"
   }
 }

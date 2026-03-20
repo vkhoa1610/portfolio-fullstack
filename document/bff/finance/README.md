@@ -1,23 +1,17 @@
 # BFF — Finance
 
-> Cập nhật: 2026-03-01 (Session 4)
+> Cập nhật: 2026-03-20
 
 ## Endpoints
 
-| Code    | Method | Path       | Chức năng                                         | Trạng thái               |
-|---------|--------|------------|---------------------------------------------------|--------------------------|
-| fin-001 | GET    | `/fin-001` | Lấy toàn bộ expenses cho Finance role             | ✅ Done (temporary proxy) |
-| fin-002 | POST   | `/fin-002` | Đánh dấu batch expenses là PAID                  | ❌ Chưa có               |
+| Code    | Method | Path                  | Chức năng                              | Trạng thái |
+|---------|--------|-----------------------|----------------------------------------|------------|
+| fin-001 | GET    | `/fin-001`            | Lấy toàn bộ expenses (APPROVED + PAID) | ✅ Done     |
+| fin-002 | PUT    | `/fin-002/:id/pay`    | Mark single expense là PAID            | ✅ Done     |
+| fin-003 | PUT    | `/fin-003/batch-pay`  | Mark batch expenses là PAID            | ✅ Done     |
 
 ## Chi tiết
 
 - [fin-001.md](./fin-001.md) — GET all expenses for Finance
-- [fin-002.md](./fin-002.md) — Mark batch as PAID (planned)
-
-## Ghi chú kiến trúc
-
-`fin-001` hiện tại proxy sang endpoint của Manager (`/api/v1/manager/expenses`).
-Cần tạo endpoint riêng `GET /api/v1/finance/expenses` ở backend để:
-- Trả tất cả expenses (không lọc theo `userSub`)
-- Bao gồm cả status `APPROVED` + `PAID`
-- Role guard: chỉ FINANCE role được gọi
+- [fin-002.md](./fin-002.md) — PUT single pay
+- [fin-003.md](./fin-003.md) — PUT batch pay

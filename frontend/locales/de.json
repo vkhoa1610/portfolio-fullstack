@@ -304,6 +304,10 @@
     "detail": "Details",
     "group_core": "Kern",
     "group_management": "Verwaltung",
-    "group_finance": "Finanzen"
+    "group_finance": "Finanzen",
+    "group_admin": "Administration",
+    "user_management": "Benutzerverwaltung",
+    "import_users": "Benutzer importieren",
+    "ai_report": "KI-Berichtsgenerator"
   }
 }

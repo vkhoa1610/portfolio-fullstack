@@ -125,16 +125,14 @@ export const expenseApi = createApi({
     }),
 
     // ─────────────────────────────────────────────────────
-    // FINANCE: Mark selected expenses as PAID (mock — no backend yet)
-    // Returns optimistic success; real endpoint TBD.
+    // FINANCE: Bulk mark selected expenses as PAID
     // ─────────────────────────────────────────────────────
-    markAsPaid: builder.mutation<void, MarkAsPaidRequest>({
+    markAsPaid: builder.mutation<{ paid: number }, MarkAsPaidRequest>({
       query: (body) => ({
-        url: '/fin-002',
-        method: 'POST',
+        url: '/fin-003/batch-pay',
+        method: 'PUT',
         body,
       }),
-      // Invalidate so lists refresh; silently ignore 404 until backend ready
       invalidatesTags: ['FinanceQueue', 'ManagerQueue'],
     }),
   }),

@@ -304,6 +304,10 @@
     "detail": "Detail",
     "group_core": "Core",
     "group_management": "Management",
-    "group_finance": "Finance"
+    "group_finance": "Finance",
+    "group_admin": "Administration",
+    "user_management": "User Management",
+    "import_users": "Import Users",
+    "ai_report": "AI Report Generator"
   }
 }

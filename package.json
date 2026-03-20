@@ -9,9 +9,12 @@
     "build:frontend": "cd frontend && npm run build",
     "build:bff": "cd bff && npm run build",
     "docker:up": "docker-compose up --build",
-    "docker:down": "docker-compose down",
+    "docker:up:ai": "docker-compose down --remove-orphans && docker-compose --profile ai up --build",
+    "docker:down": "docker-compose --profile ai down --remove-orphans",
     "docker:logs": "docker-compose logs -f",
     "docker:clean": "docker-compose down -v --rmi all",
+    "docker:ai:on": "docker-compose --profile ai up -d ollama ollama-init",
+    "docker:ai:off": "docker-compose --profile ai stop ollama ollama-init",
     "install:all": "cd frontend && npm install && cd ../bff && npm install",
     "prepare": "husky"
   },

@@ -1,10 +1,13 @@
 package com.example.my_java_app.service;
 
+import com.example.my_java_app.client.OllamaClient;
 import com.example.my_java_app.entity.ExpenseEntity;
 import com.example.my_java_app.entity.ExpenseReportEntity;
 import com.example.my_java_app.mapper.ExpenseMapper;
 import com.example.my_java_app.repository.ExpenseReportRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -17,18 +20,23 @@ import java.util.stream.Collectors;
 @Service
 public class ExpenseReportService {
 
+    private static final Logger log = LoggerFactory.getLogger(ExpenseReportService.class);
+
     private final ExpenseReportRepository reportRepository;
     private final ExpenseMapper expenseMapper;
     private final ObjectMapper objectMapper;
+    private final OllamaClient ollamaClient;
 
     private static final DateTimeFormatter DT_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
     public ExpenseReportService(ExpenseReportRepository reportRepository,
                                 ExpenseMapper expenseMapper,
-                                ObjectMapper objectMapper) {
+                                ObjectMapper objectMapper,
+                                OllamaClient ollamaClient) {
         this.reportRepository = reportRepository;
         this.expenseMapper    = expenseMapper;
         this.objectMapper     = objectMapper;
+        this.ollamaClient     = ollamaClient;
     }
 
     /** Create a PENDING job and return its id — caller fires async runJob() */
@@ -63,8 +71,8 @@ public class ExpenseReportService {
             Map<String, Object> payload = buildPayload(period, expenses);
             String reportDataJson = objectMapper.writeValueAsString(payload);
 
-            // 4. Call AI (mock — replace with real LM Studio call later)
-            String markdown = mockAiCall(payload);
+            // 4. Call Ollama (falls back to mock if Ollama unavailable)
+            String markdown = callAi(payload);
 
             // 5. Persist DONE
             reportRepository.markDone(jobId, reportDataJson, markdown, now);
@@ -156,8 +164,41 @@ public class ExpenseReportService {
     }
 
     /**
-     * Mock AI call — returns hardcoded markdown based on payload.
-     * TODO: replace with real POST to http://localhost:1234/v1/chat/completions
+     * Try real Ollama call; fall back to mock if Ollama is unavailable.
+     */
+    private String callAi(Map<String, Object> payload) {
+        try {
+            String prompt = buildPrompt(payload);
+            String result = ollamaClient.chat(prompt);
+            log.info("AI report generated via Ollama");
+            return result;
+        } catch (Exception e) {
+            log.warn("Ollama unavailable ({}), falling back to mock report", e.getMessage());
+            return mockAiCall(payload);
+        }
+    }
+
+    private String buildPrompt(Map<String, Object> payload) throws Exception {
+        String jsonSummary = objectMapper.writeValueAsString(payload);
+        return """
+                You are a financial analyst assistant. Analyze the following expense report data
+                and write a concise financial summary in Markdown format.
+
+                Use these sections:
+                ## Executive Summary
+                ## Breakdown by Category
+                ## Anomalies Detected
+                ## Recommendations
+
+                Use **bold** for key numbers. Use bullet lists where appropriate.
+                Write in English. Be concise and professional.
+
+                Expense data (JSON):
+                """ + jsonSummary;
+    }
+
+    /**
+     * Mock AI call — used when Ollama is unavailable.
      */
     @SuppressWarnings("unchecked")
     private String mockAiCall(Map<String, Object> payload) {

@@ -90,6 +90,39 @@
         ORDER BY submitted_at ASC
     </select>
 
+    <select id="findAllApprovedAndPaid" resultMap="ExpenseResultMap">
+        SELECT * FROM expenses
+        WHERE status IN ('APPROVED', 'PAID')
+          AND is_deleted = 0
+        ORDER BY reviewed_at DESC
+    </select>
+
+    <select id="findAllApproved" resultMap="ExpenseResultMap">
+        SELECT * FROM expenses
+        WHERE status = 'APPROVED'
+          AND is_deleted = 0
+        ORDER BY reviewed_at ASC
+    </select>
+
+    <update id="markPaid">
+        UPDATE expenses
+        SET status     = 'PAID',
+            updated_at = #{paidAt}
+        WHERE id = #{id}
+          AND status = 'APPROVED'
+    </update>
+
+    <update id="markBatchPaid">
+        UPDATE expenses
+        SET status     = 'PAID',
+            updated_at = #{paidAt}
+        WHERE id IN
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+          AND status = 'APPROVED'
+    </update>
+
     <select id="findApprovedByPeriod" resultMap="ExpenseResultMap">
         SELECT * FROM expenses
         WHERE status IN ('APPROVED', 'REJECTED')

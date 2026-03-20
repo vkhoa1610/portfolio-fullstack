@@ -11,6 +11,9 @@ import {
   CreditCard,
   Download,
   LogOut,
+  Users,
+  Sparkles,
+  Upload,
 } from "lucide-react";
 import { useAuth } from "@/common/context/AuthContext";
 import { useLogoutMutation } from "@/ducks/auth/authApi";
@@ -103,6 +106,23 @@ const NAV_GROUPS: NavGroup[] = [
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Admin nav config (separate from role-based nav)
+// ─────────────────────────────────────────────────────────────────────────────
+
+interface AdminNavItem {
+  label: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  soon?: boolean;
+}
+
+const ADMIN_NAV: AdminNavItem[] = [
+  { label: "nav.user_management", href: "/admin/users",      icon: Users },
+  { label: "nav.import_users",    href: "/admin/import",     icon: Upload },
+  { label: "nav.ai_report",       href: "/admin/ai-report",  icon: Sparkles },
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
 // ApprovalBadge — separate component to isolate the RTK Query hook per role
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -124,7 +144,7 @@ export default function Sidebar() {
   const { t } = useTranslation();
   const pathname = usePathname();
   const router = useRouter();
-  const { session, clearSession } = useAuth();
+  const { session, isAdmin, clearSession } = useAuth();
   const [logout] = useLogoutMutation();
 
   const role = session?.user.role as UserRole | undefined;
@@ -138,9 +158,10 @@ export default function Sidebar() {
     }
   };
 
-  if (!role) return null;
+  if (!role && !isAdmin) return null;
 
   const initial = (session?.user.email[0] ?? "?").toUpperCase();
+  const displayRole = isAdmin ? "Admin" : role ? role.charAt(0) + role.slice(1).toLowerCase() : "";
 
   return (
     <aside className="glass-panel relative z-20 hidden w-64 flex-col border-r border-r-surface-border bg-white/50 p-4 backdrop-blur-xl md:flex">
@@ -152,59 +173,89 @@ export default function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 space-y-4">
-        {NAV_GROUPS.map((group) => {
-          const visibleItems = group.items.filter((item) =>
-            item.roles.includes(role),
-          );
-          if (visibleItems.length === 0) return null;
+        {isAdmin ? (
+          // ── Admin nav ──────────────────────────────────────────
+          <div>
+            <p className="px-2 py-1 text-xs font-semibold uppercase tracking-wide text-gray-400">
+              {t("nav.group_admin")}
+            </p>
+            <div className="space-y-0.5">
+              {ADMIN_NAV.map((item) => {
+                const isActive = pathname.startsWith(item.href);
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+                      isActive
+                        ? "bg-primary-50 text-primary-700"
+                        : "text-gray-600 hover:bg-white/60 hover:text-gray-900"
+                    }`}
+                  >
+                    <Icon className="h-4 w-4 shrink-0" />
+                    <span className="flex-1">{t(item.label)}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ) : (
+          // ── Role-based nav ─────────────────────────────────────
+          NAV_GROUPS.map((group) => {
+            const visibleItems = group.items.filter((item) =>
+              item.roles.includes(role!),
+            );
+            if (visibleItems.length === 0) return null;
 
-          return (
-            <div key={group.label}>
-              <p className="px-2 py-1 text-xs font-semibold uppercase tracking-wide text-gray-400">
-                {t(group.label)}
-              </p>
-              <div className="space-y-0.5">
-                {visibleItems.map((item) => {
-                  const isActive = pathname.startsWith(item.href);
-                  const Icon = item.icon;
+            return (
+              <div key={group.label}>
+                <p className="px-2 py-1 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                  {t(group.label)}
+                </p>
+                <div className="space-y-0.5">
+                  {visibleItems.map((item) => {
+                    const isActive = pathname.startsWith(item.href);
+                    const Icon = item.icon;
 
-                  if (item.soon) {
+                    if (item.soon) {
+                      return (
+                        <div
+                          key={item.href}
+                          className="flex cursor-not-allowed items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-300"
+                        >
+                          <Icon className="h-4 w-4 shrink-0" />
+                          <span className="flex-1">{t(item.label)}</span>
+                          <span className="rounded-full bg-gray-100 px-1.5 py-0.5 text-[10px] text-gray-400">
+                            soon
+                          </span>
+                        </div>
+                      );
+                    }
+
                     return (
-                      <div
+                      <Link
                         key={item.href}
-                        className="flex cursor-not-allowed items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-300"
+                        href={item.href}
+                        className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+                          isActive
+                            ? "bg-primary-50 text-primary-700"
+                            : "text-gray-600 hover:bg-white/60 hover:text-gray-900"
+                        }`}
                       >
                         <Icon className="h-4 w-4 shrink-0" />
                         <span className="flex-1">{t(item.label)}</span>
-                        <span className="rounded-full bg-gray-100 px-1.5 py-0.5 text-[10px] text-gray-400">
-                          soon
-                        </span>
-                      </div>
+                        {item.badgeKey === "approvalCount" && role === "MANAGER" && (
+                          <ApprovalBadge />
+                        )}
+                      </Link>
                     );
-                  }
-
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
-                        isActive
-                          ? "bg-primary-50 text-primary-700"
-                          : "text-gray-600 hover:bg-white/60 hover:text-gray-900"
-                      }`}
-                    >
-                      <Icon className="h-4 w-4 shrink-0" />
-                      <span className="flex-1">{t(item.label)}</span>
-                      {item.badgeKey === "approvalCount" && role === "MANAGER" && (
-                        <ApprovalBadge />
-                      )}
-                    </Link>
-                  );
-                })}
+                  })}
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })
+        )}
       </nav>
 
       {/* User footer */}
@@ -218,7 +269,7 @@ export default function Sidebar() {
               {session?.user.email}
             </p>
             <p className="text-xs capitalize text-gray-500">
-              {role.charAt(0) + role.slice(1).toLowerCase()}
+              {displayRole}
             </p>
           </div>
           <button

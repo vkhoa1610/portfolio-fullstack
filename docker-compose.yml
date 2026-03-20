@@ -61,6 +61,7 @@ services:
       - STORAGE_ACCESS_KEY=minioadmin
       - STORAGE_SECRET_KEY=minioadmin
       - STORAGE_BUCKET=receipts
+      - OLLAMA_BASE_URL=http://ollama:11434
     depends_on:
       mysql:
         condition: service_healthy
@@ -139,8 +140,36 @@ services:
       - frontend
       - bff
 
+  # ============================================
+  # Ollama — Local LLM server (profile: ai)
+  # Start: npm run docker:ai:on
+  # Stop:  npm run docker:ai:off
+  # ============================================
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    profiles: ["ai"]
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+
+  ollama-init:
+    image: ollama/ollama:latest
+    container_name: ollama-init
+    profiles: ["ai"]
+    depends_on:
+      - ollama
+    entrypoint: ["/bin/sh", "-c", "until ollama list; do sleep 3; done && ollama pull llama3.2:3b && echo 'Model ready'"]
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+    restart: "no"
+
+
 volumes:
   minio_data:
+  ollama_data:
 
 networks:
   default:

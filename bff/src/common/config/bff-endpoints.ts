@@ -23,7 +23,9 @@ export const BFF_ENDPOINTS = {
   MGR_004: '/mgr-004/:id',  // GET expenses/:id (re-export từ emp-005)
 
   // ─── Finance ──────────────────────────────────────────────────────
-  FIN_001: '/fin-001',  // GET  finance/expenses (all expenses for accountant)
+  FIN_001: '/fin-001',          // GET  finance/expenses (APPROVED + PAID)
+  FIN_002: '/fin-002/:id/pay',  // PUT  finance/expenses/:id/pay
+  FIN_003: '/fin-003/batch-pay',// PUT  finance/expenses/batch-pay
 
   // ─── Screen Config (CMS) ──────────────────────────────────────────
   SCR_001: '/scr-001/:screenKey',  // GET screen config JSON for a screen

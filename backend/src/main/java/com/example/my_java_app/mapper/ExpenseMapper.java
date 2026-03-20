@@ -28,4 +28,12 @@ public interface ExpenseMapper {
     List<ExpenseEntity> findPendingForManager();
 
     List<ExpenseEntity> findApprovedByPeriod(@Param("year") int year, @Param("month") int month);
+
+    List<ExpenseEntity> findAllApprovedAndPaid();
+
+    List<ExpenseEntity> findAllApproved();
+
+    void markPaid(@Param("id") Long id, @Param("paidAt") String paidAt);
+
+    void markBatchPaid(@Param("ids") List<Long> ids, @Param("paidAt") String paidAt);
 }

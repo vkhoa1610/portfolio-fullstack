@@ -1,7 +1,7 @@
 # Flows Implementation Status
 
 > Tài liệu tổng hợp trạng thái triển khai từng flow theo layer.
-> **Cập nhật lần cuối**: 2026-03-19 (Session 4: AI Report Generator)
+> **Cập nhật lần cuối**: 2026-03-20 (Session 5: Finance Payment + Ollama Integration)
 
 ---
 
@@ -12,9 +12,9 @@
 | Flow 1 | Secure Onboarding & Compliance | ✅ | ✅ | ✅ | ✅ | ✅ | **DONE** |
 | Flow 2 | Smart Expense Capture | ✅ | ✅ | ✅ | ✅ | ✅ | **DONE** |
 | Flow 3 | Intelligent Approval Matrix | ✅ | ✅ | ✅ | ✅ | ✅ | **DONE** |
-| Flow 4 | Settlement & Fiscal Reporting | ✅ | ⚠️ | ⚠️ | ⚠️ | ✅ | **PARTIAL** |
+| Flow 4 | Settlement & Fiscal Reporting | ✅ | ✅ | ✅ | ⚠️ | ✅ | **PARTIAL** |
 | Flow 5 | Permission-Based Authorization & CMS UI | ✅ | ✅ | ✅ | ✅ | ✅ | **DONE** |
-| Flow 6 | AI-Powered Expense Report Generator | ✅ | ✅ | ✅ | ✅ | — | **DONE (mock AI)** |
+| Flow 6 | AI-Powered Expense Report Generator | ✅ | ✅ | ✅ | ✅ | — | **DONE (Ollama + mock fallback)** |
 
 ---
 
@@ -147,27 +147,34 @@ Login → [MFA?] → [New Password?] → Set HttpOnly cookies
 
 **Mục tiêu**: Finance xem tổng quan KPI + export báo cáo → SEPA batch payment → E-Invoicing.
 
-### Đã implement
-| Layer | Mô tả |
-| ----- | ----- |
-| Frontend | Finance Overview: KPI cards + full expense table |
-| i18n | `finance.*` keys (en/de/vi) |
+### Backend APIs (`/api/v1/`) — ✅ Done
+| Method | Endpoint | Chức năng |
+| ------ | -------- | --------- |
+| GET | `/finance/expenses` | Danh sách APPROVED + PAID |
+| PUT | `/finance/expenses/{id}/pay` | Mark single PAID |
+| PUT | `/finance/expenses/batch-pay` | Mark batch PAID |
+| @Scheduled | — | Auto batch-pay ngày 15 và cuối tháng |
 
-### Chưa implement
-| Feature | Mô tả |
-| ------- | ----- |
-| Backend API | `/finance/*` endpoints — aggregate stats, export |
-| BFF Products | product-019+ cho finance endpoints |
-| SEPA Batch | Tạo file XML SEPA cho batch payment |
-| E-Invoicing | Xuất hóa đơn điện tử (ZUGFeRD / XRechnung) |
-| Export | CSV/PDF export báo cáo chi phí |
+### BFF Products — ✅ Done
+| Product | Endpoint | Chức năng |
+| ------- | -------- | --------- |
+| fin-001 | GET `/fin-001` | Danh sách expenses APPROVED + PAID |
+| fin-002 | PUT `/fin-002/:id/pay` | Single pay |
+| fin-003 | PUT `/fin-003/batch-pay` | Batch pay |
 
 ### Frontend Screens (FINANCE only)
 | Route | Component | Trạng thái |
 | ----- | --------- | ---------- |
-| `/finance/overview` | `overview-view.tsx` | ✅ Done (UI + mock data) |
+| `/finance/overview` | `overview-view.tsx` | ✅ Done (UI + API connected) |
 | `/finance/export` | — | ❌ Chưa implement |
 | `/finance/sepa` | — | ❌ Chưa implement |
+
+### Chưa implement
+| Feature | Mô tả |
+| ------- | ----- |
+| SEPA Batch | Tạo file XML SEPA cho batch payment |
+| E-Invoicing | Xuất hóa đơn điện tử (ZUGFeRD / XRechnung) |
+| Export | CSV/PDF export báo cáo chi phí |
 
 ---
 

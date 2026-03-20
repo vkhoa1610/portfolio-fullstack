@@ -44,3 +44,11 @@ mybatis:
 eureka:
   client:
     enabled: false
+
+ollama:
+  base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+  model: ${OLLAMA_MODEL:llama3.2:3b}
+
+logging:
+  level:
+    com.example.my_java_app.client.OllamaClient: DEBUG

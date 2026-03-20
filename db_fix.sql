@@ -78,7 +78,7 @@ CREATE TABLE expenses (
     title VARCHAR(255),
     amount DECIMAL(10,2),
     currency VARCHAR(3) DEFAULT 'EUR',
-    status ENUM('DRAFT', 'PENDING_REVIEW', 'APPROVED', 'REJECTED') DEFAULT 'DRAFT',
+    status ENUM('DRAFT', 'PENDING_REVIEW', 'APPROVED', 'REJECTED', 'PAID') DEFAULT 'DRAFT',
 
     -- Receipt fields
     vendor_name VARCHAR(255),
@@ -346,3 +346,47 @@ INSERT INTO screen_configs (screen_key, version, config_json, updated_by) VALUES
     ]
   }
 }', 'system');
+
+-- ============================================
+-- EXAMPLE EXPENSES (2026-03) — for AI report demo
+-- average ≈ 316 EUR → anomalies: Software License (1500), Hardware Purchase (850)
+-- ============================================
+
+-- Employee expenses
+INSERT INTO expenses (user_sub, type, title, amount, currency, status, vendor_name, receipt_date, vat_amount, submitted_at, reviewed_at, created_at) VALUES
+('47b40a38-2091-70e4-b5cb-a04aa64856f8', 'RECEIPT', 'Office Supplies', 45.00, 'EUR', 'APPROVED', 'Staples GmbH', '2026-03-02', 7.18, '2026-03-02 09:00:00', '2026-03-03 10:00:00', '2026-03-02 09:00:00');
+
+INSERT INTO expenses (user_sub, type, title, amount, currency, status, vendor_name, receipt_date, vat_amount, submitted_at, reviewed_at, created_at) VALUES
+('47b40a38-2091-70e4-b5cb-a04aa64856f8', 'RECEIPT', 'Team Lunch', 120.50, 'EUR', 'APPROVED', 'Restaurant Zur Post', '2026-03-05', 19.24, '2026-03-05 14:00:00', '2026-03-06 09:00:00', '2026-03-05 14:00:00');
+
+INSERT INTO expenses (user_sub, type, title, amount, currency, status, distance_km, rate_per_km, submitted_at, reviewed_at, created_at) VALUES
+('47b40a38-2091-70e4-b5cb-a04aa64856f8', 'MILEAGE', 'Client Visit Berlin', 75.00, 'EUR', 'APPROVED', 250.00, 0.30, '2026-03-07 08:00:00', '2026-03-08 10:00:00', '2026-03-07 08:00:00');
+
+INSERT INTO expenses (user_sub, type, title, amount, currency, status, trip_from, trip_to, country_code, per_diem_rate, per_diem_days, submitted_at, reviewed_at, created_at) VALUES
+('47b40a38-2091-70e4-b5cb-a04aa64856f8', 'PER_DIEM', 'Frankfurt Conference', 195.00, 'EUR', 'APPROVED', '2026-03-10', '2026-03-11', 'DEU', 97.50, 2, '2026-03-11 18:00:00', '2026-03-12 09:00:00', '2026-03-10 08:00:00');
+
+INSERT INTO expenses (user_sub, type, title, amount, currency, status, vendor_name, receipt_date, vat_amount, submitted_at, reviewed_at, created_at) VALUES
+('47b40a38-2091-70e4-b5cb-a04aa64856f8', 'RECEIPT', 'Software License', 1500.00, 'EUR', 'APPROVED', 'JetBrains s.r.o.', '2026-03-12', 239.50, '2026-03-12 11:00:00', '2026-03-13 10:00:00', '2026-03-12 11:00:00');
+
+-- Manager expenses
+INSERT INTO expenses (user_sub, type, title, amount, currency, status, vendor_name, receipt_date, vat_amount, submitted_at, reviewed_at, created_at) VALUES
+('37e4ca68-3051-7093-ee11-658d3aa0a191', 'RECEIPT', 'Vendor Meeting Dinner', 210.00, 'EUR', 'APPROVED', 'Hotel Vier Jahreszeiten', '2026-03-06', 33.53, '2026-03-06 21:00:00', '2026-03-07 09:00:00', '2026-03-06 21:00:00');
+
+INSERT INTO expenses (user_sub, type, title, amount, currency, status, trip_from, trip_to, country_code, per_diem_rate, per_diem_days, submitted_at, reviewed_at, created_at) VALUES
+('37e4ca68-3051-7093-ee11-658d3aa0a191', 'PER_DIEM', 'Munich Business Trip', 390.00, 'EUR', 'APPROVED', '2026-03-08', '2026-03-11', 'DEU', 97.50, 4, '2026-03-11 17:00:00', '2026-03-12 10:00:00', '2026-03-08 07:00:00');
+
+INSERT INTO expenses (user_sub, type, title, amount, currency, status, distance_km, rate_per_km, submitted_at, reviewed_at, created_at) VALUES
+('37e4ca68-3051-7093-ee11-658d3aa0a191', 'MILEAGE', 'Site Inspection', 90.00, 'EUR', 'APPROVED', 300.00, 0.30, '2026-03-14 17:00:00', '2026-03-15 09:00:00', '2026-03-14 17:00:00');
+
+INSERT INTO expenses (user_sub, type, title, amount, currency, status, vendor_name, receipt_date, vat_amount, submitted_at, reviewed_at, created_at) VALUES
+('37e4ca68-3051-7093-ee11-658d3aa0a191', 'RECEIPT', 'Hardware Purchase', 850.00, 'EUR', 'APPROVED', 'Dell Technologies', '2026-03-15', 135.80, '2026-03-15 14:00:00', '2026-03-16 09:00:00', '2026-03-15 14:00:00');
+
+-- Finance expenses
+INSERT INTO expenses (user_sub, type, title, amount, currency, status, vendor_name, receipt_date, vat_amount, submitted_at, reviewed_at, created_at) VALUES
+('a7e4fa28-1051-704f-042a-f7fe9f450d8c', 'RECEIPT', 'Accounting Tools', 89.00, 'EUR', 'APPROVED', 'DATEV eG', '2026-03-03', 14.22, '2026-03-03 10:00:00', '2026-03-04 09:00:00', '2026-03-03 10:00:00');
+
+INSERT INTO expenses (user_sub, type, title, amount, currency, status, trip_from, trip_to, country_code, per_diem_rate, per_diem_days, submitted_at, reviewed_at, created_at) VALUES
+('a7e4fa28-1051-704f-042a-f7fe9f450d8c', 'PER_DIEM', 'Tax Seminar Hamburg', 175.00, 'EUR', 'APPROVED', '2026-03-11', '2026-03-12', 'DEU', 87.50, 2, '2026-03-12 18:00:00', '2026-03-13 09:00:00', '2026-03-11 08:00:00');
+
+INSERT INTO expenses (user_sub, type, title, amount, currency, status, vendor_name, receipt_date, vat_amount, submitted_at, reviewed_at, created_at) VALUES
+('a7e4fa28-1051-704f-042a-f7fe9f450d8c', 'RECEIPT', 'Printer Cartridges', 55.00, 'EUR', 'APPROVED', 'Conrad Electronic', '2026-03-18', 8.79, '2026-03-18 11:00:00', '2026-03-19 09:00:00', '2026-03-18 11:00:00');
