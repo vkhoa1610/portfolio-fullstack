@@ -62,3 +62,39 @@ export interface LatestReportResponse extends ExpenseReport {
 export interface NoReportResponse {
   exists: false;
 }
+
+// ─── Report Templates ──────────────────────────────────────────────────────
+
+export type SectionKey =
+  | 'executiveSummary'
+  | 'breakdownByCategory'
+  | 'anomalies'
+  | 'recommendations'
+  | 'byEmployee'
+  | 'aiAnalysis';
+
+export interface SectionItem {
+  key: SectionKey;
+  enabled: boolean;
+}
+
+export interface TemplateConfig {
+  title: string;
+  company: string;
+  logoUrl: string;
+  primaryColor: string;
+  sections: SectionItem[];
+}
+
+export interface ReportTemplate {
+  id: number;
+  name: string;
+  configJson: string;   // JSON string of TemplateConfig
+  createdBy: string | null;
+  createdAt: string | null;
+  updatedAt: string | null;
+}
+
+export interface ReportTemplateListResponse {
+  templates: ReportTemplate[];
+}

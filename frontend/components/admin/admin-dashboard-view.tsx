@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Users, Upload, FileText, Settings, Layout, Sparkles } from "lucide-react";
+import { Users, Upload, FileText, Settings, Layout, Sparkles, FileDown } from "lucide-react";
 import { useAuth } from "@/common/context/AuthContext";
 
 export default function AdminDashboardView() {
@@ -54,6 +54,12 @@ export default function AdminDashboardView() {
           title="AI Report Generator"
           description="Generate AI-powered financial summaries from expense data"
           onClick={() => router.push("/admin/ai-report")}
+        />
+        <DashboardCard
+          icon={<FileDown className="h-6 w-6" />}
+          title="Report Templates"
+          description="Design PDF report templates for expense summaries"
+          onClick={() => router.push("/admin/report-template")}
         />
         <DashboardCard
           icon={<Layout className="h-6 w-6" />}

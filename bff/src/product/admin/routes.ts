@@ -12,6 +12,10 @@ import { bffAdm010 } from '@product/admin/adm-010/index.js';
 import { bffAdm011 } from '@product/admin/adm-011/index.js';
 import { bffAdm012 } from '@product/admin/adm-012/index.js';
 import { bffAdm013 } from '@product/admin/adm-013/index.js';
+import { bffAdm014 } from '@product/admin/adm-014/index.js';
+import { bffAdm015 } from '@product/admin/adm-015/index.js';
+import { bffAdm016 } from '@product/admin/adm-016/index.js';
+import { bffAdm017 } from '@product/admin/adm-017/index.js';
 
 const bffList = [
   bffAdm001, // GET    /adm-001/users
@@ -27,6 +31,10 @@ const bffList = [
   bffAdm011, // POST   /adm-011/reports/generate
   bffAdm012, // GET    /adm-012/reports/status/:jobId
   bffAdm013, // GET    /adm-013/reports/latest
+  bffAdm014, // GET/POST /adm-014/report-templates
+  bffAdm015, // GET/PUT  /adm-015/report-templates/:id
+  bffAdm016, // POST   /adm-016/report-templates/generate-pdf
+  bffAdm017, // POST   /adm-017/ai-playground/chat
 ];
 
 export const createAdminRouter = () => createBffRouter('admin', bffList);

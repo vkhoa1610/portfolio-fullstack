@@ -306,8 +306,36 @@
     "group_management": "Verwaltung",
     "group_finance": "Finanzen",
     "group_admin": "Administration",
+    "admin_dashboard": "Admin-Dashboard",
     "user_management": "Benutzerverwaltung",
     "import_users": "Benutzer importieren",
-    "ai_report": "KI-Berichtsgenerator"
+    "ai_report": "KI-Berichtsgenerator",
+    "report_template": "Berichtsvorlagen PDF",
+    "ai_playground": "KI-Playground"
+  },
+  "template": {
+    "template_name": "Vorlagenname",
+    "report_title": "Berichtstitel",
+    "company_name": "Firmenname",
+    "primary_color": "Primärfarbe",
+    "logo_url": "Logo-URL",
+    "sections": "Abschnitte",
+    "section_executive_summary": "Zusammenfassung",
+    "section_by_category": "Nach Kategorie",
+    "section_by_employee": "Nach Mitarbeiter",
+    "section_anomalies": "Anomalien",
+    "section_top_expenses": "Top-Ausgaben",
+    "section_ai_analysis": "KI-Finanzanalyse",
+    "preview": "Vorschau",
+    "preview_sample_data": "Beispieldaten",
+    "select_template": "Vorlage wählen...",
+    "new_template": "Neue Vorlage",
+    "save_template": "Vorlage speichern",
+    "create_template": "Vorlage erstellen",
+    "saving": "Speichern...",
+    "loading": "Laden...",
+    "template_saved": "Vorlage erfolgreich gespeichert.",
+    "template_created": "Vorlage erfolgreich erstellt.",
+    "template_save_error": "Vorlage konnte nicht gespeichert werden."
   }
 }

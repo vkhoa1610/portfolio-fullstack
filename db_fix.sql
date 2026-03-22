@@ -1,5 +1,5 @@
 SET FOREIGN_KEY_CHECKS = 0;
-DROP TABLE IF EXISTS expense_reports, expenses, audit_logs, user_consents, policies, user_profiles,
+DROP TABLE IF EXISTS report_templates, expense_reports, expenses, audit_logs, user_consents, policies, user_profiles,
     items, screen_configs, functions,
     user_permissions, user_roles, roles, permissions, system_admins, users;
 SET FOREIGN_KEY_CHECKS = 1;
@@ -270,6 +270,22 @@ INSERT INTO items (cognito_sub, function_id, granted_by) VALUES
 -- ============================================
 -- AI REPORT TABLE
 -- ============================================
+
+CREATE TABLE report_templates (
+    id          BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name        VARCHAR(100) NOT NULL,
+    config_json JSON NOT NULL,
+    created_by  VARCHAR(36),
+    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    is_deleted  TINYINT(1) DEFAULT 0
+);
+
+INSERT INTO report_templates (name, config_json, created_by) VALUES (
+    'Default Template',
+    '{"title":"Monthly Expense Report","company":"My Company GmbH","logoUrl":"","primaryColor":"#1E40AF","sections":[{"key":"executiveSummary","enabled":true},{"key":"breakdownByCategory","enabled":true},{"key":"byEmployee","enabled":true},{"key":"anomalies","enabled":true},{"key":"recommendations","enabled":true},{"key":"aiAnalysis","enabled":true}]}',
+    'system'
+);
 
 CREATE TABLE expense_reports (
     id            BIGINT AUTO_INCREMENT PRIMARY KEY,

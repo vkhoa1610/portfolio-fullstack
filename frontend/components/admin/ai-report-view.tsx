@@ -2,12 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Sparkles, RefreshCw, AlertCircle, ChevronLeft } from "lucide-react";
+import { Sparkles, RefreshCw, AlertCircle, ChevronLeft, FileDown } from "lucide-react";
 import { useAuth } from "@/common/context/AuthContext";
 import {
   useGenerateReportMutation,
   useGetReportStatusQuery,
   useGetLatestReportQuery,
+  useGetReportTemplatesQuery,
 } from "@/ducks/admin/adminApi";
 import MarkdownRenderer from "@/common/markdown-renderer/MarkdownRenderer";
 import type { ExpenseReport } from "@/ducks/admin/types";
@@ -40,6 +41,10 @@ export default function AiReportView() {
   const [period, setPeriod] = useState<string>(getCurrentPeriod());
   const [jobId, setJobId] = useState<number | null>(null);
   const [displayedReport, setDisplayedReport] = useState<ExpenseReport | null>(null);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const { data: templatesData } = useGetReportTemplatesQuery();
 
   // Auth guard
   useEffect(() => {
@@ -73,6 +78,13 @@ export default function AiReportView() {
     }
   }, [statusData]);
 
+  // Auto-select first template
+  useEffect(() => {
+    if (templatesData?.templates.length && selectedTemplateId === null) {
+      setSelectedTemplateId(templatesData.templates[0].id);
+    }
+  }, [templatesData]);
+
   const [generateReport, { isLoading: isGenerating }] = useGenerateReportMutation();
 
   const handleGenerate = async () => {
@@ -81,6 +93,31 @@ export default function AiReportView() {
       setJobId(result.jobId);
     } catch {
       // error handled below via statusData
+    }
+  };
+
+  const handleDownloadPdf = async () => {
+    if (!displayedReport || !selectedTemplateId) return;
+    setIsDownloading(true);
+    try {
+      const res = await fetch('/api/adm-016/report-templates/generate-pdf', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ templateId: selectedTemplateId, reportId: displayedReport.id }),
+      });
+      if (!res.ok) throw new Error('PDF generation failed');
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `expense-report-${displayedReport.period}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      // silently ignore — user sees no download
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -144,6 +181,37 @@ export default function AiReportView() {
           )}
           {isGenerating || isPolling ? "Generating..." : "Generate Report"}
         </button>
+
+        {/* Template selector + Download PDF */}
+        {displayedReport && (
+          <div className="flex items-end gap-2 ml-auto">
+            <div className="flex flex-col gap-1">
+              <label htmlFor="pdf-template" className="text-xs font-medium text-neutral-600">Template</label>
+              <select
+                id="pdf-template"
+                value={selectedTemplateId ?? ''}
+                onChange={(e) => setSelectedTemplateId(Number(e.target.value))}
+                className="rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
+              >
+                {templatesData?.templates.map((tpl) => (
+                  <option key={tpl.id} value={tpl.id}>{tpl.name}</option>
+                ))}
+              </select>
+            </div>
+            <button
+              onClick={handleDownloadPdf}
+              disabled={isDownloading || !selectedTemplateId}
+              className="flex items-center gap-2 rounded-lg border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50 disabled:opacity-50"
+            >
+              {isDownloading ? (
+                <RefreshCw className="h-4 w-4 animate-spin" />
+              ) : (
+                <FileDown className="h-4 w-4" />
+              )}
+              {isDownloading ? "Generating PDF..." : "Download PDF"}
+            </button>
+          </div>
+        )}
 
         {/* Status badge */}
         {isPolling && currentStatus && (

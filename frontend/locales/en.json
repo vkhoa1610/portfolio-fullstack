@@ -306,8 +306,36 @@
     "group_management": "Management",
     "group_finance": "Finance",
     "group_admin": "Administration",
+    "admin_dashboard": "Admin Dashboard",
     "user_management": "User Management",
     "import_users": "Import Users",
-    "ai_report": "AI Report Generator"
+    "ai_report": "AI Report Generator",
+    "report_template": "Report Templates",
+    "ai_playground": "AI Playground"
+  },
+  "template": {
+    "template_name": "Template Name",
+    "report_title": "Report Title",
+    "company_name": "Company Name",
+    "primary_color": "Primary Color",
+    "logo_url": "Logo URL",
+    "sections": "Sections",
+    "section_executive_summary": "Executive Summary",
+    "section_by_category": "Breakdown by Category",
+    "section_by_employee": "By Employee",
+    "section_anomalies": "Anomalies Detected",
+    "section_top_expenses": "Top Expenses",
+    "section_ai_analysis": "AI Financial Analysis",
+    "preview": "Preview",
+    "preview_sample_data": "sample data",
+    "select_template": "Select template...",
+    "new_template": "New Template",
+    "save_template": "Save Template",
+    "create_template": "Create Template",
+    "saving": "Saving...",
+    "loading": "Loading...",
+    "template_saved": "Template saved successfully.",
+    "template_created": "Template created successfully.",
+    "template_save_error": "Failed to save template."
   }
 }

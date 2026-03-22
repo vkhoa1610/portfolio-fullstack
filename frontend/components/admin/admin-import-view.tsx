@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Upload, Download, CheckCircle, XCircle, X } from "lucide-react";
+import { Upload, Download, CheckCircle, XCircle, X, ChevronLeft } from "lucide-react";
 import { useAuth } from "@/common/context/AuthContext";
 import { useImportUsersMutation, useImportPermissionsMutation } from "@/ducks/admin/adminApi";
 import type { ImportResult } from "@/ducks/admin/types";
@@ -85,9 +85,17 @@ export default function AdminImportView() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-neutral-900">CSV Import</h2>
-        <p className="text-sm text-neutral-500">Bulk import users or permissions from a CSV file</p>
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => router.push('/admin')}
+          className="rounded-full p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700"
+        >
+          <ChevronLeft className="h-5 w-5" />
+        </button>
+        <div>
+          <h2 className="text-2xl font-bold text-neutral-900">CSV Import</h2>
+          <p className="text-sm text-neutral-500">Bulk import users or permissions from a CSV file</p>
+        </div>
       </div>
 
       {/* Tabs */}

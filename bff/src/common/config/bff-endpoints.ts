@@ -21,6 +21,7 @@ export const BFF_ENDPOINTS = {
   MGR_002: '/mgr-002/:id',  // PUT manager/expenses/:id/approve
   MGR_003: '/mgr-003/:id',  // PUT manager/expenses/:id/reject
   MGR_004: '/mgr-004/:id',  // GET expenses/:id (re-export từ emp-005)
+  MGR_005: '/mgr-005/reports/latest', // GET latest DONE AI report (read-only)
 
   // ─── Finance ──────────────────────────────────────────────────────
   FIN_001: '/fin-001',          // GET  finance/expenses (APPROVED + PAID)
@@ -46,4 +47,10 @@ export const BFF_ENDPOINTS = {
   ADM_011: '/adm-011/reports/generate',         // POST trigger report job
   ADM_012: '/adm-012/reports/status/:jobId',    // GET  poll job status
   ADM_013: '/adm-013/reports/latest',           // GET  latest DONE report
+
+  // ─── Admin: Report Templates + PDF ────────────────────────────
+  ADM_014: '/adm-014/report-templates',         // GET list / POST create
+  ADM_015: '/adm-015/report-templates/:id',     // GET one / PUT update
+  ADM_016: '/adm-016/report-templates/generate-pdf', // POST generate PDF
+  ADM_017: '/adm-017/ai-playground/chat',            // POST AI model test (admin)
 } as const;

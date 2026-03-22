@@ -43,6 +43,10 @@ public class OllamaClient {
                 .build();
     }
 
+    public String getModel() {
+        return model;
+    }
+
     /**
      * Send a prompt to Ollama and return the response content string.
      * Timeout: 120s (LLM generation can be slow on CPU).
@@ -50,9 +54,23 @@ public class OllamaClient {
      * @throws Exception if Ollama is unreachable or returns error
      */
     public String chat(String prompt) throws Exception {
+        return chatWithSystem(null, prompt);
+    }
+
+    /**
+     * Send system + user prompt to Ollama.
+     * If systemPrompt is null/blank, falls back to user-only message list.
+     */
+    public String chatWithSystem(String systemPrompt, String userPrompt) throws Exception {
+        List<Map<String, String>> messages = (systemPrompt != null && !systemPrompt.isBlank())
+                ? List.of(
+                    Map.of("role", "system", "content", systemPrompt),
+                    Map.of("role", "user",   "content", userPrompt))
+                : List.of(Map.of("role", "user", "content", userPrompt));
+
         Map<String, Object> requestBody = Map.of(
                 "model", model,
-                "messages", List.of(Map.of("role", "user", "content", prompt)),
+                "messages", messages,
                 "stream", false
         );
 
@@ -66,7 +84,7 @@ public class OllamaClient {
                 .build();
 
         log.info("Calling Ollama model={} url={}", model, ollamaBaseUrl);
-        log.debug("Ollama prompt:\n{}", prompt);
+        log.debug("Ollama prompt:\n{}", userPrompt);
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 

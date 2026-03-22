@@ -306,8 +306,36 @@
     "group_management": "Quản lý",
     "group_finance": "Tài chính",
     "group_admin": "Quản trị",
+    "admin_dashboard": "Trang quản trị",
     "user_management": "Quản lý người dùng",
     "import_users": "Nhập người dùng",
-    "ai_report": "Báo cáo AI"
+    "ai_report": "Báo cáo AI",
+    "report_template": "Mẫu báo cáo PDF",
+    "ai_playground": "AI Playground"
+  },
+  "template": {
+    "template_name": "Tên mẫu",
+    "report_title": "Tiêu đề báo cáo",
+    "company_name": "Tên công ty",
+    "primary_color": "Màu chủ đạo",
+    "logo_url": "URL Logo",
+    "sections": "Các mục",
+    "section_executive_summary": "Tóm tắt tổng quan",
+    "section_by_category": "Phân loại theo danh mục",
+    "section_by_employee": "Theo nhân viên",
+    "section_anomalies": "Bất thường phát hiện",
+    "section_top_expenses": "Chi phí cao nhất",
+    "section_ai_analysis": "Phân tích tài chính AI",
+    "preview": "Xem trước",
+    "preview_sample_data": "dữ liệu mẫu",
+    "select_template": "Chọn mẫu...",
+    "new_template": "Mẫu mới",
+    "save_template": "Lưu mẫu",
+    "create_template": "Tạo mẫu",
+    "saving": "Đang lưu...",
+    "loading": "Đang tải...",
+    "template_saved": "Lưu mẫu thành công.",
+    "template_created": "Tạo mẫu thành công.",
+    "template_save_error": "Lưu mẫu thất bại."
   }
 }

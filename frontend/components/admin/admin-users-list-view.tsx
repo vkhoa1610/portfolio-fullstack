@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronRight, Search } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { useAuth } from "@/common/context/AuthContext";
 import { useGetAdminUsersQuery } from "@/ducks/admin/adminApi";
 import type { AdminUser } from "@/ducks/admin/types";
@@ -33,7 +33,13 @@ export default function AdminUsersListView() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => router.push('/admin')}
+          className="rounded-full p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700"
+        >
+          <ChevronLeft className="h-5 w-5" />
+        </button>
         <div>
           <h2 className="text-2xl font-bold text-neutral-900">User Management</h2>
           <p className="text-sm text-neutral-500">Manage roles and permissions for all users</p>

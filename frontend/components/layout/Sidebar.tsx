@@ -14,6 +14,8 @@ import {
   Users,
   Sparkles,
   Upload,
+  FileDown,
+  Cpu,
 } from "lucide-react";
 import { useAuth } from "@/common/context/AuthContext";
 import { useLogoutMutation } from "@/ducks/auth/authApi";
@@ -72,6 +74,12 @@ const NAV_GROUPS: NavGroup[] = [
         roles: ["MANAGER"],
         badgeKey: "approvalCount",
       },
+      {
+        label: "nav.ai_report",
+        href: "/manager/ai-report",
+        icon: Sparkles,
+        roles: ["MANAGER"],
+      },
     ],
   },
   {
@@ -117,9 +125,12 @@ interface AdminNavItem {
 }
 
 const ADMIN_NAV: AdminNavItem[] = [
-  { label: "nav.user_management", href: "/admin/users",      icon: Users },
-  { label: "nav.import_users",    href: "/admin/import",     icon: Upload },
-  { label: "nav.ai_report",       href: "/admin/ai-report",  icon: Sparkles },
+  { label: "nav.admin_dashboard",  href: "/admin",                 icon: LayoutDashboard },
+  { label: "nav.user_management", href: "/admin/users",           icon: Users },
+  { label: "nav.import_users",    href: "/admin/import",          icon: Upload },
+  { label: "nav.ai_report",       href: "/admin/ai-report",       icon: Sparkles },
+  { label: "nav.report_template",  href: "/admin/report-template", icon: FileDown },
+  { label: "nav.ai_playground",    href: "/admin/ai-playground",   icon: Cpu },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────

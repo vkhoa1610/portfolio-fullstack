@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.my_java_app.mapper.ReportTemplateMapper">
+
+    <resultMap id="TemplateResultMap" type="com.example.my_java_app.entity.ReportTemplateEntity">
+        <id     property="id"         column="id"/>
+        <result property="name"       column="name"/>
+        <result property="configJson" column="config_json"/>
+        <result property="createdBy"  column="created_by"/>
+        <result property="createdAt"  column="created_at"/>
+        <result property="updatedAt"  column="updated_at"/>
+    </resultMap>
+
+    <select id="findAll" resultMap="TemplateResultMap">
+        SELECT id, name, config_json, created_by, created_at, updated_at
+        FROM report_templates
+        WHERE is_deleted = 0
+        ORDER BY created_at DESC
+    </select>
+
+    <select id="findById" resultMap="TemplateResultMap">
+        SELECT id, name, config_json, created_by, created_at, updated_at
+        FROM report_templates
+        WHERE id = #{id} AND is_deleted = 0
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO report_templates (name, config_json, created_by)
+        VALUES (#{name}, #{configJson}, #{createdBy})
+    </insert>
+
+    <update id="update">
+        UPDATE report_templates
+        SET name        = #{name},
+            config_json = #{configJson}
+        WHERE id = #{id} AND is_deleted = 0
+    </update>
+
+</mapper>

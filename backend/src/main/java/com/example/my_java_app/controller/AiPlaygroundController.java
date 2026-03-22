@@ -1,0 +1,71 @@
+package com.example.my_java_app.controller;
+
+import com.example.my_java_app.client.OllamaClient;
+import com.example.my_java_app.exception.ForbiddenException;
+import com.example.my_java_app.repository.SystemAdminRepository;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
+
+/**
+ * Admin-only endpoint to test the AI model (Ollama) with custom prompts.
+ *
+ * POST /api/v1/admin/ai-playground/chat
+ *   Body: { systemPrompt?: string, userPrompt: string }
+ *   Returns: { response, model, durationMs }
+ */
+@RestController
+@RequestMapping("/api/v1/admin/ai-playground")
+public class AiPlaygroundController extends BaseController {
+
+    private final OllamaClient ollamaClient;
+    private final SystemAdminRepository systemAdminRepository;
+
+    public AiPlaygroundController(OllamaClient ollamaClient,
+                                  SystemAdminRepository systemAdminRepository) {
+        this.ollamaClient           = ollamaClient;
+        this.systemAdminRepository  = systemAdminRepository;
+    }
+
+    @PostMapping("/chat")
+    public ResponseEntity<Map<String, Object>> chat(
+            @RequestBody Map<String, String> body,
+            HttpServletRequest request) {
+
+        requireAdmin(request);
+
+        String userPrompt   = body.getOrDefault("userPrompt", "").trim();
+        String systemPrompt = body.getOrDefault("systemPrompt", "").trim();
+
+        if (userPrompt.isBlank()) {
+            return badRequest(Map.of("error", "userPrompt is required"));
+        }
+
+        long start = System.currentTimeMillis();
+        try {
+            String response = ollamaClient.chatWithSystem(
+                    systemPrompt.isBlank() ? null : systemPrompt,
+                    userPrompt);
+            long durationMs = System.currentTimeMillis() - start;
+            return ok(Map.of(
+                    "response",   response,
+                    "model",      ollamaClient.getModel(),
+                    "durationMs", durationMs));
+        } catch (Exception e) {
+            long durationMs = System.currentTimeMillis() - start;
+            return ok(Map.of(
+                    "error",      e.getMessage(),
+                    "model",      ollamaClient.getModel(),
+                    "durationMs", durationMs));
+        }
+    }
+
+    private void requireAdmin(HttpServletRequest request) {
+        String sub = (String) request.getAttribute("cognitoSub");
+        if (!systemAdminRepository.existsBySub(sub)) {
+            throw new ForbiddenException("Not a system admin");
+        }
+    }
+}

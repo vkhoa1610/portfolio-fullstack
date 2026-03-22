@@ -2,6 +2,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import {
   AdminUser, PermissionStatus, FunctionStatus, ImportResult,
   ExpenseReport, GenerateReportResponse, LatestReportResponse, NoReportResponse,
+  ReportTemplate, ReportTemplateListResponse,
 } from './types';
 
 export const adminApi = createApi({
@@ -10,7 +11,7 @@ export const adminApi = createApi({
     baseUrl: process.env.NEXT_PUBLIC_BFF_URL || '/api',
     credentials: 'include',
   }),
-  tagTypes: ['AdminUsers', 'UserPermissions', 'UserFunctions', 'ExpenseReport'],
+  tagTypes: ['AdminUsers', 'UserPermissions', 'UserFunctions', 'ExpenseReport', 'ReportTemplate'],
   endpoints: (builder) => ({
 
     // ── Users ─────────────────────────────────────────────────────────
@@ -99,6 +100,41 @@ export const adminApi = createApi({
       query: () => '/adm-013/reports/latest',
       providesTags: ['ExpenseReport'],
     }),
+
+    // ── AI Playground ─────────────────────────────────────────────
+    aiPlaygroundChat: builder.mutation<
+      { response?: string; error?: string; model: string; durationMs: number },
+      { systemPrompt?: string; userPrompt: string }
+    >({
+      query: (body) => ({ url: '/adm-017/ai-playground/chat', method: 'POST', body }),
+    }),
+
+    // ── Manager: AI Report (read-only) ───────────────────────────
+    getManagerLatestReport: builder.query<LatestReportResponse | NoReportResponse, void>({
+      query: () => '/mgr-005/reports/latest',
+      providesTags: ['ExpenseReport'],
+    }),
+
+    // ── Report Templates ──────────────────────────────────────────
+    getReportTemplates: builder.query<ReportTemplateListResponse, void>({
+      query: () => '/adm-014/report-templates',
+      providesTags: ['ReportTemplate'],
+    }),
+
+    getReportTemplate: builder.query<ReportTemplate, number>({
+      query: (id) => `/adm-015/report-templates/${id}`,
+      providesTags: (_r, _e, id) => [{ type: 'ReportTemplate', id }],
+    }),
+
+    createReportTemplate: builder.mutation<ReportTemplate, { name: string; configJson: string }>({
+      query: (body) => ({ url: '/adm-014/report-templates', method: 'POST', body }),
+      invalidatesTags: ['ReportTemplate'],
+    }),
+
+    updateReportTemplate: builder.mutation<ReportTemplate, { id: number; name: string; configJson: string }>({
+      query: ({ id, ...body }) => ({ url: `/adm-015/report-templates/${id}`, method: 'PUT', body }),
+      invalidatesTags: ['ReportTemplate'],
+    }),
   }),
 });
 
@@ -114,5 +150,11 @@ export const {
   useImportPermissionsMutation,
   useGenerateReportMutation,
   useGetReportStatusQuery,
+  useAiPlaygroundChatMutation,
   useGetLatestReportQuery,
+  useGetManagerLatestReportQuery,
+  useGetReportTemplatesQuery,
+  useGetReportTemplateQuery,
+  useCreateReportTemplateMutation,
+  useUpdateReportTemplateMutation,
 } = adminApi;
