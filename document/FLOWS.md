@@ -1,7 +1,7 @@
 # Flows Implementation Status
 
 > Tài liệu tổng hợp trạng thái triển khai từng flow theo layer.
-> **Cập nhật lần cuối**: 2026-03-20 (Session 5: Finance Payment + Ollama Integration)
+> **Cập nhật lần cuối**: 2026-03-23 (Session 7: Report Template + AI Playground + Manager Report + Finance Report Management)
 
 ---
 
@@ -12,9 +12,13 @@
 | Flow 1 | Secure Onboarding & Compliance | ✅ | ✅ | ✅ | ✅ | ✅ | **DONE** |
 | Flow 2 | Smart Expense Capture | ✅ | ✅ | ✅ | ✅ | ✅ | **DONE** |
 | Flow 3 | Intelligent Approval Matrix | ✅ | ✅ | ✅ | ✅ | ✅ | **DONE** |
-| Flow 4 | Settlement & Fiscal Reporting | ✅ | ✅ | ✅ | ⚠️ | ✅ | **PARTIAL** |
+| Flow 4 | Settlement & Fiscal Reporting | ✅ | ✅ | ✅ | ✅ | ✅ | **DONE** |
 | Flow 5 | Permission-Based Authorization & CMS UI | ✅ | ✅ | ✅ | ✅ | ✅ | **DONE** |
-| Flow 6 | AI-Powered Expense Report Generator | ✅ | ✅ | ✅ | ✅ | — | **DONE (Ollama + mock fallback)** |
+| Flow 6 | AI-Powered Expense Report Generator | ✅ | ✅ | ✅ | ✅ | ✅ | **DONE (Ollama real + mock fallback)** |
+| Flow 7 | Report Template Designer + PDF Export | ✅ | ✅ | ✅ | ✅ | ✅ | **DONE** |
+| Flow 8 | Manager AI Report View | — | ✅ | ✅ | ✅ | ✅ | **DONE** |
+| Flow 9 | AI Playground (Admin) | — | ✅ | ✅ | ✅ | ✅ | **DONE** |
+| Flow 10 | Finance Report Management | — | — | — | ✅ | ✅ | **DONE (frontend only)** |
 
 ---
 
@@ -165,16 +169,11 @@ Login → [MFA?] → [New Password?] → Set HttpOnly cookies
 ### Frontend Screens (FINANCE only)
 | Route | Component | Trạng thái |
 | ----- | --------- | ---------- |
-| `/finance/overview` | `overview-view.tsx` | ✅ Done (UI + API connected) |
-| `/finance/export` | — | ❌ Chưa implement |
-| `/finance/sepa` | — | ❌ Chưa implement |
-
-### Chưa implement
-| Feature | Mô tả |
-| ------- | ----- |
-| SEPA Batch | Tạo file XML SEPA cho batch payment |
-| E-Invoicing | Xuất hóa đơn điện tử (ZUGFeRD / XRechnung) |
-| Export | CSV/PDF export báo cáo chi phí |
+| `/finance/overview` | `overview-view.tsx` | ✅ Done |
+| `/finance/reports` | `report-management-view.tsx` | ✅ Done (client-side filter, xem Flow 10) |
+| `/finance/check` | `check-view.tsx` | ✅ Done |
+| `/finance/payment` | `payment-view.tsx` | ✅ Done |
+| `/finance/export` | `export-view.tsx` | ✅ Done |
 
 ---
 
@@ -328,10 +327,123 @@ Admin click "Generate"
   → Frontend nhận DONE → hiện markdown, dừng poll
 ```
 
-### TODO
+### Ollama Integration (thực tế, không còn mock)
 
-- Thay `mockAiCall()` bằng POST thật đến LM Studio (`/v1/chat/completions`)
-- Thêm i18n cho UI labels nếu cần đa ngôn ngữ
+`ExpenseReportService` gọi `OllamaClient.chat(prompt)` → POST `http://ollama:11434/v1/chat/completions` (OpenAI-compatible format). Nếu Ollama offline, service log lỗi và dùng fallback markdown.
+
+**Docker profile**: `--profile ai` để start container `ollama` (image: `ollama/ollama:latest`).
+
+---
+
+## Flow 7: Report Template Designer + PDF Export ✅
+
+**Mục tiêu**: Admin tạo template (title, màu, sections có thể reorder bằng DnD) → preview HTML → download PDF.
+
+### DB Table mới
+
+| Bảng | Mô tả |
+|------|-------|
+| `report_templates` | id, name, configJson (JSON string) |
+
+### Backend APIs (`/api/v1/admin/report-templates/`)
+
+| Method | Endpoint | Chức năng |
+|--------|----------|-----------|
+| GET    | `/` | List all templates |
+| POST   | `/` | Create template |
+| GET    | `/{id}` | Get one template |
+| PUT    | `/{id}` | Update template |
+
+### BFF Endpoints
+
+| Product | Chức năng |
+|---------|-----------|
+| adm-014 | GET list + POST create |
+| adm-015 | GET one + PUT update |
+| adm-016 | POST generate-pdf (Puppeteer) |
+
+### Frontend
+
+| File | Mô tả |
+|------|-------|
+| `components/admin/report-template-designer.tsx` | DnD sections + live preview |
+| `common/report-template/build-html-preview.ts` | Build HTML preview (browser) |
+| `bff/src/common/utils/report-html-template.ts` | Build HTML cho PDF (BFF) |
+| `bff/src/common/utils/pdf-generator.ts` | Puppeteer wrapper |
+
+### DnD Kit
+
+`@dnd-kit/core` + `@dnd-kit/sortable` + `@dnd-kit/utilities`. Dùng `PointerSensor` với `activationConstraint: { distance: 8 }` để tránh conflict với scroll.
+
+### sections Array Format (phá cách cũ)
+
+Cũ: `{ executiveSummary: true, anomalies: false, ... }` (object, không có thứ tự)
+Mới: `[{ key: "executiveSummary", enabled: true }, ...]` (ordered array — thứ tự = thứ tự render)
+
+`normalizeSections()` xử lý backward compat ở cả BFF và frontend.
+
+---
+
+## Flow 8: Manager AI Report View ✅
+
+**Mục tiêu**: Manager xem (read-only) report AI mới nhất + download PDF.
+
+### Backend
+
+`ManagerReportController` tại `/api/v1/manager/reports/latest` — không có `requireAdmin` check. Role gate tại BFF layer.
+
+### BFF
+
+| Product | Endpoint | Chức năng |
+|---------|----------|-----------|
+| mgr-005 | GET `/mgr-005/reports/latest` | Forward đến `/api/v1/manager/reports/latest` |
+
+### Frontend
+
+| File | Mô tả |
+|------|-------|
+| `components/manager/manager-ai-report-view.tsx` | Read-only view, chọn template, download PDF |
+| `app/(protected)/manager/ai-report/page.tsx` | Page wrapper |
+
+---
+
+## Flow 9: AI Playground ✅
+
+**Mục tiêu**: Admin test trực tiếp AI model với custom system + user prompt.
+
+### Backend
+
+`AiPlaygroundController` tại `POST /api/v1/admin/ai-playground/chat`. Gọi `OllamaClient.chatWithSystem(systemPrompt, userPrompt)` — hỗ trợ system message + user message roles (OpenAI format).
+
+### BFF
+
+| Product | Endpoint | Chức năng |
+|---------|----------|-----------|
+| adm-017 | POST `/adm-017/ai-playground/chat` | Proxy với timeout 150s |
+
+### Frontend
+
+| File | Mô tả |
+|------|-------|
+| `components/admin/ai-playground-view.tsx` | Split panel: left=prompts, right=output |
+| `app/(protected)/admin/ai-playground/page.tsx` | Page wrapper |
+
+---
+
+## Flow 10: Finance Report Management ✅ (frontend only)
+
+**Mục tiêu**: Finance xem và filter danh sách báo cáo chi phí với collapsible filter sidebar.
+
+### Frontend
+
+| File | Mô tả |
+|------|-------|
+| `components/finance/report-management-view.tsx` | Full-bleed layout với FilterSidebar + KPI + Table |
+| `app/(protected)/finance/reports/page.tsx` | Page wrapper |
+
+**Data source**: Reuse `useGetFinanceExpensesQuery` (FIN-001), filter client-side.
+
+**Full-bleed layout**: `-mx-6 md:-mx-8 -my-6 md:-my-8 h-[calc(100vh-64px)]` — thoát khỏi padding của protected layout.
 
 ---
 

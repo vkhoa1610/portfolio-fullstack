@@ -29,7 +29,7 @@ export default function ProtectedDashboardLayout({ children }: { children: React
 
         {/* Scrollable content */}
         <div className="flex-1 overflow-y-auto p-6 md:p-8">
-          <div className="mx-auto max-w-6xl">{children}</div>
+          {children}
           <div className="mt-10 py-4 text-center">
             <p className="text-[10px] text-neutral-400">
               © 2025 FintechSaaS GmbH. ISO 27001 Certified.
