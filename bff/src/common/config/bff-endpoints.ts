@@ -27,6 +27,8 @@ export const BFF_ENDPOINTS = {
   FIN_001: '/fin-001',          // GET  finance/expenses (APPROVED + PAID)
   FIN_002: '/fin-002/:id/pay',  // PUT  finance/expenses/:id/pay
   FIN_003: '/fin-003/batch-pay',// PUT  finance/expenses/batch-pay
+  FIN_004: '/fin-004/reports',  // POST create finance report
+  FIN_005: '/fin-005/reports',  // GET  list finance reports
 
   // ─── Screen Config (CMS) ──────────────────────────────────────────
   SCR_001: '/scr-001/:screenKey',  // GET screen config JSON for a screen

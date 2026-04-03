@@ -1,5 +1,5 @@
 SET FOREIGN_KEY_CHECKS = 0;
-DROP TABLE IF EXISTS report_templates, expense_reports, expenses, audit_logs, user_consents, policies, user_profiles,
+DROP TABLE IF EXISTS finance_reports, report_templates, expense_reports, expenses, audit_logs, user_consents, policies, user_profiles,
     items, screen_configs, functions,
     user_permissions, user_roles, roles, permissions, system_admins, users;
 SET FOREIGN_KEY_CHECKS = 1;
@@ -406,3 +406,66 @@ INSERT INTO expenses (user_sub, type, title, amount, currency, status, trip_from
 
 INSERT INTO expenses (user_sub, type, title, amount, currency, status, vendor_name, receipt_date, vat_amount, submitted_at, reviewed_at, created_at) VALUES
 ('a7e4fa28-1051-704f-042a-f7fe9f450d8c', 'RECEIPT', 'Printer Cartridges', 55.00, 'EUR', 'APPROVED', 'Conrad Electronic', '2026-03-18', 8.79, '2026-03-18 11:00:00', '2026-03-19 09:00:00', '2026-03-18 11:00:00');
+
+-- ============================================
+-- FINANCE REPORTS TABLE
+-- ============================================
+
+CREATE TABLE finance_reports (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_sub VARCHAR(36) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    report_type ENUM('FINANCIAL','ANALYTICS','OPERATIONS','COMPLIANCE') NOT NULL,
+    fiscal_period VARCHAR(20),
+    due_date DATE,
+    description TEXT,
+    priority ENUM('LOW','NORMAL','HIGH','URGENT') DEFAULT 'NORMAL',
+    total_amount DECIMAL(15,2),
+    currency VARCHAR(3) DEFAULT 'EUR',
+    line_items JSON,
+    attachments JSON,
+    approval_route JSON,
+    notify_cc JSON,
+    status ENUM('DRAFT','PENDING_REVIEW','APPROVED','REJECTED') DEFAULT 'DRAFT',
+    submitted_at TIMESTAMP NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    is_deleted TINYINT(1) DEFAULT 0,
+    CONSTRAINT fk_fr_user FOREIGN KEY (user_sub) REFERENCES users(cognito_sub)
+);
+
+-- Demo finance reports
+INSERT INTO finance_reports (user_sub, title, report_type, fiscal_period, due_date, description, priority, total_amount, currency, line_items, approval_route, status, submitted_at, created_at) VALUES
+(
+  'a7e4fa28-1051-704f-042a-f7fe9f450d8c',
+  'Q1 2026 Revenue Report',
+  'FINANCIAL',
+  'Q1 2026',
+  '2026-03-31',
+  'Quarterly revenue and expense summary for Finance department.',
+  'HIGH',
+  48200.00,
+  'EUR',
+  '[{"description":"Personnel costs","category":"OPEX","amount":32000},{"description":"Travel & expenses","category":"OPEX","amount":16200}]',
+  '[{"level":1,"reviewerName":"Minh Tran","deadlineDays":3},{"level":2,"reviewerName":"Hoa Nguyen","deadlineDays":5},{"level":3,"reviewerName":"Long Pham","deadlineDays":7}]',
+  'PENDING_REVIEW',
+  '2026-03-20 09:00:00',
+  '2026-03-19 14:00:00'
+);
+
+INSERT INTO finance_reports (user_sub, title, report_type, fiscal_period, due_date, description, priority, total_amount, currency, line_items, approval_route, status, created_at) VALUES
+(
+  'a7e4fa28-1051-704f-042a-f7fe9f450d8c',
+  'March Compliance Report',
+  'COMPLIANCE',
+  'Q1 2026',
+  '2026-04-15',
+  'Monthly compliance audit summary including GDPR checks.',
+  'NORMAL',
+  5400.00,
+  'EUR',
+  '[{"description":"External audit fees","category":"OPEX","amount":4500},{"description":"Compliance tools","category":"CAPEX","amount":900}]',
+  '[{"level":1,"reviewerName":"Minh Tran","deadlineDays":3},{"level":2,"reviewerName":"Hoa Nguyen","deadlineDays":5}]',
+  'DRAFT',
+  '2026-03-22 11:00:00'
+);

@@ -6,6 +6,8 @@ import {
   UploadUrlResponse,
   RejectExpenseRequest,
   MarkAsPaidRequest,
+  FinanceReport,
+  CreateFinanceReportRequest,
 } from './types';
 
 export const expenseApi = createApi({
@@ -135,6 +137,34 @@ export const expenseApi = createApi({
       }),
       invalidatesTags: ['FinanceQueue', 'ManagerQueue'],
     }),
+
+    // ─────────────────────────────────────────────────────
+    // FINANCE: Create finance report
+    // ─────────────────────────────────────────────────────
+    createFinanceReport: builder.mutation<FinanceReport, CreateFinanceReportRequest>({
+      query: (body) => ({
+        url: '/fin-004/reports',
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: ['FinanceQueue'],
+    }),
+
+    // ─────────────────────────────────────────────────────
+    // FINANCE: List finance reports
+    // ─────────────────────────────────────────────────────
+    getFinanceReports: builder.query<FinanceReport[], void>({
+      query: () => '/fin-005/reports',
+      providesTags: ['FinanceQueue'],
+      transformResponse: (raw: any[]) =>
+        raw.map((r) => ({
+          ...r,
+          lineItems: r.lineItems ? JSON.parse(r.lineItems) : [],
+          attachments: r.attachments ? JSON.parse(r.attachments) : [],
+          approvalRoute: r.approvalRoute ? JSON.parse(r.approvalRoute) : [],
+          notifyCc: r.notifyCc ? JSON.parse(r.notifyCc) : [],
+        })),
+    }),
   }),
 });
 
@@ -151,4 +181,6 @@ export const {
   useRejectExpenseMutation,
   useGetFinanceExpensesQuery,
   useMarkAsPaidMutation,
+  useCreateFinanceReportMutation,
+  useGetFinanceReportsQuery,
 } = expenseApi;

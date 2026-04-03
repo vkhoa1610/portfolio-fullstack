@@ -1,7 +1,7 @@
 # Flows Implementation Status
 
 > Tài liệu tổng hợp trạng thái triển khai từng flow theo layer.
-> **Cập nhật lần cuối**: 2026-03-23 (Session 7: Report Template + AI Playground + Manager Report + Finance Report Management)
+> **Cập nhật lần cuối**: 2026-03-26 (Session 8: Finance Report — New Report Multi-Step Modal + Full Stack)
 
 ---
 
@@ -19,6 +19,7 @@
 | Flow 8 | Manager AI Report View | — | ✅ | ✅ | ✅ | ✅ | **DONE** |
 | Flow 9 | AI Playground (Admin) | — | ✅ | ✅ | ✅ | ✅ | **DONE** |
 | Flow 10 | Finance Report Management | — | — | — | ✅ | ✅ | **DONE (frontend only)** |
+| Flow 11 | Finance New Report (Multi-Step Modal) | ✅ | ✅ | ✅ | ✅ | — | **DONE** |
 
 ---
 
@@ -444,6 +445,59 @@ Mới: `[{ key: "executiveSummary", enabled: true }, ...]` (ordered array — th
 **Data source**: Reuse `useGetFinanceExpensesQuery` (FIN-001), filter client-side.
 
 **Full-bleed layout**: `-mx-6 md:-mx-8 -my-6 md:-my-8 h-[calc(100vh-64px)]` — thoát khỏi padding của protected layout.
+
+---
+
+## Flow 11: Finance New Report — Multi-Step Modal ✅
+
+**Mục tiêu**: Finance tạo `FinanceReport` mới (entity riêng, không phải expense reimbursement) qua modal 5 bước — lưu DRAFT hoặc submit trực tiếp.
+
+### DB Table mới
+
+| Bảng | Mô tả |
+|------|-------|
+| `finance_reports` | Entity riêng — không dùng bảng `expenses`. Các trường JSON: `line_items`, `attachments`, `approval_route`, `notify_cc` |
+
+**Lý do tách bảng**: Finance report có cấu trúc khác hoàn toàn (multi-level approval, line items, priority, fiscal period) — không thể tái dùng `expenses`.
+
+### Backend APIs (`/api/v1/finance/`)
+
+| Method | Endpoint | Chức năng |
+|--------|----------|-----------|
+| POST | `/reports` | Tạo finance report (DRAFT hoặc PENDING_REVIEW) |
+| GET  | `/reports` | List tất cả finance reports (không filter by user) |
+
+**Java files mới:** `FinanceReportEntity`, `CreateFinanceReportRequestDto`, `FinanceReportResponseDto`, `FinanceReportMapper.java` + `FinanceReportMapper.xml`, `FinanceReportRepository`, `FinanceReportService`
+
+**`FinanceController`** mở rộng: thêm `POST /reports` và `GET /reports`.
+
+### BFF Endpoints
+
+| Product | Method | Path | Chức năng |
+|---------|--------|------|-----------|
+| fin-004 | POST | `/fin-004/reports` | Create finance report |
+| fin-005 | GET  | `/fin-005/reports` | List finance reports |
+
+### Frontend
+
+| File | Mô tả |
+|------|-------|
+| `components/finance/new-report-modal.tsx` | Modal 5 bước (Stepper + 5 Step components) |
+| `components/finance/report-management-view.tsx` | Update: thêm tabs "Finance Reports" / "Expense Items" + "+ New report" button |
+| `ducks/expenses/types.ts` | Thêm `FinanceReport`, `CreateFinanceReportRequest`, `LineItem`, `ApprovalLevel`, `ReportAttachment` |
+| `ducks/expenses/expenseApi.ts` | Thêm `createFinanceReport` (fin-004) + `getFinanceReports` (fin-005) |
+
+### Modal Architecture (5 bước)
+
+```
+Step 1 — General info: title, reportType (FINANCIAL/ANALYTICS/OPERATIONS/COMPLIANCE), fiscalPeriod, dueDate, description, priority (LOW/NORMAL/HIGH/URGENT)
+Step 2 — Financial details: totalAmount, currency, lineItems table (description + OPEX/CAPEX + amount)
+Step 3 — Attachments: file picker → list với PRIMARY/SUPPORTING toggle (UI demo, không upload thật)
+Step 4 — Approval route: 3 level cards hard-coded (Minh Tran, Hoa Nguyen, Long Pham) + CC chip input
+Step 5 — Review & submit: summary cards + declaration checkbox → "Submit report" (submitNow=true) hoặc "Save draft" (submitNow=false)
+```
+
+**Stepper**: dot + connector, green checkmark = done, blue = active, gray = pending.
 
 ---
 

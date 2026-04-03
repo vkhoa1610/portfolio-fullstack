@@ -111,6 +111,65 @@ export interface MarkAsPaidRequest {
   ids: number[];
 }
 
+export type FinanceReportType = 'FINANCIAL' | 'ANALYTICS' | 'OPERATIONS' | 'COMPLIANCE';
+export type FinanceReportStatus = 'DRAFT' | 'PENDING_REVIEW' | 'APPROVED' | 'REJECTED';
+export type FinanceReportPriority = 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT';
+
+export interface LineItem {
+  description: string;
+  category: 'OPEX' | 'CAPEX';
+  amount: number;
+}
+
+export interface ReportAttachment {
+  fileUrl: string;
+  fileName: string;
+  fileSize: number;
+  fileType: 'PRIMARY' | 'SUPPORTING';
+}
+
+export interface ApprovalLevel {
+  level: number;
+  reviewerName: string;
+  deadlineDays: number;
+}
+
+export interface FinanceReport {
+  id: number;
+  userSub: string;
+  title: string;
+  reportType: FinanceReportType;
+  fiscalPeriod?: string;
+  dueDate?: string;
+  description?: string;
+  priority: FinanceReportPriority;
+  totalAmount?: number;
+  currency: string;
+  lineItems?: LineItem[];
+  attachments?: ReportAttachment[];
+  approvalRoute?: ApprovalLevel[];
+  notifyCc?: { name: string }[];
+  status: FinanceReportStatus;
+  submittedAt?: string;
+  createdAt?: string;
+}
+
+export interface CreateFinanceReportRequest {
+  title: string;
+  reportType: FinanceReportType;
+  fiscalPeriod?: string;
+  dueDate?: string;
+  description?: string;
+  priority: FinanceReportPriority;
+  totalAmount?: number;
+  currency: string;
+  lineItems?: string;      // JSON string
+  attachments?: string;    // JSON string
+  approvalRoute?: string;  // JSON string
+  notifyCc?: string;       // JSON string
+  submitNow?: boolean;
+}
+
 /** Analytics: tổng hợp chi tiêu theo type/tháng từ danh sách expenses */
 export interface SpendByType {
   type: ExpenseType;

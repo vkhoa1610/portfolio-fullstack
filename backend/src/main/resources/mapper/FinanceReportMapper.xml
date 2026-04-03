@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.my_java_app.mapper.FinanceReportMapper">
+
+    <resultMap id="FinanceReportResultMap" type="com.example.my_java_app.entity.FinanceReportEntity">
+        <id     property="id"            column="id" />
+        <result property="userSub"       column="user_sub" />
+        <result property="title"         column="title" />
+        <result property="reportType"    column="report_type" />
+        <result property="fiscalPeriod"  column="fiscal_period" />
+        <result property="dueDate"       column="due_date" />
+        <result property="description"   column="description" />
+        <result property="priority"      column="priority" />
+        <result property="totalAmount"   column="total_amount" />
+        <result property="currency"      column="currency" />
+        <result property="lineItems"     column="line_items" />
+        <result property="attachments"   column="attachments" />
+        <result property="approvalRoute" column="approval_route" />
+        <result property="notifyCc"      column="notify_cc" />
+        <result property="status"        column="status" />
+        <result property="submittedAt"   column="submitted_at" />
+        <result property="createdAt"     column="created_at" />
+        <result property="updatedAt"     column="updated_at" />
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO finance_reports (
+            user_sub, title, report_type, fiscal_period, due_date,
+            description, priority, total_amount, currency,
+            line_items, attachments, approval_route, notify_cc,
+            status, submitted_at
+        ) VALUES (
+            #{userSub}, #{title}, #{reportType}, #{fiscalPeriod}, #{dueDate},
+            #{description}, #{priority}, #{totalAmount}, #{currency},
+            #{lineItems}, #{attachments}, #{approvalRoute}, #{notifyCc},
+            #{status}, #{submittedAt}
+        )
+    </insert>
+
+    <select id="findAll" resultMap="FinanceReportResultMap">
+        SELECT * FROM finance_reports
+        WHERE is_deleted = 0
+        ORDER BY created_at DESC
+    </select>
+
+    <select id="findById" resultMap="FinanceReportResultMap">
+        SELECT * FROM finance_reports
+        WHERE id = #{id} AND is_deleted = 0
+    </select>
+
+    <update id="updateStatus">
+        UPDATE finance_reports
+        SET status = #{status},
+            submitted_at = #{submittedAt}
+        WHERE id = #{id}
+    </update>
+
+</mapper>

@@ -1,6 +1,7 @@
 # Finance — Report Management
 
-> Màn hình quản lý báo cáo chi phí cho Finance role. Filter sidebar có thể collapse, KPI cards, table với pagination.
+> Cập nhật: 2026-03-26 (Session 8 — thêm 2 tabs + NewReportModal)
+> Màn hình quản lý báo cáo cho Finance role. Filter sidebar collapsible, 2 tabs: Finance Reports + Expense Items, "+ New report" button mở modal tạo báo cáo.
 
 ## Route
 
@@ -93,10 +94,28 @@ interface FiltersState {
 
 8 items/page, prev/next + page number buttons.
 
+## Tabs (Session 8)
+
+**Tab "Finance Reports"** (default):
+- Dùng `useGetFinanceReportsQuery()` → `GET /fin-005/reports`
+- Table: Report name + type badge / Amount / Status / Date / View button
+- Type badge màu: FINANCIAL=primary, ANALYTICS=info, OPERATIONS=warning, COMPLIANCE=purple
+
+**Tab "Expense Items"**:
+- Dùng `useGetFinanceExpensesQuery()` → `GET /fin-001`
+- Giữ nguyên FilterSidebar + KPI cards + pagination
+
+## "+ New report" Button
+
+Topbar button → `setModalOpen(true)` → render `<NewReportModal open={modalOpen} onClose={...} />`
+
+Xem chi tiết modal: [new-report-modal.md](./new-report-modal.md)
+
 ## Data Source
 
-Dùng `useGetFinanceExpensesQuery` (FIN-001) — filter client-side.
+- Finance Reports: `useGetFinanceReportsQuery` (FIN-005)
+- Expense Items: `useGetFinanceExpensesQuery` (FIN-001), filter client-side
 
 ## Luồng vào màn hình
 
-Sidebar (Finance) → "Quản lý báo cáo" → `/finance/reports`
+Sidebar (Finance) → "Reports" → `/finance/reports`

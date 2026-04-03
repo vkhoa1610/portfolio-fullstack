@@ -13,8 +13,9 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import { useGetFinanceExpensesQuery } from "@/ducks/expenses";
-import type { Expense, ExpenseStatus } from "@/ducks/expenses";
+import { useGetFinanceExpensesQuery, useGetFinanceReportsQuery } from "@/ducks/expenses";
+import type { Expense, ExpenseStatus, FinanceReport } from "@/ducks/expenses";
+import NewReportModal from "@/components/finance/new-report-modal";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Constants
@@ -254,8 +255,63 @@ function FilterSidebar({
 // Main view
 // ─────────────────────────────────────────────────────────────────────────────
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Finance Report row
+// ─────────────────────────────────────────────────────────────────────────────
+
+const FR_STATUS_META: Record<string, { label: string; dot: string; bg: string; text: string }> = {
+  DRAFT:          { label: "Draft",          dot: "bg-neutral-400",  bg: "bg-neutral-100",  text: "text-neutral-600" },
+  PENDING_REVIEW: { label: "Pending Review", dot: "bg-warning-500",  bg: "bg-warning-100",  text: "text-warning-700" },
+  APPROVED:       { label: "Approved",       dot: "bg-success-500",  bg: "bg-success-100",  text: "text-success-700" },
+  REJECTED:       { label: "Rejected",       dot: "bg-error-500",    bg: "bg-error-100",    text: "text-error-700"   },
+};
+
+const FR_TYPE_COLOR: Record<string, string> = {
+  FINANCIAL:   "border-primary-300 bg-primary-50 text-primary-700",
+  ANALYTICS:   "border-info-300 bg-info-50 text-info-700",
+  OPERATIONS:  "border-warning-300 bg-warning-50 text-warning-700",
+  COMPLIANCE:  "border-purple-300 bg-purple-50 text-purple-700",
+};
+
+function FinanceReportRow({ report: r }: { report: FinanceReport }) {
+  const meta = FR_STATUS_META[r.status] ?? FR_STATUS_META.DRAFT;
+  return (
+    <div className="grid grid-cols-[minmax(0,2.5fr)_minmax(0,1fr)_minmax(0,1.4fr)_minmax(0,1fr)_56px] items-center gap-3 border-b border-neutral-100 px-4 py-3 hover:bg-neutral-50/70 last:border-0">
+      <div className="min-w-0">
+        <p className="truncate text-sm font-medium text-neutral-900">{r.title}</p>
+        <p className="mt-0.5 flex items-center gap-1.5 text-xs text-neutral-400">
+          <span className={`rounded-full border px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide ${FR_TYPE_COLOR[r.reportType] ?? ""}`}>
+            {r.reportType}
+          </span>
+          {r.fiscalPeriod && <span>{r.fiscalPeriod}</span>}
+        </p>
+      </div>
+      <span className="text-sm text-neutral-800">
+        {r.totalAmount != null ? `${r.totalAmount.toLocaleString("en", { minimumFractionDigits: 2 })} ${r.currency}` : "—"}
+      </span>
+      <div>
+        <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-medium ${meta.bg} ${meta.text}`}>
+          <span className={`h-1.5 w-1.5 rounded-full ${meta.dot}`} />
+          {meta.label}
+        </span>
+      </div>
+      <span className="text-xs text-neutral-500">{fmtDate(r.submittedAt ?? r.createdAt)}</span>
+      <div className="flex gap-1">
+        <ActionBtn title="View">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="3" stroke="currentColor" strokeWidth="1.3"/><path d="M1 6s1.8-4 5-4 5 4 5 4-1.8 4-5 4-5-4-5-4z" stroke="currentColor" strokeWidth="1.3" fill="none"/></svg>
+        </ActionBtn>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 export default function ReportManagementView() {
   const { data: all = [], isLoading } = useGetFinanceExpensesQuery();
+  const { data: finReports = [], isLoading: frLoading } = useGetFinanceReportsQuery();
+  const [activeTab, setActiveTab] = useState<"expense-items" | "finance-reports">("finance-reports");
+  const [modalOpen, setModalOpen] = useState(false);
 
   const [filters, setFilters] = useState<FiltersState>({
     needsAction: false,
@@ -321,6 +377,7 @@ export default function ReportManagementView() {
   );
 
   return (
+    <>
     <div className="-mx-6 md:-mx-8 -my-6 md:-my-8 flex h-[calc(100vh-64px)] overflow-hidden border-t border-neutral-200 bg-white">
       {/* Filter sidebar */}
       <FilterSidebar
@@ -351,87 +408,128 @@ export default function ReportManagementView() {
               />
             </div>
             {/* New report */}
-            <button className="flex h-8 items-center gap-1.5 rounded-lg bg-primary-600 px-3 text-xs font-medium text-white hover:bg-primary-700">
+            <button
+              onClick={() => setModalOpen(true)}
+              className="flex h-8 items-center gap-1.5 rounded-lg bg-primary-600 px-3 text-xs font-medium text-white hover:bg-primary-700"
+            >
               <Plus className="h-3.5 w-3.5" />
               New report
             </button>
           </div>
         </div>
 
-        {/* Active filter chips */}
-        {chips.length > 0 && (
-          <div className="flex shrink-0 flex-wrap items-center gap-1.5 border-b border-neutral-100 px-5 py-2">
-            <span className="text-xs text-neutral-400">Active:</span>
-            {chips.map((chip, i) => (
-              <span
-                key={i}
-                className="flex items-center gap-1 rounded-full border border-warning-300 bg-warning-50 px-2 py-0.5 text-[11px] text-warning-700"
-              >
-                {chip.label}
-                <button onClick={chip.onRemove} className="ml-0.5 opacity-50 hover:opacity-100">
-                  <X className="h-3 w-3" />
-                </button>
-              </span>
-            ))}
+        {/* Tabs */}
+        <div className="flex shrink-0 items-center gap-1 border-b border-neutral-200 px-5 pt-1">
+          {(["finance-reports", "expense-items"] as const).map((tab) => (
             <button
-              onClick={() => setFilters({ needsAction: false, overdue: false, statuses: new Set() })}
-              className="text-[11px] text-error-600 hover:underline"
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`px-3 py-2 text-xs font-medium border-b-2 transition-colors -mb-px ${
+                activeTab === tab
+                  ? "border-primary-600 text-primary-700"
+                  : "border-transparent text-neutral-500 hover:text-neutral-700"
+              }`}
             >
-              Clear all
+              {tab === "finance-reports"
+                ? `Finance Reports (${finReports.length})`
+                : `Expense Items (${all.length})`}
             </button>
+          ))}
+        </div>
+
+        {/* Finance Reports tab content */}
+        {activeTab === "finance-reports" && (
+          <div className="flex-1 overflow-auto px-5 py-3">
+            <div className="overflow-hidden rounded-xl border border-neutral-200">
+              <div className="grid grid-cols-[minmax(0,2.5fr)_minmax(0,1fr)_minmax(0,1.4fr)_minmax(0,1fr)_56px] gap-3 border-b border-neutral-200 bg-neutral-50 px-4 py-2.5">
+                {["Report name", "Amount", "Status", "Date", ""].map((col, i) => (
+                  <span key={i} className="text-[11px] font-semibold uppercase tracking-wide text-neutral-500">{col}</span>
+                ))}
+              </div>
+              {frLoading ? (
+                <div className="flex h-32 items-center justify-center">
+                  <div className="h-6 w-6 animate-spin rounded-full border-2 border-neutral-200 border-t-primary-600" />
+                </div>
+              ) : finReports.length === 0 ? (
+                <p className="p-8 text-center text-sm text-neutral-400">No finance reports yet. Click &quot;+ New report&quot; to create one.</p>
+              ) : (
+                finReports.map((r) => <FinanceReportRow key={r.id} report={r} />)
+              )}
+            </div>
           </div>
         )}
 
-        {/* KPI cards */}
-        <div className="grid shrink-0 grid-cols-4 gap-3 border-b border-neutral-100 px-5 py-3">
-          <KpiCard label="Total" value={kpiTotal} sub="+12% this month" subColor="text-success-600" />
-          <KpiCard label="Needs action" value={kpiNeedsAction} sub={`Incl. ${counts.overdue ?? 0} overdue`} bg="bg-warning-50" labelColor="text-warning-700" valueColor="text-warning-900" subColor="text-warning-600" />
-          <KpiCard label="Approved" value={kpiApproved} sub={`${kpiTotal > 0 ? ((kpiApproved / kpiTotal) * 100).toFixed(1) : 0}% approval rate`} bg="bg-success-50" labelColor="text-success-700" valueColor="text-success-900" subColor="text-success-600" />
-          <KpiCard label="Rejected" value={kpiRejected} sub={`${kpiTotal > 0 ? ((kpiRejected / kpiTotal) * 100).toFixed(1) : 0}% rejection rate`} bg="bg-error-50" labelColor="text-error-700" valueColor="text-error-900" subColor="text-error-600" />
-        </div>
-
-        {/* Table */}
-        <div className="flex-1 overflow-auto px-5 py-3">
-          <div className="overflow-hidden rounded-xl border border-neutral-200">
-            {/* Head */}
-            <div className="grid grid-cols-[minmax(0,2.5fr)_minmax(0,1fr)_minmax(0,1.4fr)_minmax(0,1fr)_56px] gap-3 border-b border-neutral-200 bg-neutral-50 px-4 py-2.5">
-              {["Report name", "Amount", "Status", "Submitted", ""].map((col, i) => (
-                <span key={i} className="text-[11px] font-semibold uppercase tracking-wide text-neutral-500">{col}</span>
-              ))}
-            </div>
-
-            {/* Rows */}
-            {isLoading ? (
-              <div className="flex h-32 items-center justify-center">
-                <div className="h-6 w-6 animate-spin rounded-full border-2 border-neutral-200 border-t-primary-600" />
+        {/* Expense Items tab content */}
+        {activeTab === "expense-items" && (
+          <>
+            {/* Active filter chips */}
+            {chips.length > 0 && (
+              <div className="flex shrink-0 flex-wrap items-center gap-1.5 border-b border-neutral-100 px-5 py-2">
+                <span className="text-xs text-neutral-400">Active:</span>
+                {chips.map((chip, i) => (
+                  <span key={i} className="flex items-center gap-1 rounded-full border border-warning-300 bg-warning-50 px-2 py-0.5 text-[11px] text-warning-700">
+                    {chip.label}
+                    <button onClick={chip.onRemove} className="ml-0.5 opacity-50 hover:opacity-100">
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                ))}
+                <button onClick={() => setFilters({ needsAction: false, overdue: false, statuses: new Set() })} className="text-[11px] text-error-600 hover:underline">
+                  Clear all
+                </button>
               </div>
-            ) : paginated.length === 0 ? (
-              <p className="p-8 text-center text-sm text-neutral-400">No reports match your filters.</p>
-            ) : (
-              paginated.map((e) => <ReportRow key={e.id} expense={e} />)
             )}
 
-            {/* Pagination */}
-            <div className="flex items-center justify-between border-t border-neutral-200 px-4 py-2.5">
-              <span className="text-[11px] text-neutral-400">
-                Showing {Math.min((page - 1) * PAGE_SIZE + 1, filtered.length)}–{Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length}
-              </span>
-              <div className="flex gap-1">
-                <PageBtn onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}>
-                  <ChevronLeft className="h-3.5 w-3.5" />
-                </PageBtn>
-                {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => i + 1).map((n) => (
-                  <PageBtn key={n} onClick={() => setPage(n)} active={page === n}>{n}</PageBtn>
-                ))}
-                <PageBtn onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}>
-                  <ChevronRight className="h-3.5 w-3.5" />
-                </PageBtn>
+            {/* KPI cards */}
+            <div className="grid shrink-0 grid-cols-4 gap-3 border-b border-neutral-100 px-5 py-3">
+              <KpiCard label="Total" value={kpiTotal} sub="+12% this month" subColor="text-success-600" />
+              <KpiCard label="Needs action" value={kpiNeedsAction} sub={`Incl. ${counts.overdue ?? 0} overdue`} bg="bg-warning-50" labelColor="text-warning-700" valueColor="text-warning-900" subColor="text-warning-600" />
+              <KpiCard label="Approved" value={kpiApproved} sub={`${kpiTotal > 0 ? ((kpiApproved / kpiTotal) * 100).toFixed(1) : 0}% approval rate`} bg="bg-success-50" labelColor="text-success-700" valueColor="text-success-900" subColor="text-success-600" />
+              <KpiCard label="Rejected" value={kpiRejected} sub={`${kpiTotal > 0 ? ((kpiRejected / kpiTotal) * 100).toFixed(1) : 0}% rejection rate`} bg="bg-error-50" labelColor="text-error-700" valueColor="text-error-900" subColor="text-error-600" />
+            </div>
+
+            {/* Table */}
+            <div className="flex-1 overflow-auto px-5 py-3">
+              <div className="overflow-hidden rounded-xl border border-neutral-200">
+                <div className="grid grid-cols-[minmax(0,2.5fr)_minmax(0,1fr)_minmax(0,1.4fr)_minmax(0,1fr)_56px] gap-3 border-b border-neutral-200 bg-neutral-50 px-4 py-2.5">
+                  {["Report name", "Amount", "Status", "Submitted", ""].map((col, i) => (
+                    <span key={i} className="text-[11px] font-semibold uppercase tracking-wide text-neutral-500">{col}</span>
+                  ))}
+                </div>
+                {isLoading ? (
+                  <div className="flex h-32 items-center justify-center">
+                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-neutral-200 border-t-primary-600" />
+                  </div>
+                ) : paginated.length === 0 ? (
+                  <p className="p-8 text-center text-sm text-neutral-400">No reports match your filters.</p>
+                ) : (
+                  paginated.map((e) => <ReportRow key={e.id} expense={e} />)
+                )}
+                <div className="flex items-center justify-between border-t border-neutral-200 px-4 py-2.5">
+                  <span className="text-[11px] text-neutral-400">
+                    Showing {Math.min((page - 1) * PAGE_SIZE + 1, filtered.length)}–{Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length}
+                  </span>
+                  <div className="flex gap-1">
+                    <PageBtn onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}>
+                      <ChevronLeft className="h-3.5 w-3.5" />
+                    </PageBtn>
+                    {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => i + 1).map((n) => (
+                      <PageBtn key={n} onClick={() => setPage(n)} active={page === n}>{n}</PageBtn>
+                    ))}
+                    <PageBtn onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}>
+                      <ChevronRight className="h-3.5 w-3.5" />
+                    </PageBtn>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
+          </>
+        )}
       </div>
     </div>
+
+    <NewReportModal open={modalOpen} onClose={() => setModalOpen(false)} />
+    </>
   );
 }
 

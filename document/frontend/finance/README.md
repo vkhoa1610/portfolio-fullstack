@@ -1,15 +1,16 @@
 # Frontend — Finance
 
-> Cập nhật: 2026-03-01 (Session 4)
+> Cập nhật: 2026-03-26 (Session 8)
 
 ## Màn hình
 
-| Route               | Component           | Role    | Trạng thái |
-|---------------------|---------------------|---------|------------|
-| `/finance/overview` | `overview-view.tsx` | FINANCE | ✅ Done    |
-| `/finance/check`    | `check-view.tsx`    | FINANCE | ✅ Mock    |
-| `/finance/payment`  | `payment-view.tsx`  | FINANCE | ✅ Mock    |
-| `/finance/export`   | `export-view.tsx`   | FINANCE | ✅ Mock    |
+| Route               | Component                       | Role    | Trạng thái |
+|---------------------|---------------------------------|---------|------------|
+| `/finance/overview` | `overview-view.tsx`             | FINANCE | ✅ Done    |
+| `/finance/reports`  | `report-management-view.tsx`    | FINANCE | ✅ Done    |
+| `/finance/check`    | `check-view.tsx`                | FINANCE | ✅ Mock    |
+| `/finance/payment`  | `payment-view.tsx`              | FINANCE | ✅ Done    |
+| `/finance/export`   | `export-view.tsx`               | FINANCE | ✅ Done    |
 
 ## Chi tiết màn hình
 
@@ -30,7 +31,27 @@
 
 ---
 
-### 2. Finance Final Check (`/finance/check`)
+### 2. Report Management (`/finance/reports`)
+
+**Component**: `components/finance/report-management-view.tsx`
+
+**Chức năng:**
+- Full-bleed layout: `-mx-6 md:-mx-8 -my-6 md:-my-8 h-[calc(100vh-64px)]`
+- Collapsible filter sidebar (collapse → icon strip; expand → 56px → 14rem)
+- **2 tabs**:
+  - **Finance Reports** — danh sách FinanceReport từ `fin-005`, hiện type badge (FINANCIAL/ANALYTICS/...) + status + amount
+  - **Expense Items** — danh sách expenses từ `fin-001`, filter sidebar + KPI cards + pagination
+- **"+ New report"** button → mở `NewReportModal`
+
+**Data**:
+- `useGetFinanceReportsQuery()` → `GET /api/fin-005/reports`
+- `useGetFinanceExpensesQuery()` → `GET /api/fin-001`
+
+**Modal**: [new-report-modal.md](./new-report-modal.md)
+
+---
+
+### 3. Finance Final Check (`/finance/check`)
 
 **Component**: `components/finance/check-view.tsx`
 
@@ -46,21 +67,21 @@
 
 ---
 
-### 3. Batch Payment (`/finance/payment`)
+### 4. Batch Payment (`/finance/payment`)
 
 **Component**: `components/finance/payment-view.tsx`
 
 **Chức năng:**
 - Multi-select checkbox các APPROVED expenses
 - **Download SEPA XML** — `pain.001.001.03` XML client-side → blob download
-- **Mark as Paid** — `useMarkAsPaidMutation` (POST `/api/fin-002`) → fallback local state khi 404
+- **Mark as Paid** — `useMarkAsPaidMutation` (POST `/api/fin-003/batch-pay`)
 - "Paid this session" counter, Footer tổng eligible €, Toast success 3s
 
 **i18n**: `finance.payment.*` (DE/EN/VI)
 
 ---
 
-### 4. Tax Export (`/finance/export`)
+### 5. Tax Export (`/finance/export`)
 
 **Component**: `components/finance/export-view.tsx`
 
@@ -83,6 +104,7 @@ Finance group trong `components/layout/Sidebar.tsx` chỉ hiển thị cho `FINA
 ```
 Finance (nav.group_finance)
 ├── Overview      (nav.overview)      → /finance/overview
+├── Reports       (nav.reports)       → /finance/reports
 ├── Final Check   (nav.final_check)   → /finance/check
 ├── Batch Payment (nav.batch_payment) → /finance/payment
 └── Tax Export    (nav.tax_export)    → /finance/export

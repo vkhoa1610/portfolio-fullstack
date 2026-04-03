@@ -131,6 +131,44 @@ CREATE TABLE expenses (
 );
 
 
+-- 4.2 Table: finance_reports
+CREATE TABLE finance_reports (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_sub VARCHAR(36) NOT NULL,
+
+    -- General info
+    title VARCHAR(255) NOT NULL,
+    report_type ENUM('FINANCIAL','ANALYTICS','OPERATIONS','COMPLIANCE') NOT NULL,
+    fiscal_period VARCHAR(20),          -- e.g. "Q1 2026"
+    due_date DATE,
+    description TEXT,
+    priority ENUM('LOW','NORMAL','HIGH','URGENT') DEFAULT 'NORMAL',
+
+    -- Financial details
+    total_amount DECIMAL(15,2),
+    currency VARCHAR(3) DEFAULT 'EUR',
+    line_items JSON,                    -- [{description, category, amount}]
+
+    -- Attachments
+    attachments JSON,                   -- [{fileUrl, fileName, fileSize, fileType}]
+
+    -- Approval route
+    approval_route JSON,                -- [{level, reviewerName, deadlineDays}]
+    notify_cc JSON,                     -- [{name}]
+
+    -- Workflow
+    status ENUM('DRAFT','PENDING_REVIEW','APPROVED','REJECTED') DEFAULT 'DRAFT',
+    submitted_at TIMESTAMP NULL,
+
+    -- Audit
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    is_deleted TINYINT(1) DEFAULT 0,
+
+    CONSTRAINT fk_fr_user FOREIGN KEY (user_sub) REFERENCES users(cognito_sub)
+);
+
+
 -- =============================================
 -- 5. GROUP AUTHORIZATION (PERMISSION-BASED)
 -- =============================================

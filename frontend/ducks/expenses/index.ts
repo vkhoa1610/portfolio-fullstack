@@ -13,4 +13,6 @@ export {
   useRejectExpenseMutation,
   useGetFinanceExpensesQuery,
   useMarkAsPaidMutation,
+  useCreateFinanceReportMutation,
+  useGetFinanceReportsQuery,
 } from './expenseApi';
