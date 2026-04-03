@@ -103,7 +103,8 @@ function SortableSectionItem({ item, label, onToggle }: SortableSectionItemProps
 // ─── ReportTemplateDesigner ────────────────────────────────────────────────
 
 export default function ReportTemplateDesigner() {
-  const { isAdmin } = useAuth();
+  const { isAdmin, session } = useAuth();
+  const isManager = session?.user?.role === "MANAGER";
   const router = useRouter();
   const { t } = useTranslation();
 
@@ -121,8 +122,8 @@ export default function ReportTemplateDesigner() {
   );
 
   useEffect(() => {
-    if (!isAdmin) router.replace('/not-found');
-  }, [isAdmin, router]);
+    if (!isAdmin && !isManager) router.replace('/not-found');
+  }, [isAdmin, isManager, router]);
 
   // Load first template on mount
   useEffect(() => {

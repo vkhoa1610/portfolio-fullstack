@@ -3,6 +3,7 @@ package com.example.my_java_app.controller;
 import com.example.my_java_app.client.OllamaClient;
 import com.example.my_java_app.exception.ForbiddenException;
 import com.example.my_java_app.repository.SystemAdminRepository;
+import com.example.my_java_app.service.PermissionService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,11 +23,14 @@ public class AiPlaygroundController extends BaseController {
 
     private final OllamaClient ollamaClient;
     private final SystemAdminRepository systemAdminRepository;
+    private final PermissionService permissionService;
 
     public AiPlaygroundController(OllamaClient ollamaClient,
-                                  SystemAdminRepository systemAdminRepository) {
+                                  SystemAdminRepository systemAdminRepository,
+                                  PermissionService permissionService) {
         this.ollamaClient           = ollamaClient;
         this.systemAdminRepository  = systemAdminRepository;
+        this.permissionService      = permissionService;
     }
 
     @PostMapping("/chat")
@@ -64,8 +68,10 @@ public class AiPlaygroundController extends BaseController {
 
     private void requireAdmin(HttpServletRequest request) {
         String sub = (String) request.getAttribute("cognitoSub");
-        if (!systemAdminRepository.existsBySub(sub)) {
-            throw new ForbiddenException("Not a system admin");
+        boolean isAdmin   = systemAdminRepository.existsBySub(sub);
+        boolean isManager = permissionService.hasPermission(sub, "EXPENSE_APPROVE");
+        if (!isAdmin && !isManager) {
+            throw new ForbiddenException("Access restricted to Admin or Manager");
         }
     }
 }

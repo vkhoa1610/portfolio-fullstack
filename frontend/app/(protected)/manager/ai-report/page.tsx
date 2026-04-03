@@ -1,5 +1,5 @@
-import ManagerAiReportView from "@/components/manager/manager-ai-report-view";
+import AiReportView from "@/components/admin/ai-report-view";
 
 export default function ManagerAiReportPage() {
-  return <ManagerAiReportView />;
+  return <AiReportView />;
 }

@@ -1,7 +1,7 @@
-import { Suspense } from 'react';
-import ReportTemplateDesigner from '@/components/admin/report-template-designer';
+import { Suspense } from "react";
+import ReportTemplateDesigner from "@/components/admin/report-template-designer";
 
-export default function ReportTemplatePage() {
+export default function ManagerReportTemplatePage() {
   return (
     <div className="p-6">
       <h1 className="text-xl font-bold mb-4">Report Template Designer</h1>

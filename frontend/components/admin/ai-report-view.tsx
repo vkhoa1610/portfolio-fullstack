@@ -37,6 +37,7 @@ function buildPeriodOptions(): { value: string; label: string }[] {
 export default function AiReportView() {
   const router = useRouter();
   const { isAdmin, isLoading: isAuthLoading, session } = useAuth();
+  const isManager = session?.user?.role === "MANAGER";
 
   const [period, setPeriod] = useState<string>(getCurrentPeriod());
   const [reportCollapsed, setReportCollapsed] = useState(false);
@@ -47,12 +48,12 @@ export default function AiReportView() {
 
   const { data: templatesData } = useGetReportTemplatesQuery();
 
-  // Auth guard
+  // Auth guard — accessible by Admin or Manager
   useEffect(() => {
-    if (!isAuthLoading && session !== null && !isAdmin) {
+    if (!isAuthLoading && session !== null && !isAdmin && !isManager) {
       router.replace("/not-found");
     }
-  }, [isAuthLoading, session, isAdmin, router]);
+  }, [isAuthLoading, session, isAdmin, isManager, router]);
 
   // Load latest report on mount
   const { data: latestData } = useGetLatestReportQuery();

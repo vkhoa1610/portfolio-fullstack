@@ -4,6 +4,7 @@ import com.example.my_java_app.entity.ExpenseReportEntity;
 import com.example.my_java_app.exception.ForbiddenException;
 import com.example.my_java_app.repository.SystemAdminRepository;
 import com.example.my_java_app.service.ExpenseReportService;
+import com.example.my_java_app.service.PermissionService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
@@ -13,7 +14,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Admin-only endpoints for AI-powered expense report generation.
+ * Endpoints for AI-powered expense report generation — accessible by Admin or Manager.
  *
  * POST /api/v1/admin/reports/generate?period=2026-03  → trigger async job
  * GET  /api/v1/admin/reports/status/{jobId}           → poll job status
@@ -25,11 +26,14 @@ public class ExpenseReportController extends BaseController {
 
     private final ExpenseReportService reportService;
     private final SystemAdminRepository systemAdminRepository;
+    private final PermissionService permissionService;
 
     public ExpenseReportController(ExpenseReportService reportService,
-                                   SystemAdminRepository systemAdminRepository) {
+                                   SystemAdminRepository systemAdminRepository,
+                                   PermissionService permissionService) {
         this.reportService          = reportService;
         this.systemAdminRepository  = systemAdminRepository;
+        this.permissionService      = permissionService;
     }
 
     @PostMapping("/generate")
@@ -95,8 +99,10 @@ public class ExpenseReportController extends BaseController {
 
     private void requireAdmin(HttpServletRequest request) {
         String sub = (String) request.getAttribute("cognitoSub");
-        if (!systemAdminRepository.existsBySub(sub)) {
-            throw new ForbiddenException("Not a system admin");
+        boolean isAdmin   = systemAdminRepository.existsBySub(sub);
+        boolean isManager = permissionService.hasPermission(sub, "EXPENSE_APPROVE");
+        if (!isAdmin && !isManager) {
+            throw new ForbiddenException("Access restricted to Admin or Manager");
         }
     }
 }

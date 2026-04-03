@@ -59,8 +59,10 @@ const NAV_GROUPS: NavGroup[] = [
   {
     label: "nav.group_management",
     items: [
-      { label: "nav.approvals", href: "/manager/approvals", icon: CheckSquare, roles: ["MANAGER"], badgeKey: "approvalCount" },
-      { label: "nav.ai_report", href: "/manager/ai-report",  icon: Sparkles,   roles: ["MANAGER"] },
+      { label: "nav.approvals",        href: "/manager/approvals",       icon: CheckSquare, roles: ["MANAGER"], badgeKey: "approvalCount" },
+      { label: "nav.ai_report",        href: "/manager/ai-report",        icon: Sparkles,    roles: ["MANAGER"] },
+      { label: "nav.report_template",  href: "/manager/report-template",  icon: FileDown,    roles: ["MANAGER"] },
+      { label: "nav.ai_playground",    href: "/manager/ai-playground",    icon: Cpu,         roles: ["MANAGER"] },
     ],
   },
   {
@@ -76,12 +78,9 @@ const NAV_GROUPS: NavGroup[] = [
 ];
 
 const ADMIN_NAV = [
-  { label: "nav.admin_dashboard", href: "/admin",                 icon: LayoutDashboard },
-  { label: "nav.user_management", href: "/admin/users",           icon: Users },
-  { label: "nav.import_users",    href: "/admin/import",          icon: Upload },
-  { label: "nav.ai_report",       href: "/admin/ai-report",       icon: Sparkles },
-  { label: "nav.report_template", href: "/admin/report-template", icon: FileDown },
-  { label: "nav.ai_playground",   href: "/admin/ai-playground",   icon: Cpu },
+  { label: "nav.admin_dashboard", href: "/admin",        icon: LayoutDashboard },
+  { label: "nav.user_management", href: "/admin/users",  icon: Users },
+  { label: "nav.import_users",    href: "/admin/import", icon: Upload },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
