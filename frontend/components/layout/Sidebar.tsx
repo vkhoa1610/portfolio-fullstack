@@ -4,22 +4,6 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  Receipt,
-  FileText,
-  CheckSquare,
-  LayoutDashboard,
-  CreditCard,
-  Download,
-  LogOut,
-  Users,
-  Sparkles,
-  Upload,
-  FileDown,
-  Cpu,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
 import { useAuth } from "@/common/context/AuthContext";
 import { useLogoutMutation } from "@/ducks/auth/authApi";
 import { useGetManagerQueueQuery } from "@/ducks/expenses";
@@ -33,7 +17,7 @@ type UserRole = "EMPLOYEE" | "MANAGER" | "FINANCE";
 interface NavItem {
   label: string;
   href: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: string;
   roles: UserRole[];
   badgeKey?: "approvalCount";
   soon?: boolean;
@@ -52,39 +36,39 @@ const NAV_GROUPS: NavGroup[] = [
   {
     label: "nav.group_core",
     items: [
-      { label: "nav.my_expenses", href: "/my-expenses", icon: Receipt, roles: ["EMPLOYEE", "MANAGER"] },
-      { label: "nav.reports",     href: "/reports",     icon: FileText, roles: ["EMPLOYEE", "MANAGER"], soon: true },
+      { label: "nav.my_expenses", href: "/my-expenses", icon: "receipt_long", roles: ["EMPLOYEE", "MANAGER"] },
+      { label: "nav.reports",     href: "/reports",     icon: "description",  roles: ["EMPLOYEE", "MANAGER"], soon: true },
     ],
   },
   {
     label: "nav.group_management",
     items: [
-      { label: "nav.approvals",        href: "/manager/approvals",       icon: CheckSquare, roles: ["MANAGER"], badgeKey: "approvalCount" },
-      { label: "nav.ai_report",        href: "/manager/ai-report",        icon: Sparkles,    roles: ["MANAGER"] },
-      { label: "nav.report_template",  href: "/manager/report-template",  icon: FileDown,    roles: ["MANAGER"] },
-      { label: "nav.ai_playground",    href: "/manager/ai-playground",    icon: Cpu,         roles: ["MANAGER"] },
+      { label: "nav.approvals",       href: "/manager/approvals",       icon: "check_box",     roles: ["MANAGER"], badgeKey: "approvalCount" },
+      { label: "nav.ai_report",       href: "/manager/ai-report",       icon: "auto_awesome",  roles: ["MANAGER"] },
+      { label: "nav.report_template", href: "/manager/report-template", icon: "file_download", roles: ["MANAGER"] },
+      { label: "nav.ai_playground",   href: "/manager/ai-playground",   icon: "memory",        roles: ["MANAGER"] },
     ],
   },
   {
     label: "nav.group_finance",
     items: [
-      { label: "nav.overview",        href: "/finance/overview", icon: LayoutDashboard, roles: ["FINANCE"] },
-      { label: "nav.finance_reports", href: "/finance/reports",  icon: FileText,        roles: ["FINANCE"] },
-      { label: "nav.final_check",   href: "/finance/check",    icon: CheckSquare,     roles: ["FINANCE"] },
-      { label: "nav.batch_payment", href: "/finance/payment",  icon: CreditCard,      roles: ["FINANCE"] },
-      { label: "nav.tax_export",    href: "/finance/export",   icon: Download,        roles: ["FINANCE"] },
+      { label: "nav.overview",        href: "/finance/overview", icon: "dashboard",    roles: ["FINANCE"] },
+      { label: "nav.finance_reports", href: "/finance/reports",  icon: "description",  roles: ["FINANCE"] },
+      { label: "nav.final_check",     href: "/finance/check",    icon: "fact_check",   roles: ["FINANCE"] },
+      { label: "nav.batch_payment",   href: "/finance/payment",  icon: "credit_card",  roles: ["FINANCE"] },
+      { label: "nav.tax_export",      href: "/finance/export",   icon: "download",     roles: ["FINANCE"] },
     ],
   },
 ];
 
 const ADMIN_NAV = [
-  { label: "nav.admin_dashboard", href: "/admin",        icon: LayoutDashboard },
-  { label: "nav.user_management", href: "/admin/users",  icon: Users },
-  { label: "nav.import_users",    href: "/admin/import", icon: Upload },
+  { label: "nav.admin_dashboard", href: "/admin",        icon: "dashboard" },
+  { label: "nav.user_management", href: "/admin/users",  icon: "group" },
+  { label: "nav.import_users",    href: "/admin/import", icon: "upload" },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
-// ApprovalBadge
+// Sub-components
 // ─────────────────────────────────────────────────────────────────────────────
 
 function ApprovalBadge() {
@@ -93,6 +77,20 @@ function ApprovalBadge() {
   return (
     <span className="rounded-full bg-red-100 px-1.5 py-0.5 text-[10px] font-semibold text-red-600">
       {queue.length}
+    </span>
+  );
+}
+
+function MIcon({ name, size = 18 }: { name: string; size?: number }) {
+  return (
+    <span
+      className="material-symbols-outlined select-none leading-none shrink-0"
+      style={{
+        fontSize: size,
+        fontVariationSettings: "'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24",
+      }}
+    >
+      {name}
     </span>
   );
 }
@@ -123,95 +121,122 @@ export default function Sidebar() {
   const initial = (session?.user.email[0] ?? "?").toUpperCase();
   const displayRole = isAdmin ? "Admin" : role ? role.charAt(0) + role.slice(1).toLowerCase() : "";
 
+  const navItemClass = (isActive: boolean, extraCollapsed?: boolean) =>
+    `flex items-center gap-3 rounded-full py-2 text-sm font-medium transition-colors
+    ${extraCollapsed ?? collapsed ? "justify-center px-2" : "px-3"}
+    ${isActive
+      ? "bg-indigo-100 text-indigo-800"
+      : "text-[#4e4c6a] hover:bg-[#e6e2f8] hover:text-[#4244db]"
+    }`;
+
   return (
     <aside
-      className={`glass-panel relative z-20 hidden flex-col border-r border-r-surface-border bg-white/50 backdrop-blur-xl md:flex
-        overflow-hidden transition-[width] duration-300 ease-in-out
-        ${collapsed ? "w-16" : "w-64"}`}
+      className={`relative z-20 hidden flex-col md:flex overflow-hidden transition-[width] duration-300 ease-in-out bg-[#f5f2ff] ${
+        collapsed ? "w-16" : "w-64"
+      }`}
     >
-      {/* Header row: logo + toggle */}
-      <div className={`flex h-14 shrink-0 items-center border-b border-neutral-100 ${collapsed ? "justify-center px-0" : "justify-between px-4"}`}>
+      {/* Brand / Logo */}
+      <div
+        className={`flex h-16 shrink-0 items-center ${
+          collapsed ? "justify-center px-0" : "gap-3 px-5"
+        }`}
+      >
+        <div className="h-8 w-8 shrink-0 rounded-xl bg-[#4244db] flex items-center justify-center">
+          <span className="text-white text-xs font-bold" style={{ fontFamily: "Manrope, sans-serif" }}>F</span>
+        </div>
         {!collapsed && (
-          <div className="flex items-center gap-2">
-            <div className="h-7 w-7 shrink-0 rounded-lg bg-primary-600" />
-            <span className="font-bold text-gray-800">FintechSaaS</span>
-          </div>
+          <>
+            <div className="min-w-0 flex-1">
+              <p
+                className="text-sm font-bold text-[#4244db] leading-tight"
+                style={{ fontFamily: "Manrope, sans-serif" }}
+              >
+                FintechSaaS
+              </p>
+              <p className="text-[10px] text-[#9592b8] leading-tight">Expense Platform</p>
+            </div>
+            <button
+              onClick={() => setCollapsed(true)}
+              className="rounded-full p-1 text-[#9592b8] hover:bg-[#e6e2f8] transition-colors"
+              title="Collapse sidebar"
+            >
+              <MIcon name="chevron_left" size={18} />
+            </button>
+          </>
         )}
-        {collapsed && <div className="h-7 w-7 shrink-0 rounded-lg bg-primary-600" />}
-        <button
-          onClick={() => setCollapsed((v) => !v)}
-          className={`rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 transition-colors ${collapsed ? "absolute right-1 top-3" : ""}`}
-          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-        >
-          {collapsed
-            ? <ChevronRight className="h-4 w-4" />
-            : <ChevronLeft className="h-4 w-4" />
-          }
-        </button>
+        {collapsed && (
+          <button
+            onClick={() => setCollapsed(false)}
+            className="rounded-full p-1 text-[#9592b8] hover:bg-[#e6e2f8] transition-colors"
+            title="Expand sidebar"
+          >
+            <MIcon name="chevron_right" size={18} />
+          </button>
+        )}
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto overflow-x-hidden py-3">
+      <nav className="flex-1 overflow-y-auto overflow-x-hidden py-2 px-2">
         {isAdmin ? (
-          // ── Admin nav ──────────────────────────────────────────
-          <div className={collapsed ? "" : "px-2"}>
+          <div>
             {!collapsed && (
-              <p className="px-2 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+              <p className="px-3 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-wider text-[#9592b8]">
                 {t("nav.group_admin")}
               </p>
             )}
             <div className="space-y-0.5">
               {ADMIN_NAV.map((item) => {
-                const isActive = pathname === item.href || (item.href !== "/admin" && pathname.startsWith(item.href));
-                const Icon = item.icon;
+                const isActive =
+                  pathname === item.href ||
+                  (item.href !== "/admin" && pathname.startsWith(item.href));
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
                     title={collapsed ? t(item.label) : undefined}
-                    className={`flex items-center gap-3 rounded-lg py-2.5 text-sm font-medium transition-colors
-                      ${collapsed ? "justify-center px-0 mx-1" : "px-3"}
-                      ${isActive ? "bg-primary-50 text-primary-700" : "text-gray-600 hover:bg-white/60 hover:text-gray-900"}`}
+                    className={navItemClass(isActive)}
                   >
-                    <Icon className="h-4 w-4 shrink-0" />
-                    {!collapsed && <span className="flex-1 whitespace-nowrap">{t(item.label)}</span>}
+                    <MIcon name={item.icon} size={18} />
+                    {!collapsed && (
+                      <span className="flex-1 whitespace-nowrap">{t(item.label)}</span>
+                    )}
                   </Link>
                 );
               })}
             </div>
           </div>
         ) : (
-          // ── Role-based nav ─────────────────────────────────────
           NAV_GROUPS.map((group) => {
             const visibleItems = group.items.filter((item) => item.roles.includes(role!));
             if (visibleItems.length === 0) return null;
 
             return (
-              <div key={group.label} className={collapsed ? "mb-2" : "mb-4 px-2"}>
+              <div key={group.label} className={collapsed ? "mb-3" : "mb-3"}>
                 {!collapsed && (
-                  <p className="px-2 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+                  <p className="px-3 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-wider text-[#9592b8]">
                     {t(group.label)}
                   </p>
                 )}
-                {collapsed && <div className="mx-2 my-1 border-t border-neutral-100" />}
+                {collapsed && <div className="my-2 mx-3 border-t border-[#ddd8f5]" />}
                 <div className="space-y-0.5">
                   {visibleItems.map((item) => {
                     const isActive = pathname.startsWith(item.href);
-                    const Icon = item.icon;
 
                     if (item.soon) {
                       return (
                         <div
                           key={item.href}
                           title={collapsed ? t(item.label) : undefined}
-                          className={`flex cursor-not-allowed items-center gap-3 rounded-lg py-2.5 text-sm font-medium text-gray-300
-                            ${collapsed ? "justify-center px-0 mx-1" : "px-3"}`}
+                          className={`flex cursor-not-allowed items-center gap-3 rounded-full py-2 text-sm font-medium text-[#c0bcdb]
+                            ${collapsed ? "justify-center px-2" : "px-3"}`}
                         >
-                          <Icon className="h-4 w-4 shrink-0" />
+                          <MIcon name={item.icon} size={18} />
                           {!collapsed && (
                             <>
                               <span className="flex-1">{t(item.label)}</span>
-                              <span className="rounded-full bg-gray-100 px-1.5 py-0.5 text-[10px] text-gray-400">soon</span>
+                              <span className="rounded-full bg-[#ece8fb] px-1.5 py-0.5 text-[10px] text-[#9592b8]">
+                                soon
+                              </span>
                             </>
                           )}
                         </div>
@@ -223,13 +248,15 @@ export default function Sidebar() {
                         key={item.href}
                         href={item.href}
                         title={collapsed ? t(item.label) : undefined}
-                        className={`flex items-center gap-3 rounded-lg py-2.5 text-sm font-medium transition-colors
-                          ${collapsed ? "justify-center px-0 mx-1" : "px-3"}
-                          ${isActive ? "bg-primary-50 text-primary-700" : "text-gray-600 hover:bg-white/60 hover:text-gray-900"}`}
+                        className={navItemClass(isActive)}
                       >
-                        <Icon className="h-4 w-4 shrink-0" />
-                        {!collapsed && <span className="flex-1">{t(item.label)}</span>}
-                        {!collapsed && item.badgeKey === "approvalCount" && role === "MANAGER" && <ApprovalBadge />}
+                        <MIcon name={item.icon} size={18} />
+                        {!collapsed && (
+                          <span className="flex-1 whitespace-nowrap">{t(item.label)}</span>
+                        )}
+                        {!collapsed && item.badgeKey === "approvalCount" && role === "MANAGER" && (
+                          <ApprovalBadge />
+                        )}
                       </Link>
                     );
                   })}
@@ -241,38 +268,44 @@ export default function Sidebar() {
       </nav>
 
       {/* User footer */}
-      <div className="mt-auto shrink-0 border-t border-gray-100 p-3">
-        {collapsed ? (
-          <div className="flex flex-col items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-100 text-xs font-bold text-primary-700">
-              {initial}
+      <div className="shrink-0 p-3">
+        <div
+          className={`rounded-2xl ${
+            collapsed ? "flex flex-col items-center gap-2 py-2" : "bg-white/60 backdrop-blur-sm p-3"
+          }`}
+        >
+          {collapsed ? (
+            <>
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#4244db]/10 text-xs font-bold text-[#4244db]">
+                {initial}
+              </div>
+              <button
+                onClick={handleLogout}
+                className="text-[#9592b8] transition-colors hover:text-red-500"
+                title="Logout"
+              >
+                <MIcon name="logout" size={18} />
+              </button>
+            </>
+          ) : (
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#4244db]/10 text-sm font-bold text-[#4244db]">
+                {initial}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium text-[#2d2b4e]">{session?.user.email}</p>
+                <p className="text-xs capitalize text-[#9592b8]">{displayRole}</p>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="shrink-0 text-[#9592b8] transition-colors hover:text-red-500"
+                title="Logout"
+              >
+                <MIcon name="logout" size={18} />
+              </button>
             </div>
-            <button
-              onClick={handleLogout}
-              className="text-gray-400 transition-colors hover:text-red-500"
-              title="Logout"
-            >
-              <LogOut className="h-4 w-4" />
-            </button>
-          </div>
-        ) : (
-          <div className="flex items-center gap-3 px-1">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-100 text-xs font-bold text-primary-700">
-              {initial}
-            </div>
-            <div className="min-w-0 flex-1 text-sm">
-              <p className="truncate font-medium text-gray-700">{session?.user.email}</p>
-              <p className="text-xs capitalize text-gray-500">{displayRole}</p>
-            </div>
-            <button
-              onClick={handleLogout}
-              className="shrink-0 text-gray-400 transition-colors hover:text-red-500"
-              title="Logout"
-            >
-              <LogOut className="h-4 w-4" />
-            </button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </aside>
   );

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { signIn } from '@common/config/cognito-service.js';
+import { signIn } from '@common/config/auth0-service.js';
 import { ProcessStatus, ErrorResponse } from '@common/config/common-types.js';
 import { setAuthCookies } from '@common/config/cookie-config.js';
 import { handleNormal, handleBackendError, throwBffError } from '@common/util/response-handler.js';
@@ -9,18 +9,16 @@ import {
   LoginResponse,
   MfaRequiredResponse,
   LoginSuccessResponse,
-  NewPasswordRequiredResponse,
   maskEmail,
 } from '@common/types/auth-types.js';
 
 /**
  * POST /api/auth/login
- * Handles initial login with email/password via AWS Cognito
+ * Handles initial login with email/password via Auth0
  *
  * Possible outcomes:
  * 1. Success (no MFA): Sets HttpOnly cookies, returns UI session
- * 2. MFA Required: Returns session token for MFA verification
- * 3. New Password Required: Returns session token for password change
+ * 2. MFA Required: Returns mfa_token for MFA verification step
  * 4. Error: Invalid credentials, etc.
  */
 export const handle = async (
@@ -30,102 +28,70 @@ export const handle = async (
   try {
     const { email, password } = req.body;
 
-    // Validate input
     if (!email || !password) {
-      console.log('❌ Missing email or password');
       return throwBffError('Email and password are required', 400);
     }
 
-    // TS hint: inputs are valid strings
-    const validEmail = email as string;
+    const validEmail    = email as string;
     const validPassword = password as string;
 
     console.log('🔐 Login attempt for:', validEmail);
 
-    // Call Cognito InitiateAuth
-    const cognitoResponse = await signIn(validEmail, validPassword);
+    const result = await signIn(validEmail, validPassword);
 
-    // ─────────────────────────────────────────────────────────────────
-    // Case 1: MFA Required
-    // ─────────────────────────────────────────────────────────────────
-    if (cognitoResponse.ChallengeName === 'SOFTWARE_TOKEN_MFA') {
+    // ── MFA Required ─────────────────────────────────────────────────────────
+    if (result.type === 'mfa_required') {
       console.log('🔒 MFA required for:', validEmail);
 
       const response: MfaRequiredResponse = {
         processStatus: ProcessStatus.SUCCESS,
-        message: ['MFA required'],
+        message:       ['MFA required'],
         authenticated: false,
-        mfaRequired: true,
-        challengeName: 'SOFTWARE_TOKEN_MFA',
-        session: cognitoResponse.Session || '',
-        maskedEmail: maskEmail(validEmail),
+        mfaRequired:   true,
+        challengeName: 'MFA_REQUIRED',
+        session:       result.mfaToken, // carries Auth0 mfa_token (opaque to frontend)
+        maskedEmail:   maskEmail(validEmail),
       };
 
       return handleNormal(res, response);
     }
 
-    // ─────────────────────────────────────────────────────────────────
-    // Case 2: New Password Required (first login with temp password)
-    // ─────────────────────────────────────────────────────────────────
-    if (cognitoResponse.ChallengeName === 'NEW_PASSWORD_REQUIRED') {
-      console.log('🔑 New password required for:', validEmail);
-
-      const response: NewPasswordRequiredResponse = {
-        processStatus: ProcessStatus.SUCCESS,
-        message: ['New password required'],
-        authenticated: false,
-        newPasswordRequired: true,
-        challengeName: 'NEW_PASSWORD_REQUIRED',
-        session: cognitoResponse.Session || '',
-        username: validEmail,
-      };
-
-      return handleNormal(res, response);
+    // ── Error ─────────────────────────────────────────────────────────────────
+    if (result.type === 'error') {
+      console.log('❌ Login failed:', result.message);
+      return throwBffError(result.message, 401);
     }
 
-    // ─────────────────────────────────────────────────────────────────
-    // Case 3: Login Success (no MFA)
-    // ─────────────────────────────────────────────────────────────────
-    if (cognitoResponse.AuthenticationResult) {
-      const { AccessToken, IdToken, RefreshToken } = cognitoResponse.AuthenticationResult;
+    // ── Success ───────────────────────────────────────────────────────────────
+    const { access_token, id_token, refresh_token } = result.data;
 
-      console.log('✅ Login successful, setting HttpOnly cookies');
+    console.log('✅ Login successful, setting HttpOnly cookies');
 
-      // Set HttpOnly cookies (tokens NEVER go to frontend!)
-      setAuthCookies(res, {
-        accessToken: AccessToken,
-        idToken: IdToken,
-        refreshToken: RefreshToken,
-      });
+    setAuthCookies(res, {
+      accessToken:  access_token,
+      idToken:      id_token,
+      refreshToken: refresh_token,
+    });
 
-      // Fetch user profile + permissions + functions + admin status from Java backend
-      const [userProfile, permissions, functions, isAdmin] = await Promise.all([
-        fetchUserProfile(IdToken!),
-        fetchUserPermissions(IdToken!),
-        fetchUserFunctions(IdToken!),
-        fetchUserAdminStatus(IdToken!),
-      ]);
+    const [userProfile, permissions, functions, isAdmin] = await Promise.all([
+      fetchUserProfile(id_token),
+      fetchUserPermissions(id_token),
+      fetchUserFunctions(id_token),
+      fetchUserAdminStatus(id_token),
+    ]);
 
-      // Build frontend-safe UI session
-      const uiSession = buildUISession(userProfile, validEmail, permissions, functions, isAdmin);
-      const redirectTo = getRedirectUrl(userProfile, isAdmin);
+    const uiSession  = buildUISession(userProfile, validEmail, permissions, functions, isAdmin);
+    const redirectTo = getRedirectUrl(userProfile, isAdmin);
 
-      const response: LoginSuccessResponse = {
-        processStatus: ProcessStatus.SUCCESS,
-        message: ['Login successful'],
-        authenticated: true,
-        session: uiSession,
-        redirectTo,
-      };
+    const response: LoginSuccessResponse = {
+      processStatus: ProcessStatus.SUCCESS,
+      message:       ['Login successful'],
+      authenticated: true,
+      session:       uiSession,
+      redirectTo,
+    };
 
-      return handleNormal(res, response);
-    }
-
-    // ─────────────────────────────────────────────────────────────────
-    // Case 4: Unexpected response from Cognito
-    // ─────────────────────────────────────────────────────────────────
-    console.error('❌ Unexpected Cognito response:', cognitoResponse);
-    return throwBffError('Login failed');
+    return handleNormal(res, response);
   } catch (err: any) {
     return handleBackendError(res, err);
   }

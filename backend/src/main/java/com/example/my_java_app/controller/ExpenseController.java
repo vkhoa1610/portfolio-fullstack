@@ -64,6 +64,12 @@ public class ExpenseController extends BaseController {
         return ok(storageService.generateUploadUrl(filename));
     }
 
+    /** GET /api/v1/expenses/view-url?fileUrl=... — Presigned GET URL (1h) for private bucket */
+    @GetMapping("/view-url")
+    public ResponseEntity<Map<String, String>> getViewUrl(@RequestParam String fileUrl) {
+        return ok(Map.of("viewUrl", storageService.generateViewUrl(fileUrl)));
+    }
+
     /** POST /api/v1/expenses/scan — Mock OCR (fileUrl ignored for now, returns test data) */
     @PostMapping("/scan")
     public ResponseEntity<ScanResponseDto> scan(@RequestBody(required = false) Map<String, String> body) {

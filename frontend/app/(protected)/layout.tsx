@@ -17,12 +17,31 @@ export default function ProtectedDashboardLayout({ children }: { children: React
 
       {/* Main content area */}
       <main className="relative z-10 flex flex-1 flex-col overflow-hidden">
-        {/* Header */}
-        <header className="flex h-16 items-center justify-between border-b border-black/5 bg-white/30 px-6 backdrop-blur-sm">
+        {/* Header / Navbar */}
+        <header className="flex h-16 shrink-0 items-center justify-between bg-[#fcf8ff] px-6 shadow-[0_1px_0_0_#ece8fb]">
           <Breadcrumb />
-          <div className="flex items-center gap-4">
-            <button className="h-8 w-8 rounded-full bg-white/50 p-1.5 text-gray-600 hover:bg-white">
-              🔔
+          <div className="flex items-center gap-1">
+            <button
+              className="flex h-9 w-9 items-center justify-center rounded-full text-[#9592b8] hover:bg-[#ece8fb] transition-colors"
+              title="Notifications"
+            >
+              <span
+                className="material-symbols-outlined select-none leading-none"
+                style={{ fontSize: 20, fontVariationSettings: "'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24" }}
+              >
+                notifications
+              </span>
+            </button>
+            <button
+              className="flex h-9 w-9 items-center justify-center rounded-full text-[#9592b8] hover:bg-[#ece8fb] transition-colors"
+              title="Settings"
+            >
+              <span
+                className="material-symbols-outlined select-none leading-none"
+                style={{ fontSize: 20, fontVariationSettings: "'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24" }}
+              >
+                settings
+              </span>
             </button>
           </div>
         </header>

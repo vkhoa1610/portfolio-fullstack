@@ -47,26 +47,14 @@ export interface MfaRequiredResponse {
   message: string[];
   authenticated: false;
   mfaRequired: true;
-  challengeName: 'SOFTWARE_TOKEN_MFA';
-  session: string; // Cognito session for MFA (passed back to BFF)
+  challengeName: 'MFA_REQUIRED';
+  session: string; // Auth0 mfa_token (opaque, passed back to BFF)
   maskedEmail: string;
-}
-
-/** New password required - first login with temp password */
-export interface NewPasswordRequiredResponse {
-  processStatus: number;
-  message: string[];
-  authenticated: false;
-  newPasswordRequired: true;
-  challengeName: 'NEW_PASSWORD_REQUIRED';
-  session: string;
-  username: string;
 }
 
 export type LoginResponse =
   | LoginSuccessResponse
-  | MfaRequiredResponse
-  | NewPasswordRequiredResponse;
+  | MfaRequiredResponse;
 
 // ============================================================================
 // MFA TYPES
@@ -79,18 +67,6 @@ export interface MfaVerifyRequest {
 }
 
 export type MfaVerifyResponse = LoginSuccessResponse;
-
-// ============================================================================
-// NEW PASSWORD TYPES
-// ============================================================================
-
-export interface NewPasswordRequest {
-  username: string;
-  newPassword: string;
-  session: string;
-}
-
-export type NewPasswordResponse = LoginSuccessResponse;
 
 // ============================================================================
 // SESSION TYPES
@@ -119,12 +95,6 @@ export interface LogoutResponse {
 
 export const isMfaRequired = (response: LoginResponse): response is MfaRequiredResponse => {
   return 'mfaRequired' in response && response.mfaRequired === true;
-};
-
-export const isNewPasswordRequired = (
-  response: LoginResponse,
-): response is NewPasswordRequiredResponse => {
-  return 'newPasswordRequired' in response && response.newPasswordRequired === true;
 };
 
 export const isLoginSuccess = (response: LoginResponse): response is LoginSuccessResponse => {

@@ -15,6 +15,7 @@ spring:
       ddl-auto: update
     database-platform: org.hibernate.dialect.MySQLDialect
 
-ollama:
-  base-url: ${OLLAMA_BASE_URL:http://ollama:11434}
-  model: ${OLLAMA_MODEL:llama3.2:3b}
+groq:
+  base-url: https://api.groq.com/openai
+  model: ${GROQ_MODEL:llama-3.3-70b-versatile}
+  api-key: ${GROQ_API_KEY}

@@ -6,7 +6,7 @@
 
 -- 1.1 Table: users
 CREATE TABLE users (
-    cognito_sub VARCHAR(36) NOT NULL PRIMARY KEY, -- ID gốc từ AWS Cognito
+    cognito_sub VARCHAR(36) NOT NULL PRIMARY KEY, -- Auth0 sub (format: auth0|<24hex>)
     username VARCHAR(50) NOT NULL UNIQUE,
     email VARCHAR(100) NOT NULL UNIQUE,
     status ENUM('active', 'inactive', 'banned') DEFAULT 'active',

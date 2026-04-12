@@ -30,7 +30,7 @@ public class StorageConfig {
     @Value("${storage.region:us-east-1}")
     private String region;
 
-    /** S3Client dùng internal endpoint (Docker network) cho server-side operations */
+    /** S3Client for server-side operations (list, delete, etc.) */
     @Bean
     public S3Client s3Client() {
         return S3Client.builder()
@@ -43,8 +43,9 @@ public class StorageConfig {
     }
 
     /**
-     * Presigner dùng PUBLIC endpoint (localhost:9000) để URL được sign với host
-     * mà browser có thể reach trực tiếp. Bucket/CORS setup được xử lý bởi minio-init.
+     * Presigner uses the public endpoint so browser can reach presigned PUT URLs directly.
+     * Backblaze B2: endpoint = https://s3.{region}.backblazeb2.com
+     * CORS must be configured on the B2 bucket before uploads work.
      */
     @Bean
     public S3Presigner s3Presigner() {

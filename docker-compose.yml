@@ -35,10 +35,10 @@ services:
       - "4000:4000"
     environment:
       - NODE_ENV=production
-      - AWS_REGION=${AWS_REGION}
-      - COGNITO_USER_POOL_ID=${COGNITO_USER_POOL_ID}
-      - COGNITO_CLIENT_ID=${COGNITO_CLIENT_ID}
-      - COGNITO_CLIENT_SECRET=${COGNITO_CLIENT_SECRET}
+      - AUTH0_DOMAIN=${AUTH0_DOMAIN}
+      - AUTH0_CLIENT_ID=${AUTH0_CLIENT_ID}
+      - AUTH0_CLIENT_SECRET=${AUTH0_CLIENT_SECRET}
+      - AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
       - PORT=4000
       - JAVA_API_URL=http://spring-backend:8080
 
@@ -54,62 +54,22 @@ services:
       - "8081:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-      - AWS_REGION=${AWS_REGION}
-      - COGNITO_USER_POOL_ID=${COGNITO_USER_POOL_ID}
-      - STORAGE_ENDPOINT=http://minio:9000
-      - STORAGE_PUBLIC_ENDPOINT=http://localhost:9000
-      - STORAGE_ACCESS_KEY=minioadmin
-      - STORAGE_SECRET_KEY=minioadmin
-      - STORAGE_BUCKET=receipts
-      - OLLAMA_BASE_URL=http://ollama:11434
+      # ── Backblaze B2 (S3-compatible) ──
+      - STORAGE_ENDPOINT=${B2_ENDPOINT}
+      - STORAGE_PUBLIC_ENDPOINT=${B2_ENDPOINT}
+      - STORAGE_ACCESS_KEY=${B2_APPLICATION_KEY_ID}
+      - STORAGE_SECRET_KEY=${B2_APPLICATION_KEY}
+      - STORAGE_BUCKET=${B2_BUCKET_NAME:-receipts}
+      - STORAGE_REGION=${B2_REGION:-us-west-004}
+      # ── Groq API ──
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - GROQ_MODEL=${GROQ_MODEL:-llama-3.3-70b-versatile}
     depends_on:
       mysql:
         condition: service_healthy
-      minio:
-        condition: service_healthy
 
   # ============================================
-  # MinIO (S3-compatible object storage)
-  # ============================================
-  minio:
-    image: minio/minio:latest
-    container_name: minio
-    ports:
-      - "9000:9000"
-      - "9001:9001"
-    environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
-    command: server /data --console-address ":9001"
-    volumes:
-      - minio_data:/data
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  minio-init:
-    image: minio/mc:latest
-    container_name: minio-init
-    depends_on:
-      minio:
-        condition: service_healthy
-    entrypoint:
-      - /bin/sh
-      - -c
-      - |
-        mc alias set local http://minio:9000 minioadmin minioadmin
-        mc mb local/receipts --ignore-existing
-        mc anonymous set download local/receipts
-        printf '{"CORSRules":[{"AllowedHeaders":["*"],"AllowedMethods":["GET","PUT","POST","DELETE","HEAD"],"AllowedOrigins":["*"],"ExposeHeaders":["ETag"]}]}' > /tmp/cors.json
-        mc cors set local/receipts --config-file /tmp/cors.json
-        echo "MinIO init complete"
-
-
-
-  # ============================================
-  # MySQL (Replaces Postgres)
+  # MySQL
   # ============================================
   mysql:
     image: mysql:8.0
@@ -139,37 +99,6 @@ services:
     depends_on:
       - frontend
       - bff
-
-  # ============================================
-  # Ollama — Local LLM server (profile: ai)
-  # Start: npm run docker:ai:on
-  # Stop:  npm run docker:ai:off
-  # ============================================
-  ollama:
-    image: ollama/ollama:latest
-    container_name: ollama
-    profiles: ["ai"]
-    ports:
-      - "11434:11434"
-    volumes:
-      - ollama_data:/root/.ollama
-    restart: unless-stopped
-
-  ollama-init:
-    image: ollama/ollama:latest
-    container_name: ollama-init
-    profiles: ["ai"]
-    depends_on:
-      - ollama
-    entrypoint: ["/bin/sh", "-c", "until ollama list; do sleep 3; done && ollama pull llama3.2:3b && echo 'Model ready'"]
-    environment:
-      - OLLAMA_HOST=http://ollama:11434
-    restart: "no"
-
-
-volumes:
-  minio_data:
-  ollama_data:
 
 networks:
   default:

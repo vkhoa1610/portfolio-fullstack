@@ -14,7 +14,6 @@
     "test:coverage": "jest --coverage"
   },
   "dependencies": {
-    "@aws-sdk/client-cognito-identity-provider": "^3.908.0",
     "axios": "^1.12.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",

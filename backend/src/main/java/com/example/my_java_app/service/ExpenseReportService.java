@@ -1,6 +1,6 @@
 package com.example.my_java_app.service;
 
-import com.example.my_java_app.client.OllamaClient;
+import com.example.my_java_app.client.GroqClient;
 import com.example.my_java_app.entity.ExpenseEntity;
 import com.example.my_java_app.entity.ExpenseReportEntity;
 import com.example.my_java_app.mapper.ExpenseMapper;
@@ -25,18 +25,18 @@ public class ExpenseReportService {
     private final ExpenseReportRepository reportRepository;
     private final ExpenseMapper expenseMapper;
     private final ObjectMapper objectMapper;
-    private final OllamaClient ollamaClient;
+    private final GroqClient groqClient;
 
     private static final DateTimeFormatter DT_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
     public ExpenseReportService(ExpenseReportRepository reportRepository,
                                 ExpenseMapper expenseMapper,
                                 ObjectMapper objectMapper,
-                                OllamaClient ollamaClient) {
+                                GroqClient groqClient) {
         this.reportRepository = reportRepository;
         this.expenseMapper    = expenseMapper;
         this.objectMapper     = objectMapper;
-        this.ollamaClient     = ollamaClient;
+        this.groqClient       = groqClient;
     }
 
     /** Create a PENDING job and return its id — caller fires async runJob() */
@@ -169,7 +169,7 @@ public class ExpenseReportService {
     private String callAi(Map<String, Object> payload) {
         try {
             String prompt = buildPrompt(payload);
-            String result = ollamaClient.chat(prompt);
+            String result = groqClient.chat(prompt);
             log.info("AI report generated via Ollama");
             return result;
         } catch (Exception e) {

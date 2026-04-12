@@ -1,6 +1,6 @@
 package com.example.my_java_app.controller;
 
-import com.example.my_java_app.client.OllamaClient;
+import com.example.my_java_app.client.GroqClient;
 import com.example.my_java_app.exception.ForbiddenException;
 import com.example.my_java_app.repository.SystemAdminRepository;
 import com.example.my_java_app.service.PermissionService;
@@ -21,14 +21,14 @@ import java.util.Map;
 @RequestMapping("/api/v1/admin/ai-playground")
 public class AiPlaygroundController extends BaseController {
 
-    private final OllamaClient ollamaClient;
+    private final GroqClient groqClient;
     private final SystemAdminRepository systemAdminRepository;
     private final PermissionService permissionService;
 
-    public AiPlaygroundController(OllamaClient ollamaClient,
+    public AiPlaygroundController(GroqClient groqClient,
                                   SystemAdminRepository systemAdminRepository,
                                   PermissionService permissionService) {
-        this.ollamaClient           = ollamaClient;
+        this.groqClient           = groqClient;
         this.systemAdminRepository  = systemAdminRepository;
         this.permissionService      = permissionService;
     }
@@ -49,19 +49,19 @@ public class AiPlaygroundController extends BaseController {
 
         long start = System.currentTimeMillis();
         try {
-            String response = ollamaClient.chatWithSystem(
+            String response = groqClient.chatWithSystem(
                     systemPrompt.isBlank() ? null : systemPrompt,
                     userPrompt);
             long durationMs = System.currentTimeMillis() - start;
             return ok(Map.of(
                     "response",   response,
-                    "model",      ollamaClient.getModel(),
+                    "model",      groqClient.getModel(),
                     "durationMs", durationMs));
         } catch (Exception e) {
             long durationMs = System.currentTimeMillis() - start;
             return ok(Map.of(
                     "error",      e.getMessage(),
-                    "model",      ollamaClient.getModel(),
+                    "model",      groqClient.getModel(),
                     "durationMs", durationMs));
         }
     }

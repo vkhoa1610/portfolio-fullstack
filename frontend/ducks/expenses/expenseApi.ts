@@ -69,6 +69,13 @@ export const expenseApi = createApi({
     }),
 
     // ─────────────────────────────────────────────────────
+    // EMPLOYEE: Get presigned GET URL for private-bucket receipt (1h)
+    // ─────────────────────────────────────────────────────
+    getReceiptViewUrl: builder.query<{ viewUrl: string }, string>({
+      query: (fileUrl) => `/emp-007?fileUrl=${encodeURIComponent(fileUrl)}`,
+    }),
+
+    // ─────────────────────────────────────────────────────
     // EMPLOYEE: Scan receipt (gửi fileUrl sau khi upload xong) → Mock OCR
     // ─────────────────────────────────────────────────────
     scanReceipt: builder.mutation<ScanResponse, { fileUrl: string }>({
@@ -183,4 +190,5 @@ export const {
   useMarkAsPaidMutation,
   useCreateFinanceReportMutation,
   useGetFinanceReportsQuery,
+  useGetReceiptViewUrlQuery,
 } = expenseApi;

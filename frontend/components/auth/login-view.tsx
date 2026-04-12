@@ -10,7 +10,7 @@ import { useTranslation } from "react-i18next";
 import { AdInput, AdButton, LanguageSwitcher } from "@/common";
 import { useAuth } from "@/common/context/AuthContext";
 import { useLoginMutation } from "@/ducks/auth/authApi";
-import { isMfaRequired, isNewPasswordRequired, isLoginSuccess } from "@/ducks/auth/types";
+import { isMfaRequired, isLoginSuccess } from "@/ducks/auth/types";
 
 export default function LoginView() {
   const { t } = useTranslation();
@@ -53,17 +53,7 @@ export default function LoginView() {
         return;
       }
 
-      // Case 2: New Password Required
-      if (isNewPasswordRequired(result)) {
-        const params = new URLSearchParams({
-          session: result.session,
-          username: result.username,
-        });
-        router.push(`/auth/new-password?${params.toString()}`);
-        return;
-      }
-
-      // Case 3: Login Success (no MFA)
+      // Case 2: Login Success (no MFA)
       if (isLoginSuccess(result)) {
         // Store session in AuthContext (in-memory only!)
         setSession(result.session);

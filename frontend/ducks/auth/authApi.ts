@@ -4,8 +4,6 @@ import {
   LoginResponse,
   MfaVerifyRequest,
   MfaVerifyResponse,
-  NewPasswordRequest,
-  NewPasswordResponse,
   SessionResponse,
   LogoutResponse,
   ConsentRequest,
@@ -46,18 +44,6 @@ export const authApi = createApi({
     verifyMfa: builder.mutation<MfaVerifyResponse, MfaVerifyRequest>({
       query: (body) => ({
         url: '/com-002',
-        method: 'POST',
-        body,
-      }),
-      invalidatesTags: ['Session'],
-    }),
-
-    // ─────────────────────────────────────────────────────────────────
-    // New Password - Set password for first-time login
-    // ─────────────────────────────────────────────────────────────────
-    setNewPassword: builder.mutation<NewPasswordResponse, NewPasswordRequest>({
-      query: (body) => ({
-        url: '/com-003',
         method: 'POST',
         body,
       }),
@@ -112,7 +98,6 @@ export const authApi = createApi({
 export const {
   useLoginMutation,
   useVerifyMfaMutation,
-  useSetNewPasswordMutation,
   useGetSessionQuery,
   useLazyGetSessionQuery,
   useLogoutMutation,

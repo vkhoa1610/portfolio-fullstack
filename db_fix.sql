@@ -129,35 +129,41 @@ INSERT INTO policies (id, title, slug, version, content) VALUES
 (1, 'Terms of Service', 'tos', '1.0', 'By using this platform you agree to our terms and conditions.'),
 (2, 'Privacy Policy', 'privacy', '1.0', 'We collect and process your data in accordance with GDPR.');
 
--- Employee test user
+-- ============================================
+-- DEMO USERS (Auth0)
+-- sub format: auth0|<24 hex chars>
+-- Passwords set in Auth0 dashboard
+-- ============================================
+
+-- EMPLOYEE: Anna Müller
 INSERT INTO users (cognito_sub, username, email, status) VALUES
-('47b40a38-2091-70e4-b5cb-a04aa64856f8', 'vkhoa1610', 'vkhoa1610@gmail.com', 'active');
+('auth0|69db9135b65ad959bd52d81e', 'anna.mueller', 'employee@portfolio.app', 'active');
 
 INSERT INTO user_roles (user_sub, role_id) VALUES
-('47b40a38-2091-70e4-b5cb-a04aa64856f8', 1); -- EMPLOYEE
+('auth0|69db9135b65ad959bd52d81e', 1); -- EMPLOYEE
 
-INSERT INTO user_profiles (user_sub) VALUES
-('47b40a38-2091-70e4-b5cb-a04aa64856f8');
+INSERT INTO user_profiles (user_sub, first_name, last_name, phone_number, language_code) VALUES
+('auth0|69db9135b65ad959bd52d81e', 'Anna', 'Müller', '+49 151 1234 5601', 'de-DE');
 
--- Manager test user
+-- MANAGER: Thomas Weber
 INSERT INTO users (cognito_sub, username, email, status) VALUES
-('37e4ca68-3051-7093-ee11-658d3aa0a191', 'vkhoajap1610', 'vkhoajap1610@gmail.com', 'active');
+('auth0|69db914919afd97398d23e56', 'thomas.weber', 'manager@portfolio.app', 'active');
 
 INSERT INTO user_roles (user_sub, role_id) VALUES
-('37e4ca68-3051-7093-ee11-658d3aa0a191', 2); -- MANAGER
+('auth0|69db914919afd97398d23e56', 2); -- MANAGER
 
-INSERT INTO user_profiles (user_sub) VALUES
-('37e4ca68-3051-7093-ee11-658d3aa0a191');
+INSERT INTO user_profiles (user_sub, first_name, last_name, phone_number, language_code) VALUES
+('auth0|69db914919afd97398d23e56', 'Thomas', 'Weber', '+49 151 1234 5602', 'de-DE');
 
--- Finance test user
+-- FINANCE: Sarah Chen
 INSERT INTO users (cognito_sub, username, email, status) VALUES
-('a7e4fa28-1051-704f-042a-f7fe9f450d8c', 'sample-fin', 'sample-fin@gmail.com', 'active');
+('auth0|69db915cb65ad959bd52d82d', 'sarah.chen', 'finance@portfolio.app', 'active');
 
 INSERT INTO user_roles (user_sub, role_id) VALUES
-('a7e4fa28-1051-704f-042a-f7fe9f450d8c', 3); -- FINANCE
+('auth0|69db915cb65ad959bd52d82d', 3); -- FINANCE
 
-INSERT INTO user_profiles (user_sub) VALUES
-('a7e4fa28-1051-704f-042a-f7fe9f450d8c');
+INSERT INTO user_profiles (user_sub, first_name, last_name, phone_number, language_code) VALUES
+('auth0|69db915cb65ad959bd52d82d', 'Sarah', 'Chen', '+49 151 1234 5603', 'en-US');
 
 -- ============================================
 -- AUTHORIZATION TABLES
@@ -189,16 +195,15 @@ CREATE TABLE system_admins (
     is_deleted TINYINT(1) DEFAULT 0
 );
 
--- System admin seed
--- Must insert into users first (FK referenced by user_consents, user_profiles, etc.)
+-- ADMIN: David Kim
 INSERT INTO users (cognito_sub, username, email, status) VALUES
-('d704fab8-8021-7066-8f76-bc9f3f147975', 'sample-admin', 'sample-admin@gmail.com', 'active');
+('auth0|69db916e19afd97398d23e73', 'david.kim', 'admin@portfolio.app', 'active');
 
 INSERT INTO system_admins (cognito_sub, email) VALUES
-('d704fab8-8021-7066-8f76-bc9f3f147975', 'sample-admin@gmail.com');
+('auth0|69db916e19afd97398d23e73', 'admin@portfolio.app');
 
-INSERT INTO user_profiles (user_sub) VALUES
-('d704fab8-8021-7066-8f76-bc9f3f147975');
+INSERT INTO user_profiles (user_sub, first_name, last_name, phone_number, language_code) VALUES
+('auth0|69db916e19afd97398d23e73', 'David', 'Kim', '+49 151 1234 5604', 'en-US');
 
 -- Permissions seed
 INSERT INTO permissions (id, permission_code, description) VALUES
@@ -207,15 +212,15 @@ INSERT INTO permissions (id, permission_code, description) VALUES
 (3, 'FINANCE_VIEW',    'View finance overview'),
 (4, 'FINANCE_EXPORT',  'Export finance reports');
 
--- Grant manager test user approve + reject
+-- Grant manager approve + reject
 INSERT INTO user_permissions (user_sub, permission_id, granted_by) VALUES
-('37e4ca68-3051-7093-ee11-658d3aa0a191', 1, 'system'),
-('37e4ca68-3051-7093-ee11-658d3aa0a191', 2, 'system');
+('auth0|69db914919afd97398d23e56', 1, 'system'),
+('auth0|69db914919afd97398d23e56', 2, 'system');
 
--- Grant finance test user view + export
+-- Grant finance view + export
 INSERT INTO user_permissions (user_sub, permission_id, granted_by) VALUES
-('a7e4fa28-1051-704f-042a-f7fe9f450d8c', 3, 'system'),
-('a7e4fa28-1051-704f-042a-f7fe9f450d8c', 4, 'system');
+('auth0|69db915cb65ad959bd52d82d', 3, 'system'),
+('auth0|69db915cb65ad959bd52d82d', 4, 'system');
 
 -- ============================================
 -- UI FUNCTIONS (CMS-DRIVEN)
@@ -257,15 +262,15 @@ INSERT INTO functions (function_id, function_key, module, description) VALUES
 (3, 'FINANCE_VIEW_OVERVIEW', 'FINANCE',  'View finance overview page'),
 (4, 'FINANCE_EXPORT',        'FINANCE',  'Export finance reports');
 
--- Items: manager test user
+-- Items: manager
 INSERT INTO items (cognito_sub, function_id, granted_by) VALUES
-('37e4ca68-3051-7093-ee11-658d3aa0a191', 1, 'system'),
-('37e4ca68-3051-7093-ee11-658d3aa0a191', 2, 'system');
+('auth0|69db914919afd97398d23e56', 1, 'system'),
+('auth0|69db914919afd97398d23e56', 2, 'system');
 
--- Items: finance test user
+-- Items: finance
 INSERT INTO items (cognito_sub, function_id, granted_by) VALUES
-('a7e4fa28-1051-704f-042a-f7fe9f450d8c', 3, 'system'),
-('a7e4fa28-1051-704f-042a-f7fe9f450d8c', 4, 'system');
+('auth0|69db915cb65ad959bd52d82d', 3, 'system'),
+('auth0|69db915cb65ad959bd52d82d', 4, 'system');
 
 -- ============================================
 -- AI REPORT TABLE
@@ -368,44 +373,44 @@ INSERT INTO screen_configs (screen_key, version, config_json, updated_by) VALUES
 -- average ≈ 316 EUR → anomalies: Software License (1500), Hardware Purchase (850)
 -- ============================================
 
--- Employee expenses
+-- Anna Müller (EMPLOYEE) expenses
 INSERT INTO expenses (user_sub, type, title, amount, currency, status, vendor_name, receipt_date, vat_amount, submitted_at, reviewed_at, created_at) VALUES
-('47b40a38-2091-70e4-b5cb-a04aa64856f8', 'RECEIPT', 'Office Supplies', 45.00, 'EUR', 'APPROVED', 'Staples GmbH', '2026-03-02', 7.18, '2026-03-02 09:00:00', '2026-03-03 10:00:00', '2026-03-02 09:00:00');
+('auth0|69db9135b65ad959bd52d81e', 'RECEIPT', 'Office Supplies', 45.00, 'EUR', 'APPROVED', 'Staples GmbH', '2026-03-02', 7.18, '2026-03-02 09:00:00', '2026-03-03 10:00:00', '2026-03-02 09:00:00');
 
 INSERT INTO expenses (user_sub, type, title, amount, currency, status, vendor_name, receipt_date, vat_amount, submitted_at, reviewed_at, created_at) VALUES
-('47b40a38-2091-70e4-b5cb-a04aa64856f8', 'RECEIPT', 'Team Lunch', 120.50, 'EUR', 'APPROVED', 'Restaurant Zur Post', '2026-03-05', 19.24, '2026-03-05 14:00:00', '2026-03-06 09:00:00', '2026-03-05 14:00:00');
+('auth0|69db9135b65ad959bd52d81e', 'RECEIPT', 'Team Lunch', 120.50, 'EUR', 'APPROVED', 'Restaurant Zur Post', '2026-03-05', 19.24, '2026-03-05 14:00:00', '2026-03-06 09:00:00', '2026-03-05 14:00:00');
 
 INSERT INTO expenses (user_sub, type, title, amount, currency, status, distance_km, rate_per_km, submitted_at, reviewed_at, created_at) VALUES
-('47b40a38-2091-70e4-b5cb-a04aa64856f8', 'MILEAGE', 'Client Visit Berlin', 75.00, 'EUR', 'APPROVED', 250.00, 0.30, '2026-03-07 08:00:00', '2026-03-08 10:00:00', '2026-03-07 08:00:00');
+('auth0|69db9135b65ad959bd52d81e', 'MILEAGE', 'Client Visit Berlin', 75.00, 'EUR', 'APPROVED', 250.00, 0.30, '2026-03-07 08:00:00', '2026-03-08 10:00:00', '2026-03-07 08:00:00');
 
 INSERT INTO expenses (user_sub, type, title, amount, currency, status, trip_from, trip_to, country_code, per_diem_rate, per_diem_days, submitted_at, reviewed_at, created_at) VALUES
-('47b40a38-2091-70e4-b5cb-a04aa64856f8', 'PER_DIEM', 'Frankfurt Conference', 195.00, 'EUR', 'APPROVED', '2026-03-10', '2026-03-11', 'DEU', 97.50, 2, '2026-03-11 18:00:00', '2026-03-12 09:00:00', '2026-03-10 08:00:00');
+('auth0|69db9135b65ad959bd52d81e', 'PER_DIEM', 'Frankfurt Conference', 195.00, 'EUR', 'APPROVED', '2026-03-10', '2026-03-11', 'DEU', 97.50, 2, '2026-03-11 18:00:00', '2026-03-12 09:00:00', '2026-03-10 08:00:00');
 
 INSERT INTO expenses (user_sub, type, title, amount, currency, status, vendor_name, receipt_date, vat_amount, submitted_at, reviewed_at, created_at) VALUES
-('47b40a38-2091-70e4-b5cb-a04aa64856f8', 'RECEIPT', 'Software License', 1500.00, 'EUR', 'APPROVED', 'JetBrains s.r.o.', '2026-03-12', 239.50, '2026-03-12 11:00:00', '2026-03-13 10:00:00', '2026-03-12 11:00:00');
+('auth0|69db9135b65ad959bd52d81e', 'RECEIPT', 'Software License', 1500.00, 'EUR', 'APPROVED', 'JetBrains s.r.o.', '2026-03-12', 239.50, '2026-03-12 11:00:00', '2026-03-13 10:00:00', '2026-03-12 11:00:00');
 
--- Manager expenses
+-- Thomas Weber (MANAGER) expenses
 INSERT INTO expenses (user_sub, type, title, amount, currency, status, vendor_name, receipt_date, vat_amount, submitted_at, reviewed_at, created_at) VALUES
-('37e4ca68-3051-7093-ee11-658d3aa0a191', 'RECEIPT', 'Vendor Meeting Dinner', 210.00, 'EUR', 'APPROVED', 'Hotel Vier Jahreszeiten', '2026-03-06', 33.53, '2026-03-06 21:00:00', '2026-03-07 09:00:00', '2026-03-06 21:00:00');
+('auth0|69db914919afd97398d23e56', 'RECEIPT', 'Vendor Meeting Dinner', 210.00, 'EUR', 'APPROVED', 'Hotel Vier Jahreszeiten', '2026-03-06', 33.53, '2026-03-06 21:00:00', '2026-03-07 09:00:00', '2026-03-06 21:00:00');
 
 INSERT INTO expenses (user_sub, type, title, amount, currency, status, trip_from, trip_to, country_code, per_diem_rate, per_diem_days, submitted_at, reviewed_at, created_at) VALUES
-('37e4ca68-3051-7093-ee11-658d3aa0a191', 'PER_DIEM', 'Munich Business Trip', 390.00, 'EUR', 'APPROVED', '2026-03-08', '2026-03-11', 'DEU', 97.50, 4, '2026-03-11 17:00:00', '2026-03-12 10:00:00', '2026-03-08 07:00:00');
+('auth0|69db914919afd97398d23e56', 'PER_DIEM', 'Munich Business Trip', 390.00, 'EUR', 'APPROVED', '2026-03-08', '2026-03-11', 'DEU', 97.50, 4, '2026-03-11 17:00:00', '2026-03-12 10:00:00', '2026-03-08 07:00:00');
 
 INSERT INTO expenses (user_sub, type, title, amount, currency, status, distance_km, rate_per_km, submitted_at, reviewed_at, created_at) VALUES
-('37e4ca68-3051-7093-ee11-658d3aa0a191', 'MILEAGE', 'Site Inspection', 90.00, 'EUR', 'APPROVED', 300.00, 0.30, '2026-03-14 17:00:00', '2026-03-15 09:00:00', '2026-03-14 17:00:00');
+('auth0|69db914919afd97398d23e56', 'MILEAGE', 'Site Inspection', 90.00, 'EUR', 'APPROVED', 300.00, 0.30, '2026-03-14 17:00:00', '2026-03-15 09:00:00', '2026-03-14 17:00:00');
 
 INSERT INTO expenses (user_sub, type, title, amount, currency, status, vendor_name, receipt_date, vat_amount, submitted_at, reviewed_at, created_at) VALUES
-('37e4ca68-3051-7093-ee11-658d3aa0a191', 'RECEIPT', 'Hardware Purchase', 850.00, 'EUR', 'APPROVED', 'Dell Technologies', '2026-03-15', 135.80, '2026-03-15 14:00:00', '2026-03-16 09:00:00', '2026-03-15 14:00:00');
+('auth0|69db914919afd97398d23e56', 'RECEIPT', 'Hardware Purchase', 850.00, 'EUR', 'APPROVED', 'Dell Technologies', '2026-03-15', 135.80, '2026-03-15 14:00:00', '2026-03-16 09:00:00', '2026-03-15 14:00:00');
 
--- Finance expenses
+-- Sarah Chen (FINANCE) expenses
 INSERT INTO expenses (user_sub, type, title, amount, currency, status, vendor_name, receipt_date, vat_amount, submitted_at, reviewed_at, created_at) VALUES
-('a7e4fa28-1051-704f-042a-f7fe9f450d8c', 'RECEIPT', 'Accounting Tools', 89.00, 'EUR', 'APPROVED', 'DATEV eG', '2026-03-03', 14.22, '2026-03-03 10:00:00', '2026-03-04 09:00:00', '2026-03-03 10:00:00');
+('auth0|69db915cb65ad959bd52d82d', 'RECEIPT', 'Accounting Tools', 89.00, 'EUR', 'APPROVED', 'DATEV eG', '2026-03-03', 14.22, '2026-03-03 10:00:00', '2026-03-04 09:00:00', '2026-03-03 10:00:00');
 
 INSERT INTO expenses (user_sub, type, title, amount, currency, status, trip_from, trip_to, country_code, per_diem_rate, per_diem_days, submitted_at, reviewed_at, created_at) VALUES
-('a7e4fa28-1051-704f-042a-f7fe9f450d8c', 'PER_DIEM', 'Tax Seminar Hamburg', 175.00, 'EUR', 'APPROVED', '2026-03-11', '2026-03-12', 'DEU', 87.50, 2, '2026-03-12 18:00:00', '2026-03-13 09:00:00', '2026-03-11 08:00:00');
+('auth0|69db915cb65ad959bd52d82d', 'PER_DIEM', 'Tax Seminar Hamburg', 175.00, 'EUR', 'APPROVED', '2026-03-11', '2026-03-12', 'DEU', 87.50, 2, '2026-03-12 18:00:00', '2026-03-13 09:00:00', '2026-03-11 08:00:00');
 
 INSERT INTO expenses (user_sub, type, title, amount, currency, status, vendor_name, receipt_date, vat_amount, submitted_at, reviewed_at, created_at) VALUES
-('a7e4fa28-1051-704f-042a-f7fe9f450d8c', 'RECEIPT', 'Printer Cartridges', 55.00, 'EUR', 'APPROVED', 'Conrad Electronic', '2026-03-18', 8.79, '2026-03-18 11:00:00', '2026-03-19 09:00:00', '2026-03-18 11:00:00');
+('auth0|69db915cb65ad959bd52d82d', 'RECEIPT', 'Printer Cartridges', 55.00, 'EUR', 'APPROVED', 'Conrad Electronic', '2026-03-18', 8.79, '2026-03-18 11:00:00', '2026-03-19 09:00:00', '2026-03-18 11:00:00');
 
 -- ============================================
 -- FINANCE REPORTS TABLE
@@ -434,10 +439,10 @@ CREATE TABLE finance_reports (
     CONSTRAINT fk_fr_user FOREIGN KEY (user_sub) REFERENCES users(cognito_sub)
 );
 
--- Demo finance reports
+-- Demo finance reports (Sarah Chen — FINANCE)
 INSERT INTO finance_reports (user_sub, title, report_type, fiscal_period, due_date, description, priority, total_amount, currency, line_items, approval_route, status, submitted_at, created_at) VALUES
 (
-  'a7e4fa28-1051-704f-042a-f7fe9f450d8c',
+  'auth0|69db915cb65ad959bd52d82d',
   'Q1 2026 Revenue Report',
   'FINANCIAL',
   'Q1 2026',
@@ -455,7 +460,7 @@ INSERT INTO finance_reports (user_sub, title, report_type, fiscal_period, due_da
 
 INSERT INTO finance_reports (user_sub, title, report_type, fiscal_period, due_date, description, priority, total_amount, currency, line_items, approval_route, status, created_at) VALUES
 (
-  'a7e4fa28-1051-704f-042a-f7fe9f450d8c',
+  'auth0|69db915cb65ad959bd52d82d',
   'March Compliance Report',
   'COMPLIANCE',
   'Q1 2026',

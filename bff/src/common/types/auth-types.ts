@@ -51,24 +51,14 @@ export interface LoginSuccessResponse extends BaseResponse {
 export interface MfaRequiredResponse extends BaseResponse {
   authenticated: false;
   mfaRequired: true;
-  challengeName: 'SOFTWARE_TOKEN_MFA';
-  session: string; // Cognito session for MFA challenge (temporary, not stored)
+  challengeName: 'MFA_REQUIRED';
+  session: string; // Auth0 mfa_token (opaque, passed back as-is)
   maskedEmail: string; // e.g., "u***@example.com"
-}
-
-/** New password required - first login with temp password */
-export interface NewPasswordRequiredResponse extends BaseResponse {
-  authenticated: false;
-  newPasswordRequired: true;
-  challengeName: 'NEW_PASSWORD_REQUIRED';
-  session: string;
-  username: string;
 }
 
 export type LoginResponse =
   | LoginSuccessResponse
-  | MfaRequiredResponse
-  | NewPasswordRequiredResponse;
+  | MfaRequiredResponse;
 
 // ============================================================================
 // MFA VERIFICATION TYPES
@@ -76,23 +66,11 @@ export type LoginResponse =
 
 export interface MfaVerifyRequest {
   otp: string;
-  session: string; // Cognito challenge session
+  session: string; // Auth0 mfa_token (passed back from com-001 response)
   email: string;
 }
 
 export type MfaVerifyResponse = LoginSuccessResponse;
-
-// ============================================================================
-// NEW PASSWORD TYPES
-// ============================================================================
-
-export interface NewPasswordRequest {
-  username: string;
-  newPassword: string;
-  session: string;
-}
-
-export type NewPasswordResponse = LoginSuccessResponse;
 
 // ============================================================================
 // SESSION MANAGEMENT TYPES
@@ -129,15 +107,6 @@ export const maskEmail = (email: string): string => {
  */
 export const isMfaRequired = (response: LoginResponse): response is MfaRequiredResponse => {
   return 'mfaRequired' in response && response.mfaRequired === true;
-};
-
-/**
- * Type guard to check if login response requires new password
- */
-export const isNewPasswordRequired = (
-  response: LoginResponse,
-): response is NewPasswordRequiredResponse => {
-  return 'newPasswordRequired' in response && response.newPasswordRequired === true;
 };
 
 /**

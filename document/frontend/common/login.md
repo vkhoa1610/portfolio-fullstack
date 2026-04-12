@@ -6,17 +6,16 @@
 User nhập email + password → submit form
   → Gọi BFF: POST /api/com-001
   ├── LoginSuccessResponse (authenticated: true)
-  │     → Lưu UISession vào Redux
-  │     → Redirect: /onboarding (PENDING) hoặc /dashboard (DONE)
-  ├── MfaRequiredResponse
-  │     → Lưu { session, maskedEmail } vào local state
-  │     → Redirect → /auth/mfa
-  └── NewPasswordRequiredResponse
-        → Lưu { session, username } vào local state
-        → Redirect → /auth/new-password
+  │     → Lưu UISession vào Redux (AuthContext)
+  │     → Redirect: /onboarding (PENDING) | /dashboard (DONE) | /admin (isAdmin)
+  └── MfaRequiredResponse
+        → Lưu { session: mfa_token, email } vào URL params
+        → Redirect → /auth/mfa
 ```
 
-**Component**: `frontend/components/login/` (login form)
+> ⚠️ Không còn `NewPasswordRequiredResponse` — Auth0 không có NEW_PASSWORD_REQUIRED flow.
+
+**Component**: `frontend/components/auth/login-view.tsx`
 **Hook**: `useLoginMutation` từ `authApi`
 
 ---
@@ -50,21 +49,16 @@ User nhập email + password → submit form
 | user.role             | ✅       | `EMPLOYEE` \| `MANAGER` \| `FINANCE` |
 | budget                | ✅       | number                            |
 | onboardingStatus      | ✅       | `PENDING` \| `DONE`             |
+| permissions           | ✅       | string[]                          |
+| functions             | ✅       | number[]                          |
+| isAdmin               | ✅       | boolean                           |
 
 **Case 2 — MFA Required:**
 
-| Field         | Required | Type   |
-|---------------|----------|--------|
-| authenticated | ✅       | false  |
-| mfaRequired   | ✅       | true   |
-| session       | ✅       | string |
-| maskedEmail   | ✅       | string |
-
-**Case 3 — New Password Required:**
-
-| Field               | Required | Type   |
-|---------------------|----------|--------|
-| authenticated       | ✅       | false  |
-| newPasswordRequired | ✅       | true   |
-| session             | ✅       | string |
-| username            | ✅       | string |
+| Field         | Required | Type   | Ghi chú                    |
+|---------------|----------|--------|----------------------------|
+| authenticated | ✅       | false  |                            |
+| mfaRequired   | ✅       | true   |                            |
+| challengeName | ✅       | string | `MFA_REQUIRED`             |
+| session       | ✅       | string | Auth0 `mfa_token` (opaque) |
+| maskedEmail   | ✅       | string |                            |

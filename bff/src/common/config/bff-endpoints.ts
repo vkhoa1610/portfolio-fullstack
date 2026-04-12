@@ -15,6 +15,7 @@ export const BFF_ENDPOINTS = {
   EMP_004: '/emp-004',      // GET  expenses (list own)
   EMP_005: '/emp-005/:id',  // GET  expenses/:id — canonical (shared với mgr-004)
   EMP_006: '/emp-006/:id',  // POST expenses/:id/submit
+  EMP_007: '/emp-007',      // GET  expenses/view-url (presigned GET for private bucket)
 
   // ─── Manager ──────────────────────────────────────────────────────
   MGR_001: '/mgr-001',      // GET manager/expenses

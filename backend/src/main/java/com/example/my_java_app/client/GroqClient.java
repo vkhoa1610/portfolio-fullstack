@@ -16,27 +16,30 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * HTTP client for Ollama OpenAI-compatible API.
- * Endpoint: POST {ollamaBaseUrl}/v1/chat/completions
+ * HTTP client for Groq API (OpenAI-compatible).
+ * Endpoint: POST https://api.groq.com/openai/v1/chat/completions
  *
- * Ollama must be running (docker:ai:on) for real calls.
+ * Free tier: 14,400 requests/day, no credit card required.
  * Throws exception if unavailable — caller should fallback to mock.
  */
 @Component
-public class OllamaClient {
+public class GroqClient {
 
-    private static final Logger log = LoggerFactory.getLogger(OllamaClient.class);
+    private static final Logger log = LoggerFactory.getLogger(GroqClient.class);
 
-    @Value("${ollama.base-url:http://localhost:11434}")
-    private String ollamaBaseUrl;
+    @Value("${groq.base-url:https://api.groq.com/openai}")
+    private String baseUrl;
 
-    @Value("${ollama.model:llama3.2:3b}")
+    @Value("${groq.model:llama-3.3-70b-versatile}")
     private String model;
+
+    @Value("${groq.api-key}")
+    private String apiKey;
 
     private final ObjectMapper objectMapper;
     private final HttpClient httpClient;
 
-    public OllamaClient(ObjectMapper objectMapper) {
+    public GroqClient(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
         this.httpClient = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(10))
@@ -48,17 +51,17 @@ public class OllamaClient {
     }
 
     /**
-     * Send a prompt to Ollama and return the response content string.
-     * Timeout: 120s (LLM generation can be slow on CPU).
+     * Send a prompt to Groq and return the response content string.
+     * Timeout: 30s (Groq is fast — typical response under 3s).
      *
-     * @throws Exception if Ollama is unreachable or returns error
+     * @throws Exception if Groq is unreachable or returns error
      */
     public String chat(String prompt) throws Exception {
         return chatWithSystem(null, prompt);
     }
 
     /**
-     * Send system + user prompt to Ollama.
+     * Send system + user prompt to Groq.
      * If systemPrompt is null/blank, falls back to user-only message list.
      */
     public String chatWithSystem(String systemPrompt, String userPrompt) throws Exception {
@@ -69,38 +72,39 @@ public class OllamaClient {
                 : List.of(Map.of("role", "user", "content", userPrompt));
 
         Map<String, Object> requestBody = Map.of(
-                "model", model,
+                "model",    model,
                 "messages", messages,
-                "stream", false
+                "stream",   false
         );
 
         String jsonBody = objectMapper.writeValueAsString(requestBody);
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(ollamaBaseUrl + "/v1/chat/completions"))
+                .uri(URI.create(baseUrl + "/v1/chat/completions"))
                 .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " + apiKey)
                 .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
-                .timeout(Duration.ofSeconds(120))
+                .timeout(Duration.ofSeconds(30))
                 .build();
 
-        log.info("Calling Ollama model={} url={}", model, ollamaBaseUrl);
-        log.debug("Ollama prompt:\n{}", userPrompt);
+        log.info("Calling Groq model={}", model);
+        log.debug("Groq prompt:\n{}", userPrompt);
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
         if (response.statusCode() != 200) {
-            throw new RuntimeException("Ollama returned HTTP " + response.statusCode() + ": " + response.body());
+            throw new RuntimeException("Groq returned HTTP " + response.statusCode() + ": " + response.body());
         }
 
         JsonNode root = objectMapper.readTree(response.body());
         String content = root.path("choices").path(0).path("message").path("content").asText();
 
         if (content.isBlank()) {
-            throw new RuntimeException("Ollama returned empty content");
+            throw new RuntimeException("Groq returned empty content");
         }
 
-        log.info("Ollama response received ({} chars)", content.length());
-        log.debug("Ollama response:\n{}", content);
+        log.info("Groq response received ({} chars)", content.length());
+        log.debug("Groq response:\n{}", content);
         return content;
     }
 }

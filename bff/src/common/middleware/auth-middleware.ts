@@ -122,8 +122,8 @@ export const optionalAuth = (req: Request, res: Response, next: NextFunction): v
 export const requireRole =
   (role: 'USER' | 'ADMIN') =>
   (req: Request, res: Response, next: NextFunction): void => {
-    // Get role from decoded token (custom claim)
-    const userRole = req.decodedToken?.['custom:role'] as string | undefined;
+    // Get role from decoded token — Auth0 namespaced claim (set via Auth0 Action)
+    const userRole = req.decodedToken?.['https://portfolio.app/role'] as string | undefined;
 
     if (!userRole || userRole !== role) {
       res.status(403).json({

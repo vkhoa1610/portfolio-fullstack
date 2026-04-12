@@ -3,8 +3,18 @@
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { AlertTriangle, CheckCircle2, XCircle, Clock } from "lucide-react";
-import { useGetExpenseByIdQuery } from "@/ducks/expenses";
+import { useGetExpenseByIdQuery, useGetReceiptViewUrlQuery } from "@/ducks/expenses";
 import type { ExpenseStatus } from "@/ducks/expenses";
+
+function ReceiptImage({ fileUrl }: { fileUrl: string }) {
+  const { data, isLoading } = useGetReceiptViewUrlQuery(fileUrl);
+  if (isLoading) return <div className="flex h-40 items-center justify-center text-neutral-400 text-sm">Loading...</div>;
+  if (!data?.viewUrl) return null;
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={data.viewUrl} alt="Receipt" className="max-h-80 w-full rounded-lg object-contain" />
+  );
+}
 
 export default function ExpenseDetailView({ id }: { id: number }) {
   const { t } = useTranslation();
@@ -45,8 +55,7 @@ export default function ExpenseDetailView({ id }: { id: number }) {
           <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
             <p className="mb-2 text-xs font-semibold uppercase text-neutral-400">{t("expense.detail.label_receipt")}</p>
             {expense.receiptFileUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={expense.receiptFileUrl} alt="Receipt" className="max-h-80 w-full rounded-lg object-contain" />
+              <ReceiptImage fileUrl={expense.receiptFileUrl} />
             ) : (
               <div className="flex h-40 items-center justify-center text-neutral-400 text-sm">{t("expense.detail.no_image")}</div>
             )}
