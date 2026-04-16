@@ -5,14 +5,31 @@ import { useTranslation } from "react-i18next";
 import { AlertTriangle, CheckCircle2, XCircle, Clock } from "lucide-react";
 import { useGetExpenseByIdQuery, useGetReceiptViewUrlQuery } from "@/ducks/expenses";
 import type { ExpenseStatus } from "@/ducks/expenses";
+import styles from "./expense-detail-view.module.css";
+
+const STATUS_CLASS: Record<ExpenseStatus, string> = {
+  DRAFT: styles.statusDraft,
+  PENDING_REVIEW: styles.statusPendingReview,
+  APPROVED: styles.statusApproved,
+  REJECTED: styles.statusRejected,
+  PAID: styles.statusPaid,
+};
+
+const STATUS_ICON: Record<ExpenseStatus, React.ElementType> = {
+  DRAFT: Clock,
+  PENDING_REVIEW: Clock,
+  APPROVED: CheckCircle2,
+  REJECTED: XCircle,
+  PAID: CheckCircle2,
+};
 
 function ReceiptImage({ fileUrl }: { fileUrl: string }) {
   const { data, isLoading } = useGetReceiptViewUrlQuery(fileUrl);
-  if (isLoading) return <div className="flex h-40 items-center justify-center text-neutral-400 text-sm">Loading...</div>;
+  if (isLoading) return <div className={styles.receiptEmpty}>Loading...</div>;
   if (!data?.viewUrl) return null;
   return (
     // eslint-disable-next-line @next/next/no-img-element
-    <img src={data.viewUrl} alt="Receipt" className="max-h-80 w-full rounded-lg object-contain" />
+    <img src={data.viewUrl} alt="Receipt" className={styles.receiptImg} />
   );
 }
 
@@ -21,29 +38,28 @@ export default function ExpenseDetailView({ id }: { id: number }) {
   const router = useRouter();
   const { data: expense, isLoading } = useGetExpenseByIdQuery(id);
 
-  const STATUS_CONFIG: Record<ExpenseStatus, { icon: React.ElementType; color: string; label: string }> = {
-    DRAFT: { icon: Clock, color: "text-neutral-500 bg-neutral-50 border-neutral-200", label: t("expense.detail.status_draft") },
-    PENDING_REVIEW: { icon: Clock, color: "text-warning-600 bg-warning-50 border-warning-200", label: t("expense.detail.status_pending") },
-    APPROVED: { icon: CheckCircle2, color: "text-success-600 bg-success-50 border-success-200", label: t("expense.detail.status_approved") },
-    REJECTED: { icon: XCircle, color: "text-error-600 bg-error-50 border-error-200", label: t("expense.detail.status_rejected") },
-    PAID: { icon: CheckCircle2, color: "text-primary-600 bg-primary-50 border-primary-200", label: "Paid" },
+  const STATUS_LABEL: Record<ExpenseStatus, string> = {
+    DRAFT: t("expense.detail.status_draft"),
+    PENDING_REVIEW: t("expense.detail.status_pending"),
+    APPROVED: t("expense.detail.status_approved"),
+    REJECTED: t("expense.detail.status_rejected"),
+    PAID: "Paid",
   };
 
-  if (isLoading) return <div className="flex h-40 items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-200 border-t-primary-600" /></div>;
+  if (isLoading) return <div className="flex h-40 items-center justify-center"><div className={styles.spinner} /></div>;
   if (!expense) return <p className="text-center text-neutral-500">{t("expense.detail.not_found")}</p>;
 
-  const statusCfg = STATUS_CONFIG[expense.status];
-  const StatusIcon = statusCfg.icon;
+  const StatusIcon = STATUS_ICON[expense.status];
 
   return (
     <div className="mx-auto w-full max-w-4xl space-y-4">
       {/* Status Banner */}
-      <div className={`flex items-center gap-3 rounded-xl border p-4 ${statusCfg.color}`}>
-        <StatusIcon className="h-5 w-5" />
+      <div className={`${styles.statusBanner} ${STATUS_CLASS[expense.status]}`}>
+        <StatusIcon className="h-5 w-5 shrink-0" />
         <div>
-          <p className="font-semibold">{statusCfg.label}</p>
+          <p className={styles.bannerTitle}>{STATUS_LABEL[expense.status]}</p>
           {expense.status === "REJECTED" && expense.rejectionReason && (
-            <p className="text-sm">{t("expense.detail.label_reason")}: {expense.rejectionReason}</p>
+            <p className={styles.bannerReason}>{t("expense.detail.label_reason")}: {expense.rejectionReason}</p>
           )}
         </div>
       </div>
@@ -52,12 +68,12 @@ export default function ExpenseDetailView({ id }: { id: number }) {
       {expense.type === "RECEIPT" ? (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {/* Left: Preview */}
-          <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
-            <p className="mb-2 text-xs font-semibold uppercase text-neutral-400">{t("expense.detail.label_receipt")}</p>
+          <div className={styles.receiptPanel}>
+            <p className={styles.receiptLabel}>{t("expense.detail.label_receipt")}</p>
             {expense.receiptFileUrl ? (
               <ReceiptImage fileUrl={expense.receiptFileUrl} />
             ) : (
-              <div className="flex h-40 items-center justify-center text-neutral-400 text-sm">{t("expense.detail.no_image")}</div>
+              <div className={styles.receiptEmpty}>{t("expense.detail.no_image")}</div>
             )}
           </div>
           {/* Right: Details */}
@@ -71,7 +87,7 @@ export default function ExpenseDetailView({ id }: { id: number }) {
       {expense.status === "DRAFT" && (
         <button
           onClick={() => router.push(`/my-expenses/${id}/review`)}
-          className="w-full rounded-lg bg-primary-600 py-3 font-semibold text-white hover:bg-primary-700"
+          className={styles.btnSubmit}
         >
           {t("expense.detail.btn_submit")}
         </button>
@@ -83,7 +99,7 @@ export default function ExpenseDetailView({ id }: { id: number }) {
 function ExpenseFields({ expense, t }: { expense: ReturnType<typeof useGetExpenseByIdQuery>["data"]; t: (key: string) => string }) {
   if (!expense) return null;
   return (
-    <div className="space-y-3 rounded-xl border border-neutral-200 bg-white p-6">
+    <div className={`space-y-3 ${styles.fieldsCard}`}>
       <Row label={t("expense.detail.field_type")} value={expense.type} />
       <Row label={t("expense.detail.field_amount")} value={expense.amount != null ? `${expense.amount.toFixed(2)} €` : "—"} />
       <Row label={t("expense.detail.field_currency")} value={expense.currency} />
@@ -97,12 +113,12 @@ function ExpenseFields({ expense, t }: { expense: ReturnType<typeof useGetExpens
       {expense.distanceKm != null && <Row label={t("expense.detail.field_distance")} value={`${expense.distanceKm} km`} />}
       {expense.ratePerKm != null && <Row label={t("expense.detail.field_rate_km")} value={`${expense.ratePerKm} €`} />}
       {expense.aiFlags && JSON.parse(expense.aiFlags).length > 0 && (
-        <div className="flex items-start gap-2 rounded-lg bg-warning-50 p-3">
-          <AlertTriangle className="h-4 w-4 text-warning-600" />
+        <div className={styles.aiFlags}>
+          <AlertTriangle className="h-4 w-4 shrink-0 text-warning-600" />
           <div>
-            <p className="text-xs font-semibold text-warning-700">{t("expense.detail.ai_flags")}</p>
+            <p className={styles.aiFlagsTitle}>{t("expense.detail.ai_flags")}</p>
             {JSON.parse(expense.aiFlags).map((f: string, i: number) => (
-              <p key={i} className="text-xs text-warning-600">{f}</p>
+              <p key={i} className={styles.aiFlagItem}>{f}</p>
             ))}
           </div>
         </div>
@@ -113,9 +129,9 @@ function ExpenseFields({ expense, t }: { expense: ReturnType<typeof useGetExpens
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between border-b border-neutral-100 pb-2 last:border-0 last:pb-0">
-      <span className="text-sm text-neutral-500">{label}</span>
-      <span className="text-sm font-medium text-neutral-900">{value}</span>
+    <div className={styles.row}>
+      <span className={styles.rowLabel}>{label}</span>
+      <span className={styles.rowValue}>{value}</span>
     </div>
   );
 }

@@ -1,0 +1,94 @@
+.spinner {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 9999px;
+  border: 4px solid var(--color-primary-200);
+  border-top-color: var(--color-primary-600);
+  animation: spin 0.6s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.statusBanner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-radius: var(--radius-xl);
+  border: 1px solid;
+  padding: 1rem;
+}
+.statusDraft         { color: var(--color-neutral-500);  background: var(--color-neutral-50);  border-color: var(--color-neutral-200); }
+.statusPendingReview { color: var(--color-warning-600);  background: var(--color-warning-50);  border-color: var(--color-warning-200); }
+.statusApproved      { color: var(--color-success-600);  background: var(--color-success-50);  border-color: var(--color-success-200); }
+.statusRejected      { color: var(--color-error-600);    background: var(--color-error-50);    border-color: var(--color-error-200); }
+.statusPaid          { color: var(--color-primary-600);  background: var(--color-primary-50);  border-color: var(--color-primary-200); }
+
+.bannerTitle { font-weight: var(--typography-weight-semibold); }
+.bannerReason { font-size: var(--typography-size-sm); }
+
+.receiptPanel {
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-neutral-200);
+  background: var(--color-neutral-50);
+  padding: 1rem;
+}
+.receiptLabel {
+  margin-bottom: 0.5rem;
+  font-size: var(--typography-size-xs);
+  font-weight: var(--typography-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-neutral-400);
+}
+.receiptImg {
+  max-height: 20rem;
+  width: 100%;
+  border-radius: var(--radius-lg);
+  object-fit: contain;
+}
+.receiptEmpty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 10rem;
+  font-size: var(--typography-size-sm);
+  color: var(--color-neutral-400);
+}
+
+.fieldsCard {
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-neutral-200);
+  background: white;
+  padding: 1.5rem;
+}
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--color-neutral-100);
+  padding-bottom: 0.5rem;
+}
+.row:last-child { border-bottom: none; padding-bottom: 0; }
+.rowLabel { font-size: var(--typography-size-sm); color: var(--color-neutral-500); }
+.rowValue { font-size: var(--typography-size-sm); font-weight: var(--typography-weight-medium); color: var(--color-neutral-900); }
+
+.aiFlags {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  border-radius: var(--radius-lg);
+  background: var(--color-warning-50);
+  padding: 0.75rem;
+}
+.aiFlagsTitle { font-size: var(--typography-size-xs); font-weight: var(--typography-weight-semibold); color: var(--color-warning-700); }
+.aiFlagItem   { font-size: var(--typography-size-xs); color: var(--color-warning-600); }
+
+.btnSubmit {
+  width: 100%;
+  border-radius: var(--radius-lg);
+  background: var(--color-primary-600);
+  padding: 0.75rem;
+  font-weight: var(--typography-weight-semibold);
+  color: white;
+  transition: background var(--transition-fast);
+}
+.btnSubmit:hover { background: var(--color-primary-700); }

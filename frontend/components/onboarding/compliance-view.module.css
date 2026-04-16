@@ -1,0 +1,60 @@
+.iconWrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+  background: var(--color-success-50);
+  color: var(--color-success-700);
+}
+
+.title {
+  font-size: var(--typography-size-2xl);
+  font-weight: var(--typography-weight-bold);
+  color: var(--color-neutral-900);
+}
+
+.subtitle {
+  font-size: var(--typography-size-sm);
+  color: var(--color-neutral-500);
+}
+
+.scrollArea {
+  height: 12rem;
+  overflow-y: auto;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-neutral-200);
+  background: var(--color-neutral-50);
+  padding: 1rem;
+  font-size: var(--typography-size-sm);
+  line-height: 1.625;
+  color: var(--color-neutral-600);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
+}
+
+.sectionTitle {
+  margin-bottom: 0.5rem;
+  font-weight: var(--typography-weight-bold);
+  color: var(--color-neutral-900);
+}
+
+.checkboxSection {
+  background: white;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-top: 1px solid var(--color-neutral-100);
+  background: var(--color-neutral-50);
+}
+
+.footerIcon { color: var(--color-success-500); }
+
+.footerText {
+  font-size: var(--typography-size-xs);
+  font-weight: var(--typography-weight-medium);
+  color: var(--color-neutral-500);
+}

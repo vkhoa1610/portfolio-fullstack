@@ -116,6 +116,30 @@
   --breakpoint-lg: 1024px;
   --breakpoint-xl: 1280px;
   --breakpoint-2xl: 1536px;
+
+  /* ── Sidebar / Navbar ("The Financial Editor") ── */
+  --color-sidebar-bg: #f5f2ff;
+  --color-navbar-bg: #fcf8ff;
+  --color-nav-muted: #9592b8;
+  --color-nav-hover: #e6e2f8;
+  --color-nav-active-bg: #e0e7ff;
+  --color-nav-active-text: #3730a3;
+  --color-brand-primary: #4244db;
+  --color-sidebar-border: #ece8fb;
+
+  /* ── Extended success/warning/error shades ── */
+  --color-success-100: #dcfce7;
+  --color-success-200: #bbf7d0;
+  --color-warning-100: #fef9c3;
+  --color-warning-200: #fde68a;
+  --color-error-100: #fee2e2;
+  --color-error-200: #fecaca;
+  --color-info-100: #dbeafe;
+  --color-info-200: #bfdbfe;
+  --color-success-800: #166534;
+  --color-warning-800: #854d0e;
+  --color-error-800: #991b1b;
+  --color-info-800: #1e40af;
 }
 
 /* Dark mode support */

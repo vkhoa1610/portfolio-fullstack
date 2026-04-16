@@ -7,6 +7,7 @@ import { Camera, Calendar, Car, ChevronRight, AlertTriangle } from "lucide-react
 import { useGetManagerQueueQuery } from "@/ducks/expenses";
 import type { Expense } from "@/ducks/expenses";
 import { useAuth } from "@/common/context/AuthContext";
+import styles from "./approvals-view.module.css";
 
 const TYPE_ICON = { RECEIPT: Camera, PER_DIEM: Calendar, MILEAGE: Car };
 
@@ -27,21 +28,21 @@ export default function ApprovalsView() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-neutral-900">{t("manager.approvals.title")}</h2>
-          <p className="text-sm text-neutral-500">{t("manager.approvals.subtitle")}</p>
+          <h2 className={styles.title}>{t("manager.approvals.title")}</h2>
+          <p className={styles.subtitle}>{t("manager.approvals.subtitle")}</p>
         </div>
-        <span className="rounded-full bg-warning-100 px-3 py-1 text-sm font-semibold text-warning-700">
+        <span className={styles.pendingBadge}>
           {t("manager.approvals.pending_count", { count: expenses.length })}
         </span>
       </div>
 
       {isLoading ? (
         <div className="flex h-40 items-center justify-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-200 border-t-primary-600" />
+          <div className={styles.spinner} />
         </div>
       ) : expenses.length === 0 ? (
-        <div className="flex h-40 flex-col items-center justify-center rounded-xl border border-dashed border-neutral-300 text-neutral-400">
-          <p className="text-sm">{t("manager.approvals.empty")}</p>
+        <div className={styles.emptyState}>
+          <p>{t("manager.approvals.empty")}</p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -64,20 +65,17 @@ function ApprovalRow({ expense, onClick }: { expense: Expense; onClick: () => vo
   const label = expense.title || expense.vendorName || expense.type;
 
   return (
-    <button
-      onClick={onClick}
-      className="flex w-full items-center gap-4 rounded-xl border border-neutral-200 bg-white p-4 text-left shadow-sm transition-all hover:border-primary-300 hover:shadow-md"
-    >
-      <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-neutral-100">
-        <Icon className="h-5 w-5 text-neutral-600" />
+    <button onClick={onClick} className={styles.row}>
+      <div className={styles.rowIconWrapper}>
+        <Icon className="h-5 w-5" />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="truncate font-medium text-neutral-900">{label}</p>
-        <p className="text-xs text-neutral-500">{expense.submittedAt?.slice(0, 10)}</p>
+        <p className={`truncate ${styles.rowLabel}`}>{label}</p>
+        <p className={styles.rowDate}>{expense.submittedAt?.slice(0, 10)}</p>
       </div>
       <div className="flex items-center gap-3">
         {hasFlags && <AlertTriangle className="h-4 w-4 text-warning-500" />}
-        <span className="font-semibold text-neutral-900">
+        <span className={styles.rowAmount}>
           {expense.amount != null ? `${expense.amount.toFixed(2)} €` : "—"}
         </span>
         <ChevronRight className="h-4 w-4 text-neutral-400" />

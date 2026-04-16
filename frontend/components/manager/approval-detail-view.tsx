@@ -11,6 +11,7 @@ import {
 } from "@/ducks/expenses";
 import { useAuth } from "@/common/context/AuthContext";
 import { useGetScreenConfigQuery } from "@/ducks/cms/cmsApi";
+import styles from "./approval-detail-view.module.css";
 import { ScreenConfigSchema } from "@/lib/cms/schema";
 import { CmsNode, type RenderContext } from "@/lib/cms/renderNode";
 
@@ -35,7 +36,7 @@ export default function ApprovalDetailView({ id }: { id: number }) {
   if (isLoading || isConfigLoading) {
     return (
       <div className="flex h-40 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-200 border-t-primary-600" />
+        <div className={styles.spinner} />
       </div>
     );
   }
@@ -88,25 +89,19 @@ export default function ApprovalDetailView({ id }: { id: number }) {
   return (
     <div className="mx-auto w-full max-w-2xl space-y-4">
       {/* Static header — always shown */}
-      <div className="mb-2">
-        <h2 className="text-xl font-bold text-neutral-900">
-          {t("manager.approvals.detail_title")}
-        </h2>
-        <p className="text-sm text-neutral-500">
-          {t("manager.approvals.detail_subtitle")}
-        </p>
+      <div className={styles.header}>
+        <h2 className={styles.headerTitle}>{t("manager.approvals.detail_title")}</h2>
+        <p className={styles.headerSubtitle}>{t("manager.approvals.detail_subtitle")}</p>
       </div>
 
       {/* AI Flags — static, not CMS-driven */}
       {aiFlags.length > 0 && (
-        <div className="flex items-start gap-3 rounded-xl border border-warning-200 bg-warning-50 p-4">
-          <AlertTriangle className="mt-0.5 h-5 w-5 text-warning-600" />
+        <div className={styles.aiFlags}>
+          <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-warning-600" />
           <div>
-            <p className="font-semibold text-warning-700">
-              {t("manager.approvals.ai_warnings")}
-            </p>
+            <p className={styles.aiFlagsTitle}>{t("manager.approvals.ai_warnings")}</p>
             {aiFlags.map((f, i) => (
-              <p key={i} className="text-sm text-warning-600">{f}</p>
+              <p key={i} className={styles.aiFlagItem}>{f}</p>
             ))}
           </div>
         </div>
@@ -159,7 +154,7 @@ function StaticFallback({
 
   return (
     <>
-      <div className="rounded-xl border border-neutral-200 bg-white p-5 space-y-3">
+      <div className={`space-y-3 ${styles.fieldsCard}`}>
         <Row label={t("expense.detail.field_type")} value={expense.type} />
         <Row
           label={t("expense.detail.field_amount")}
@@ -175,35 +170,32 @@ function StaticFallback({
       </div>
 
       {activeFormId === "reject-form" ? (
-        <div className="rounded-xl border border-error-200 bg-error-50 p-4 space-y-3">
-          <p className="font-semibold text-error-700">{t("manager.rejection_reason")}</p>
+        <div className={`space-y-3 ${styles.rejectPanel}`}>
+          <p className={styles.rejectTitle}>{t("manager.rejection_reason")}</p>
           <textarea
             value={reason}
             onChange={(e) => onFormChange("txt-reason", e.target.value)}
             placeholder={t("manager.approvals.reject_placeholder")}
             rows={3}
-            className="w-full rounded-lg border border-error-300 px-3 py-2 text-sm focus:outline-none"
+            className={styles.rejectTextarea}
           />
           <button
             onClick={actionHandlers["EXPENSE_REJECT_SUBMIT"]}
             disabled={isRejecting || !reason.trim()}
-            className="w-full rounded-lg bg-error-600 py-2 text-sm font-semibold text-white hover:bg-error-700 disabled:opacity-60"
+            className={styles.btnRejectConfirm}
           >
             {t("manager.btn.confirm_reject")}
           </button>
         </div>
       ) : (
         <div className="flex gap-3">
-          <button
-            onClick={actionHandlers["EXPENSE_REJECT"]}
-            className="flex-1 rounded-lg border border-error-300 py-3 text-sm font-semibold text-error-600 hover:bg-error-50"
-          >
+          <button onClick={actionHandlers["EXPENSE_REJECT"]} className={styles.btnReject}>
             {t("manager.btn.reject")}
           </button>
           <button
             onClick={actionHandlers["EXPENSE_ACCEPT"]}
             disabled={isApproving}
-            className="flex-1 rounded-lg bg-success-600 py-3 text-sm font-semibold text-white hover:bg-success-700 disabled:opacity-60"
+            className={styles.btnApprove}
           >
             {t("manager.btn.accept")}
           </button>
@@ -215,9 +207,9 @@ function StaticFallback({
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex justify-between border-b border-neutral-100 pb-2 last:border-0 last:pb-0">
-      <span className="text-sm text-neutral-500">{label}</span>
-      <span className="text-sm font-medium text-neutral-900">{value}</span>
+    <div className={styles.row}>
+      <span className={styles.rowLabel}>{label}</span>
+      <span className={styles.rowValue}>{value}</span>
     </div>
   );
 }

@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "@/common/context/AuthContext";
 import { useLogoutMutation } from "@/ducks/auth/authApi";
 import { useGetManagerQueueQuery } from "@/ducks/expenses";
+import styles from "./Sidebar.module.css";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -74,11 +75,7 @@ const ADMIN_NAV = [
 function ApprovalBadge() {
   const { data: queue = [] } = useGetManagerQueueQuery();
   if (queue.length === 0) return null;
-  return (
-    <span className="rounded-full bg-red-100 px-1.5 py-0.5 text-[10px] font-semibold text-red-600">
-      {queue.length}
-    </span>
-  );
+  return <span className={styles.approvalBadge}>{queue.length}</span>;
 }
 
 function MIcon({ name, size = 18 }: { name: string; size?: number }) {
@@ -121,43 +118,24 @@ export default function Sidebar() {
   const initial = (session?.user.email[0] ?? "?").toUpperCase();
   const displayRole = isAdmin ? "Admin" : role ? role.charAt(0) + role.slice(1).toLowerCase() : "";
 
-  const navItemClass = (isActive: boolean, extraCollapsed?: boolean) =>
-    `flex items-center gap-3 rounded-full py-2 text-sm font-medium transition-colors
-    ${extraCollapsed ?? collapsed ? "justify-center px-2" : "px-3"}
-    ${isActive
-      ? "bg-indigo-100 text-indigo-800"
-      : "text-[#4e4c6a] hover:bg-[#e6e2f8] hover:text-[#4244db]"
-    }`;
-
   return (
     <aside
-      className={`relative z-20 hidden flex-col md:flex overflow-hidden transition-[width] duration-300 ease-in-out bg-[#f5f2ff] ${
-        collapsed ? "w-16" : "w-64"
-      }`}
+      className={`${styles.sidebar} ${collapsed ? styles.sidebarCollapsed : styles.sidebarExpanded}`}
     >
       {/* Brand / Logo */}
-      <div
-        className={`flex h-16 shrink-0 items-center ${
-          collapsed ? "justify-center px-0" : "gap-3 px-5"
-        }`}
-      >
-        <div className="h-8 w-8 shrink-0 rounded-xl bg-[#4244db] flex items-center justify-center">
-          <span className="text-white text-xs font-bold" style={{ fontFamily: "Manrope, sans-serif" }}>F</span>
+      <div className={`${styles.brand} ${collapsed ? styles.brandCollapsed : styles.brandExpanded}`}>
+        <div className={styles.brandLogo}>
+          <span className={styles.brandLogoText}>F</span>
         </div>
         {!collapsed && (
           <>
             <div className="min-w-0 flex-1">
-              <p
-                className="text-sm font-bold text-[#4244db] leading-tight"
-                style={{ fontFamily: "Manrope, sans-serif" }}
-              >
-                FintechSaaS
-              </p>
-              <p className="text-[10px] text-[#9592b8] leading-tight">Expense Platform</p>
+              <p className={styles.brandName}>FintechSaaS</p>
+              <p className={styles.brandTagline}>Expense Platform</p>
             </div>
             <button
               onClick={() => setCollapsed(true)}
-              className="rounded-full p-1 text-[#9592b8] hover:bg-[#e6e2f8] transition-colors"
+              className={styles.collapseBtn}
               title="Collapse sidebar"
             >
               <MIcon name="chevron_left" size={18} />
@@ -167,7 +145,7 @@ export default function Sidebar() {
         {collapsed && (
           <button
             onClick={() => setCollapsed(false)}
-            className="rounded-full p-1 text-[#9592b8] hover:bg-[#e6e2f8] transition-colors"
+            className={styles.collapseBtn}
             title="Expand sidebar"
           >
             <MIcon name="chevron_right" size={18} />
@@ -180,9 +158,7 @@ export default function Sidebar() {
         {isAdmin ? (
           <div>
             {!collapsed && (
-              <p className="px-3 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-wider text-[#9592b8]">
-                {t("nav.group_admin")}
-              </p>
+              <p className={styles.groupLabel}>{t("nav.group_admin")}</p>
             )}
             <div className="space-y-0.5">
               {ADMIN_NAV.map((item) => {
@@ -194,7 +170,7 @@ export default function Sidebar() {
                     key={item.href}
                     href={item.href}
                     title={collapsed ? t(item.label) : undefined}
-                    className={navItemClass(isActive)}
+                    className={`${styles.navItem} ${isActive ? styles.navItemActive : ""} ${collapsed ? styles.navItemCollapsed : ""}`}
                   >
                     <MIcon name={item.icon} size={18} />
                     {!collapsed && (
@@ -211,13 +187,11 @@ export default function Sidebar() {
             if (visibleItems.length === 0) return null;
 
             return (
-              <div key={group.label} className={collapsed ? "mb-3" : "mb-3"}>
+              <div key={group.label} className="mb-3">
                 {!collapsed && (
-                  <p className="px-3 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-wider text-[#9592b8]">
-                    {t(group.label)}
-                  </p>
+                  <p className={styles.groupLabel}>{t(group.label)}</p>
                 )}
-                {collapsed && <div className="my-2 mx-3 border-t border-[#ddd8f5]" />}
+                {collapsed && <div className={styles.groupDivider} />}
                 <div className="space-y-0.5">
                   {visibleItems.map((item) => {
                     const isActive = pathname.startsWith(item.href);
@@ -227,16 +201,13 @@ export default function Sidebar() {
                         <div
                           key={item.href}
                           title={collapsed ? t(item.label) : undefined}
-                          className={`flex cursor-not-allowed items-center gap-3 rounded-full py-2 text-sm font-medium text-[#c0bcdb]
-                            ${collapsed ? "justify-center px-2" : "px-3"}`}
+                          className={`${styles.navItemDisabled} ${collapsed ? styles.navItemDisabledCollapsed : ""}`}
                         >
                           <MIcon name={item.icon} size={18} />
                           {!collapsed && (
                             <>
                               <span className="flex-1">{t(item.label)}</span>
-                              <span className="rounded-full bg-[#ece8fb] px-1.5 py-0.5 text-[10px] text-[#9592b8]">
-                                soon
-                              </span>
+                              <span className={styles.soonBadge}>soon</span>
                             </>
                           )}
                         </div>
@@ -248,7 +219,7 @@ export default function Sidebar() {
                         key={item.href}
                         href={item.href}
                         title={collapsed ? t(item.label) : undefined}
-                        className={navItemClass(isActive)}
+                        className={`${styles.navItem} ${isActive ? styles.navItemActive : ""} ${collapsed ? styles.navItemCollapsed : ""}`}
                       >
                         <MIcon name={item.icon} size={18} />
                         {!collapsed && (
@@ -268,44 +239,26 @@ export default function Sidebar() {
       </nav>
 
       {/* User footer */}
-      <div className="shrink-0 p-3">
-        <div
-          className={`rounded-2xl ${
-            collapsed ? "flex flex-col items-center gap-2 py-2" : "bg-white/60 backdrop-blur-sm p-3"
-          }`}
-        >
-          {collapsed ? (
-            <>
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#4244db]/10 text-xs font-bold text-[#4244db]">
-                {initial}
-              </div>
-              <button
-                onClick={handleLogout}
-                className="text-[#9592b8] transition-colors hover:text-red-500"
-                title="Logout"
-              >
-                <MIcon name="logout" size={18} />
-              </button>
-            </>
-          ) : (
-            <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#4244db]/10 text-sm font-bold text-[#4244db]">
-                {initial}
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-[#2d2b4e]">{session?.user.email}</p>
-                <p className="text-xs capitalize text-[#9592b8]">{displayRole}</p>
-              </div>
-              <button
-                onClick={handleLogout}
-                className="shrink-0 text-[#9592b8] transition-colors hover:text-red-500"
-                title="Logout"
-              >
-                <MIcon name="logout" size={18} />
-              </button>
+      <div className={styles.userFooter}>
+        {collapsed ? (
+          <div className={styles.userCardCollapsed}>
+            <div className={`${styles.avatar} ${styles.avatarSm}`}>{initial}</div>
+            <button onClick={handleLogout} className={styles.logoutBtn} title="Logout">
+              <MIcon name="logout" size={18} />
+            </button>
+          </div>
+        ) : (
+          <div className={`flex items-center gap-3 ${styles.userCard}`}>
+            <div className={`flex-shrink-0 ${styles.avatar} ${styles.avatarMd}`}>{initial}</div>
+            <div className="min-w-0 flex-1">
+              <p className={`truncate ${styles.userEmail}`}>{session?.user.email}</p>
+              <p className={styles.userRole}>{displayRole}</p>
             </div>
-          )}
-        </div>
+            <button onClick={handleLogout} className={`flex-shrink-0 ${styles.logoutBtn}`} title="Logout">
+              <MIcon name="logout" size={18} />
+            </button>
+          </div>
+        )}
       </div>
     </aside>
   );

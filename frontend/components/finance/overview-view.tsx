@@ -6,6 +6,7 @@ import { Camera, Calendar, Car } from "lucide-react";
 import { useGetFinanceExpensesQuery } from "@/ducks/expenses";
 import { useAuth } from "@/common/context/AuthContext";
 import type { Expense, ExpenseStatus, ExpenseType } from "@/ducks/expenses";
+import styles from "./overview-view.module.css";
 
 // i18n key map for expense types
 const TYPE_I18N: Record<ExpenseType, string> = {
@@ -14,25 +15,20 @@ const TYPE_I18N: Record<ExpenseType, string> = {
   MILEAGE: "finance.overview.type_mileage",
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Constants
-// ─────────────────────────────────────────────────────────────────────────────
-
-const STATUS_BADGE: Record<ExpenseStatus, string> = {
-  DRAFT: "bg-neutral-100 text-neutral-600",
-  PENDING_REVIEW: "bg-warning-100 text-warning-700",
-  APPROVED: "bg-success-100 text-success-700",
-  REJECTED: "bg-error-100 text-error-700",
-  PAID: "bg-primary-100 text-primary-700",
+const STATUS_CLASS: Record<ExpenseStatus, string> = {
+  DRAFT: styles.statusDraft,
+  PENDING_REVIEW: styles.statusPendingReview,
+  APPROVED: styles.statusApproved,
+  REJECTED: styles.statusRejected,
+  PAID: styles.statusPaid,
 };
 
 const TYPE_ICON = { RECEIPT: Camera, PER_DIEM: Calendar, MILEAGE: Car };
 
-
-const TYPE_COLOR: Record<ExpenseType, string> = {
-  RECEIPT: "bg-primary-500",
-  PER_DIEM: "bg-secondary-500",
-  MILEAGE: "bg-warning-500",
+const TYPE_BAR_CLASS: Record<ExpenseType, string> = {
+  RECEIPT: styles.barFillReceipt,
+  PER_DIEM: styles.barFillPerDiem,
+  MILEAGE: styles.barFillMileage,
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -92,7 +88,7 @@ export default function FinanceOverviewView() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-neutral-900">{t("finance.overview.title")}</h2>
+      <h2 className={styles.title}>{t("finance.overview.title")}</h2>
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
@@ -104,34 +100,34 @@ export default function FinanceOverviewView() {
 
       {/* Budget Utilization */}
       {budget > 0 && (
-        <div className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">
+        <div className={styles.panel}>
           <div className="mb-3 flex items-center justify-between">
-            <p className="font-semibold text-neutral-900">{t("finance.overview.budget_title")}</p>
+            <p className={styles.panelTitle}>{t("finance.overview.budget_title")}</p>
             <span className="text-sm text-neutral-500">
               {totalSpend.toFixed(0)} € / {budget.toFixed(0)} €
             </span>
           </div>
-          <div className="h-3 w-full overflow-hidden rounded-full bg-neutral-100">
+          <div className={styles.budgetBar}>
             <div
-              className={`h-full rounded-full transition-all duration-500 ${
+              className={`${styles.budgetFill} ${
                 budgetUsedPct > 90
-                  ? "bg-error-500"
+                  ? styles.budgetFillDanger
                   : budgetUsedPct > 70
-                    ? "bg-warning-500"
-                    : "bg-success-500"
+                    ? styles.budgetFillWarning
+                    : ""
               }`}
               style={{ width: `${budgetUsedPct}%` }}
             />
           </div>
-          <p className="mt-1 text-right text-xs text-neutral-400">{t("finance.overview.budget_used_pct", { pct: budgetUsedPct.toFixed(1) })}</p>
+          <p className={styles.budgetNote}>{t("finance.overview.budget_used_pct", { pct: budgetUsedPct.toFixed(1) })}</p>
         </div>
       )}
 
       {/* Analytics Row */}
       <div className="grid gap-4 md:grid-cols-2">
         {/* Spend by Category */}
-        <div className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">
-          <p className="mb-4 font-semibold text-neutral-900">{t("finance.overview.chart_by_category")}</p>
+        <div className={styles.panel}>
+          <p className={`mb-4 ${styles.panelTitle}`}>{t("finance.overview.chart_by_category")}</p>
           {isLoading ? (
             <Spinner />
           ) : (
@@ -150,9 +146,9 @@ export default function FinanceOverviewView() {
                         {data.total.toFixed(2)} €
                       </span>
                     </div>
-                    <div className="h-2 w-full overflow-hidden rounded-full bg-neutral-100">
+                    <div className={styles.barTrack}>
                       <div
-                        className={`h-full rounded-full transition-all duration-500 ${TYPE_COLOR[type]}`}
+                        className={`${styles.barFill} ${TYPE_BAR_CLASS[type]}`}
                         style={{ width: `${pct}%` }}
                       />
                     </div>
@@ -164,8 +160,8 @@ export default function FinanceOverviewView() {
         </div>
 
         {/* Spend by Month */}
-        <div className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">
-          <p className="mb-4 font-semibold text-neutral-900">{t("finance.overview.chart_by_month")}</p>
+        <div className={styles.panel}>
+          <p className={`mb-4 ${styles.panelTitle}`}>{t("finance.overview.chart_by_month")}</p>
           {isLoading ? (
             <Spinner />
           ) : byMonth.length === 0 ? (
@@ -176,18 +172,15 @@ export default function FinanceOverviewView() {
                 const pct = (total / maxMonthTotal) * 100;
                 const label = month.slice(5); // "MM"
                 return (
-                  <div key={month} className="group flex flex-1 flex-col items-center gap-1">
+                  <div key={month} className={`group flex flex-1 flex-col items-center gap-1 ${styles.monthGroup}`}>
                     <div className="relative w-full" style={{ height: "7rem" }}>
                       <div className="absolute inset-x-0 bottom-0 overflow-hidden rounded-t bg-neutral-100" style={{ height: "7rem" }}>
                         <div
-                          className="absolute inset-x-0 bottom-0 rounded-t bg-primary-500 transition-all duration-500"
+                          className={`absolute inset-x-0 bottom-0 rounded-t ${styles.monthBar}`}
                           style={{ height: `${pct}%` }}
                         />
                       </div>
-                      {/* Tooltip */}
-                      <div className="pointer-events-none absolute -top-6 left-1/2 hidden -translate-x-1/2 whitespace-nowrap rounded bg-neutral-800 px-1.5 py-0.5 text-[10px] text-white group-hover:block">
-                        {total.toFixed(0)} €
-                      </div>
+                      <div className={styles.monthTooltip}>{total.toFixed(0)} €</div>
                     </div>
                     <span className="text-[10px] text-neutral-400">{label}</span>
                   </div>
@@ -199,9 +192,9 @@ export default function FinanceOverviewView() {
       </div>
 
       {/* All Expenses Table */}
-      <div className="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm">
-        <div className="flex items-center justify-between border-b border-neutral-100 px-5 py-3">
-          <p className="font-semibold text-neutral-900">{t("finance.overview.table_title")}</p>
+      <div className={styles.tableContainer}>
+        <div className={styles.tableHeader}>
+          <p className={styles.tableHeaderTitle}>{t("finance.overview.table_title")}</p>
         </div>
 
         {isLoading ? (
@@ -212,7 +205,7 @@ export default function FinanceOverviewView() {
           <p className="p-6 text-center text-sm text-neutral-400">{t("finance.overview.table_empty")}</p>
         ) : (
           <table className="w-full text-sm">
-            <thead className="bg-neutral-50 text-xs uppercase text-neutral-500">
+            <thead className={styles.thead}>
               <tr>
                 <th className="px-5 py-3 text-left">{t("finance.overview.col_type")}</th>
                 <th className="px-5 py-3 text-left">{t("finance.overview.col_title")}</th>
@@ -246,17 +239,17 @@ function KpiCard({
   value: string;
   accent?: "warning" | "success" | "primary";
 }) {
-  const colorMap = {
-    warning: "text-warning-600",
-    success: "text-success-600",
-    primary: "text-primary-600",
-  };
+  const accentClass = accent === "warning"
+    ? styles.kpiValueWarning
+    : accent === "success"
+      ? styles.kpiValueSuccess
+      : accent === "primary"
+        ? styles.kpiValuePrimary
+        : "";
   return (
-    <div className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
-      <p className="text-xs text-neutral-500">{label}</p>
-      <p className={`mt-1 text-2xl font-bold ${accent ? colorMap[accent] : "text-neutral-900"}`}>
-        {value}
-      </p>
+    <div className={styles.kpiCard}>
+      <p className={styles.kpiLabel}>{label}</p>
+      <p className={`${styles.kpiValue} ${accentClass}`}>{value}</p>
     </div>
   );
 }
@@ -264,21 +257,19 @@ function KpiCard({
 function ExpenseRow({ expense }: { expense: Expense }) {
   const Icon = TYPE_ICON[expense.type] ?? Camera;
   return (
-    <tr className="border-t border-neutral-100 hover:bg-neutral-50">
+    <tr className={styles.tr}>
       <td className="px-5 py-3">
         <Icon className="h-4 w-4 text-neutral-500" />
       </td>
-      <td className="max-w-[180px] truncate px-5 py-3 font-medium text-neutral-900">
+      <td className={`max-w-[180px] truncate px-5 py-3 ${styles.trTitle}`}>
         {expense.title || expense.vendorName || "—"}
       </td>
       <td className="px-5 py-3">
         {expense.amount != null ? `${expense.amount.toFixed(2)} €` : "—"}
       </td>
-      <td className="px-5 py-3 text-neutral-500">{expense.submittedAt?.slice(0, 10) ?? "—"}</td>
+      <td className={`px-5 py-3 ${styles.trMuted}`}>{expense.submittedAt?.slice(0, 10) ?? "—"}</td>
       <td className="px-5 py-3">
-        <span
-          className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_BADGE[expense.status]}`}
-        >
+        <span className={`${styles.badge} ${STATUS_CLASS[expense.status]}`}>
           {expense.status.replace(/_/g, " ")}
         </span>
       </td>
@@ -289,7 +280,7 @@ function ExpenseRow({ expense }: { expense: Expense }) {
 function Spinner() {
   return (
     <div className="flex h-16 items-center justify-center">
-      <div className="h-6 w-6 animate-spin rounded-full border-4 border-primary-200 border-t-primary-600" />
+      <div className={styles.spinner} />
     </div>
   );
 }
