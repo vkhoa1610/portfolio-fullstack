@@ -70,9 +70,10 @@ public class ExpenseController extends BaseController {
         return ok(Map.of("viewUrl", storageService.generateViewUrl(fileUrl)));
     }
 
-    /** POST /api/v1/expenses/scan — Mock OCR (fileUrl ignored for now, returns test data) */
+    /** POST /api/v1/expenses/scan — Groq Vision OCR, fallback to mock on error */
     @PostMapping("/scan")
     public ResponseEntity<ScanResponseDto> scan(@RequestBody(required = false) Map<String, String> body) {
-        return ok(expenseService.mockScan());
+        String fileUrl = body != null ? body.get("fileUrl") : null;
+        return ok(expenseService.scan(fileUrl));
     }
 }

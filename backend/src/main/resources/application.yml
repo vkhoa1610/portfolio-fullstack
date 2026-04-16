@@ -48,6 +48,7 @@ eureka:
 groq:
   base-url: https://api.groq.com/openai
   model: ${GROQ_MODEL:llama-3.3-70b-versatile}
+  vision-model: ${GROQ_VISION_MODEL:llama-3.2-11b-vision-preview}
   api-key: ${GROQ_API_KEY:}
 
 logging:

@@ -33,6 +33,9 @@ public class GroqClient {
     @Value("${groq.model:llama-3.3-70b-versatile}")
     private String model;
 
+    @Value("${groq.vision-model:llama-3.2-11b-vision-preview}")
+    private String visionModel;
+
     @Value("${groq.api-key}")
     private String apiKey;
 
@@ -105,6 +108,60 @@ public class GroqClient {
 
         log.info("Groq response received ({} chars)", content.length());
         log.debug("Groq response:\n{}", content);
+        return content;
+    }
+
+    /**
+     * Send an image URL + text prompt to Groq Vision.
+     * Uses vision-capable model (llama-3.2-11b-vision-preview).
+     * Image must be publicly accessible (e.g. presigned GET URL from B2/S3).
+     *
+     * Free tier: 7,000 requests/day — fine for receipt scanning.
+     */
+    public String chatWithVision(String imageUrl, String textPrompt) throws Exception {
+        // Vision message format: content is an array with image_url + text objects
+        List<Map<String, Object>> contentParts = List.of(
+                Map.of("type", "image_url", "image_url", Map.of("url", imageUrl)),
+                Map.of("type", "text", "text", textPrompt)
+        );
+
+        List<Map<String, Object>> messages = List.of(
+                Map.of("role", "user", "content", contentParts)
+        );
+
+        Map<String, Object> requestBody = Map.of(
+                "model",    visionModel,
+                "messages", messages,
+                "stream",   false
+        );
+
+        String jsonBody = objectMapper.writeValueAsString(requestBody);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(baseUrl + "/v1/chat/completions"))
+                .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " + apiKey)
+                .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
+                .timeout(Duration.ofSeconds(30))
+                .build();
+
+        log.info("Calling Groq vision model={}", visionModel);
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() != 200) {
+            throw new RuntimeException("Groq Vision returned HTTP " + response.statusCode() + ": " + response.body());
+        }
+
+        JsonNode root = objectMapper.readTree(response.body());
+        String content = root.path("choices").path(0).path("message").path("content").asText();
+
+        if (content.isBlank()) {
+            throw new RuntimeException("Groq Vision returned empty content");
+        }
+
+        log.info("Groq vision response received ({} chars)", content.length());
+        log.debug("Groq vision response:\n{}", content);
         return content;
     }
 }
