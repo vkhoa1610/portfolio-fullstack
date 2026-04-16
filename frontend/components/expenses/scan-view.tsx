@@ -98,8 +98,8 @@ export default function ScanView() {
 
       {!scanResult ? (
         /* ── Upload Area ── */
-        <label className="flex h-64 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-neutral-300 bg-neutral-50 transition-colors hover:border-primary-400 hover:bg-primary-50">
-          <input ref={fileRef} type="file" accept="image/*,.pdf" className="hidden" onChange={handleFileChange} />
+        <label className={`flex h-64 flex-col items-center justify-center rounded-xl border-2 border-dashed transition-colors ${isProcessing ? "cursor-not-allowed border-neutral-200 bg-neutral-100" : "cursor-pointer border-neutral-300 bg-neutral-50 hover:border-primary-400 hover:bg-primary-50"}`}>
+          <input ref={fileRef} type="file" accept="image/*,.pdf" className="hidden" onChange={handleFileChange} disabled={isProcessing} />
           {isProcessing ? (
             <div className="flex flex-col items-center gap-2">
               <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary-200 border-t-primary-600" />
