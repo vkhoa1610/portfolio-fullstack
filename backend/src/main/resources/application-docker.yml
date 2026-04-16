@@ -18,5 +18,5 @@ spring:
 groq:
   base-url: https://api.groq.com/openai
   model: ${GROQ_MODEL:llama-3.3-70b-versatile}
-  vision-model: ${GROQ_VISION_MODEL:llama-3.2-11b-vision-preview}
+  vision-model: ${GROQ_VISION_MODEL:meta-llama/llama-4-scout-17b-16e-instruct}
   api-key: ${GROQ_API_KEY}
