@@ -1,0 +1,293 @@
+/* ── Page wrapper ─────────────────────────────────── */
+.page {
+  width: 100%;
+  max-width: 1100px;
+}
+
+/* ── Header ──────────────────────────────────────── */
+.header {
+  margin-bottom: 2.5rem;
+}
+
+.headline {
+  font-size: 2.25rem;
+  font-weight: 800;
+  line-height: 1.15;
+  color: var(--color-neutral-900);
+  letter-spacing: -0.02em;
+  margin-bottom: 0.75rem;
+}
+
+.headlineAccent {
+  color: var(--color-primary-600);
+}
+
+.subheadline {
+  font-size: 1rem;
+  color: var(--color-neutral-500);
+  max-width: 540px;
+  line-height: 1.6;
+}
+
+/* ── Grid ────────────────────────────────────────── */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  align-items: stretch;
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: 7fr 5fr;
+  }
+}
+
+/* ── Receipt card ────────────────────────────────── */
+.receiptCard {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: #ffffff;
+  border-radius: 2rem;
+  padding: 2.25rem;
+  border: 1px solid var(--color-neutral-100);
+  text-align: left;
+  cursor: pointer;
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
+  min-height: 340px;
+}
+
+.receiptCard:hover {
+  box-shadow: 0 20px 40px rgba(90, 103, 216, 0.12);
+}
+
+.receiptCard:active {
+  transform: scale(0.99);
+}
+
+.receiptContent {
+  position: relative;
+  z-index: 1;
+}
+
+.receiptIconWrap {
+  width: 64px;
+  height: 64px;
+  border-radius: 1rem;
+  background: var(--color-primary-100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary-600);
+  margin-bottom: 2rem;
+  transition: transform 0.4s ease;
+}
+
+.receiptCard:hover .receiptIconWrap {
+  transform: scale(1.1);
+}
+
+.receiptTitle {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: var(--color-neutral-900);
+  margin-bottom: 0.75rem;
+}
+
+.receiptDesc {
+  font-size: 0.9375rem;
+  color: var(--color-neutral-500);
+  line-height: 1.65;
+  max-width: 360px;
+}
+
+.receiptFooter {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-top: 3rem;
+}
+
+.uploadBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: var(--color-primary-600);
+  color: #ffffff;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  transition: opacity 0.2s;
+}
+
+.receiptCard:hover .uploadBtn {
+  opacity: 0.9;
+}
+
+.uploadFormats {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-neutral-400);
+}
+
+/* Subtle decorative bg element */
+.receiptBgDeco {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 45%;
+  height: 100%;
+  background: radial-gradient(ellipse at top right, var(--color-primary-50) 0%, transparent 70%);
+  pointer-events: none;
+  transition: transform 0.6s ease;
+}
+
+.receiptCard:hover .receiptBgDeco {
+  transform: translateX(8px);
+}
+
+/* ── Right column ────────────────────────────────── */
+.rightCol {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ── AI Tip card ─────────────────────────────────── */
+.aiTipCard {
+  background: rgba(90, 103, 216, 0.04);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 2rem;
+  padding: 2rem;
+  border-left: 4px solid #ba5700;
+  position: relative;
+  overflow: hidden;
+}
+
+.aiTipHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin-bottom: 1.25rem;
+  color: #944400;
+}
+
+.aiTipLabel {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.aiTipText {
+  font-size: 1.0625rem;
+  font-weight: 500;
+  font-style: italic;
+  color: var(--color-neutral-800);
+  line-height: 1.65;
+}
+
+.aiTipFooter {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.75rem;
+}
+
+.avatarStack {
+  display: flex;
+}
+
+.avatar {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 9999px;
+  border: 2px solid #ffffff;
+  background: var(--color-neutral-300);
+  margin-right: -0.5rem;
+}
+
+.avatar:last-child {
+  margin-right: 0;
+}
+
+.insightsLink {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  font-style: italic;
+  color: var(--color-neutral-500);
+  text-decoration: underline;
+  margin-left: 0.75rem;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.insightsLink:hover {
+  color: var(--color-primary-600);
+}
+
+/* ── Secondary cards grid ────────────────────────── */
+.secondaryGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+.secondaryCard {
+  background: #ffffff;
+  border-radius: 2rem;
+  padding: 1.5rem;
+  border: 1px solid var(--color-neutral-100);
+  text-align: left;
+  cursor: pointer;
+  transition: box-shadow 0.25s ease, transform 0.15s ease;
+}
+
+.secondaryCard:hover {
+  box-shadow: 0 12px 28px rgba(90, 103, 216, 0.1);
+}
+
+.secondaryCard:active {
+  transform: scale(0.97);
+}
+
+.secondaryIconWrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 0.875rem;
+  background: var(--color-neutral-100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-neutral-600);
+  margin-bottom: 1.25rem;
+  transition: background 0.25s, color 0.25s;
+}
+
+.secondaryCard:hover .secondaryIconWrap {
+  background: var(--color-primary-100);
+  color: var(--color-primary-600);
+}
+
+.secondaryTitle {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--color-neutral-900);
+  margin-bottom: 0.375rem;
+}
+
+.secondaryDesc {
+  font-size: 0.78125rem;
+  color: var(--color-neutral-500);
+  line-height: 1.55;
+}

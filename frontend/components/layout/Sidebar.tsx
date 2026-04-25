@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/common/context/AuthContext";
-import { useLogoutMutation } from "@/ducks/auth/authApi";
+
 import { useGetManagerQueueQuery } from "@/ducks/expenses";
 import styles from "./Sidebar.module.css";
 
@@ -99,24 +99,12 @@ function MIcon({ name, size = 18 }: { name: string; size?: number }) {
 export default function Sidebar() {
   const { t } = useTranslation();
   const pathname = usePathname();
-  const router = useRouter();
-  const { session, isAdmin, clearSession } = useAuth();
-  const [logout] = useLogoutMutation();
+  const { session, isAdmin } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
 
   const role = session?.user.role as UserRole | undefined;
 
-  const handleLogout = async () => {
-    try { await logout().unwrap(); } finally {
-      clearSession();
-      router.push("/auth/login");
-    }
-  };
-
   if (!role && !isAdmin) return null;
-
-  const initial = (session?.user.email[0] ?? "?").toUpperCase();
-  const displayRole = isAdmin ? "Admin" : role ? role.charAt(0) + role.slice(1).toLowerCase() : "";
 
   return (
     <aside
@@ -238,28 +226,6 @@ export default function Sidebar() {
         )}
       </nav>
 
-      {/* User footer */}
-      <div className={styles.userFooter}>
-        {collapsed ? (
-          <div className={styles.userCardCollapsed}>
-            <div className={`${styles.avatar} ${styles.avatarSm}`}>{initial}</div>
-            <button onClick={handleLogout} className={styles.logoutBtn} title="Logout">
-              <MIcon name="logout" size={18} />
-            </button>
-          </div>
-        ) : (
-          <div className={`flex items-center gap-3 ${styles.userCard}`}>
-            <div className={`flex-shrink-0 ${styles.avatar} ${styles.avatarMd}`}>{initial}</div>
-            <div className="min-w-0 flex-1">
-              <p className={`truncate ${styles.userEmail}`}>{session?.user.email}</p>
-              <p className={styles.userRole}>{displayRole}</p>
-            </div>
-            <button onClick={handleLogout} className={`flex-shrink-0 ${styles.logoutBtn}`} title="Logout">
-              <MIcon name="logout" size={18} />
-            </button>
-          </div>
-        )}
-      </div>
     </aside>
   );
 }
