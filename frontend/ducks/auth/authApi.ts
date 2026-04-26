@@ -2,6 +2,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import {
   LoginRequest,
   LoginResponse,
+  LoginSuccessResponse,
   MfaVerifyRequest,
   MfaVerifyResponse,
   SessionResponse,
@@ -121,6 +122,17 @@ export const authApi = createApi({
     getAvatarUploadUrl: builder.query<AvatarUploadUrlResponse, string>({
       query: (filename) => `/pro-003?filename=${encodeURIComponent(filename)}`,
     }),
+
+    // ─────────────────────────────────────────────────────────────────
+    // Demo Login - One-click login as a specific role (portfolio demo)
+    // ─────────────────────────────────────────────────────────────────
+    demoLogin: builder.mutation<LoginSuccessResponse, 'EMPLOYEE' | 'MANAGER' | 'FINANCE' | 'ADMIN'>({
+      query: (role) => ({
+        url: `/demo-001?role=${role}`,
+        method: 'POST',
+      }),
+      invalidatesTags: ['Session'],
+    }),
   }),
 });
 
@@ -136,4 +148,5 @@ export const {
   useGetProfileDetailQuery,
   useUpdateProfileMutation,
   useLazyGetAvatarUploadUrlQuery,
+  useDemoLoginMutation,
 } = authApi;

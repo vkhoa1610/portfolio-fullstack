@@ -1,6 +1,7 @@
 export const BFF_ENDPOINTS = {
   // ─── Common (auth + onboarding) ───────────────────────────────────
   COM_001: '/com-001',  // POST auth/login
+  DEMO_001: '/demo-001', // POST demo/login?role=EMPLOYEE|MANAGER|FINANCE|ADMIN
   COM_002: '/com-002',  // POST auth/mfa
   COM_003: '/com-003',  // POST auth/new-password
   COM_004: '/com-004',  // GET  auth/session

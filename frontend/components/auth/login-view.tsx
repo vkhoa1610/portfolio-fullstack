@@ -11,6 +11,7 @@ import { AdInput, AdButton, LanguageSwitcher } from "@/common";
 import { useAuth } from "@/common/context/AuthContext";
 import { useLoginMutation } from "@/ducks/auth/authApi";
 import { isMfaRequired, isLoginSuccess } from "@/ducks/auth/types";
+import DemoRoleCards from "./DemoRoleCards";
 
 export default function LoginView() {
   const { t } = useTranslation();
@@ -111,9 +112,19 @@ export default function LoginView() {
           </span>
         </div>
 
-        <div className="mb-8">
+        <div className="mb-6">
           <h1 className="mb-2 text-3xl font-bold text-neutral-900">{t("auth.login.title")}</h1>
           <p className="text-neutral-500">{t("auth.login.subtitle")}</p>
+        </div>
+
+        {/* Demo role cards */}
+        <DemoRoleCards />
+
+        {/* Divider */}
+        <div className="relative mb-5 flex items-center">
+          <div className="flex-grow border-t border-neutral-200" />
+          <span className="mx-4 flex-shrink-0 text-xs text-neutral-400">or sign in with your account</span>
+          <div className="flex-grow border-t border-neutral-200" />
         </div>
 
         {/* Error Message */}
