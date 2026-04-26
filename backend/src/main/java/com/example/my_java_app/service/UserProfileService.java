@@ -1,5 +1,7 @@
 package com.example.my_java_app.service;
 
+import com.example.my_java_app.dto.request.UpdateProfileRequestDto;
+import com.example.my_java_app.dto.response.UserDetailResponseDto;
 import com.example.my_java_app.dto.response.UserProfileResponseDto;
 import com.example.my_java_app.entity.RoleEntity;
 import com.example.my_java_app.entity.UserProfileEntity;
@@ -52,5 +54,35 @@ public class UserProfileService {
         // ─── 3. Build response DF ──────────────────────────────────────
         // budget = 0 vì chưa có bảng user_budgets trong schema hiện tại
         return new UserProfileResponseDto(role, 0, onboardingStatus);
+    }
+
+    public UserDetailResponseDto getMyProfileDetail(String cognitoSub) {
+        if (cognitoSub == null || cognitoSub.isBlank()) {
+            throw new NotFoundException("User not found");
+        }
+        UserProfileEntity profile = userProfileRepository.findByUserSub(cognitoSub);
+        if (profile == null) {
+            return new UserDetailResponseDto(null, null, null, null);
+        }
+        return new UserDetailResponseDto(
+            profile.getFirstName(),
+            profile.getLastName(),
+            profile.getAvatarUrl(),
+            profile.getLanguageCode()
+        );
+    }
+
+    public UserDetailResponseDto updateProfile(String cognitoSub, UpdateProfileRequestDto req) {
+        if (cognitoSub == null || cognitoSub.isBlank()) {
+            throw new NotFoundException("User not found");
+        }
+        userProfileRepository.updateProfile(
+            cognitoSub,
+            req.getFirstName(),
+            req.getLastName(),
+            req.getAvatarUrl(),
+            req.getLanguageCode()
+        );
+        return getMyProfileDetail(cognitoSub);
     }
 }

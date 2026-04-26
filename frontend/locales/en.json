@@ -346,7 +346,8 @@
     "import_users": "Import Users",
     "ai_report": "AI Report Generator",
     "report_template": "Report Templates",
-    "ai_playground": "AI Playground"
+    "ai_playground": "AI Playground",
+    "settings": "Settings"
   },
   "template": {
     "template_name": "Template Name",

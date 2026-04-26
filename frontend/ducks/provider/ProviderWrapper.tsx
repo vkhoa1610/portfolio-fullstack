@@ -3,14 +3,16 @@
 import { Provider } from "react-redux";
 import { store } from "@/ducks/store";
 import { I18nProvider } from "@/lib/I18nProvider";
-import { AuthProvider } from "@/common/context";
+import { AuthProvider, ThemeProvider } from "@/common/context";
 
 export default function ProviderWrapper({ children }: { children: React.ReactNode }) {
   return (
     <Provider store={store}>
-      <AuthProvider>
-        <I18nProvider>{children}</I18nProvider>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <I18nProvider>{children}</I18nProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </Provider>
   );
 }

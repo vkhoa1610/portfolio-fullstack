@@ -10,6 +10,9 @@ import {
   ConsentResponse,
   ProfileSetupRequest,
   ProfileSetupResponse,
+  UserProfileDetail,
+  UpdateProfileRequest,
+  AvatarUploadUrlResponse,
 } from './types';
 
 /**
@@ -24,7 +27,7 @@ export const authApi = createApi({
     baseUrl: process.env.NEXT_PUBLIC_BFF_URL || '/api',
     credentials: 'include', // CRITICAL: Send cookies with every request
   }),
-  tagTypes: ['Session'],
+  tagTypes: ['Session', 'ProfileDetail'],
   endpoints: (builder) => ({
     // ─────────────────────────────────────────────────────────────────
     // Login - Initial authentication
@@ -91,6 +94,33 @@ export const authApi = createApi({
       }),
       invalidatesTags: ['Session'],
     }),
+
+    // ─────────────────────────────────────────────────────────────────
+    // Profile - Get full profile detail (name, avatarUrl, languageCode)
+    // ─────────────────────────────────────────────────────────────────
+    getProfileDetail: builder.query<UserProfileDetail, void>({
+      query: () => '/pro-001',
+      providesTags: ['ProfileDetail'],
+    }),
+
+    // ─────────────────────────────────────────────────────────────────
+    // Profile - Update profile
+    // ─────────────────────────────────────────────────────────────────
+    updateProfile: builder.mutation<UserProfileDetail, UpdateProfileRequest>({
+      query: (body) => ({
+        url: '/pro-002',
+        method: 'PUT',
+        body,
+      }),
+      invalidatesTags: ['ProfileDetail'],
+    }),
+
+    // ─────────────────────────────────────────────────────────────────
+    // Profile - Get presigned URL for avatar upload
+    // ─────────────────────────────────────────────────────────────────
+    getAvatarUploadUrl: builder.query<AvatarUploadUrlResponse, string>({
+      query: (filename) => `/pro-003?filename=${encodeURIComponent(filename)}`,
+    }),
   }),
 });
 
@@ -103,4 +133,7 @@ export const {
   useLogoutMutation,
   useSubmitConsentMutation,
   useSubmitProfileMutation,
+  useGetProfileDetailQuery,
+  useUpdateProfileMutation,
+  useLazyGetAvatarUploadUrlQuery,
 } = authApi;

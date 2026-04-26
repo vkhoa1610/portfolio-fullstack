@@ -145,6 +145,7 @@
 /* Dark mode support */
 [data-theme="dark"],
 .dark {
+  /* Neutral scale inverted */
   --color-neutral-50: #18181b;
   --color-neutral-100: #27272a;
   --color-neutral-200: #3f3f46;
@@ -155,4 +156,19 @@
   --color-neutral-700: #e4e4e7;
   --color-neutral-800: #f4f4f5;
   --color-neutral-900: #fafafa;
+
+  /* Layout shell */
+  --color-sidebar-bg: #1b1b24;
+  --color-navbar-bg: #1e1e2a;
+  --color-sidebar-border: rgba(255, 255, 255, 0.06);
+  --color-nav-muted: #6b6b8a;
+  --color-nav-hover: rgba(255, 255, 255, 0.07);
+  --color-nav-active-bg: rgba(66, 68, 219, 0.22);
+  --color-nav-active-text: #a5a7fc;
+
+  /* Global page + card backgrounds */
+  --background: #13131a;
+  --foreground: #f2effc;
+  --color-card-bg: #1e1e2c;
+  --color-card-border: rgba(255, 255, 255, 0.08);
 }

@@ -31,6 +31,11 @@ export const BFF_ENDPOINTS = {
   FIN_004: '/fin-004/reports',  // POST create finance report
   FIN_005: '/fin-005/reports',  // GET  list finance reports
 
+  // ─── Profile ──────────────────────────────────────────────────────
+  PRO_001: '/pro-001',  // GET  users/me/detail
+  PRO_002: '/pro-002',  // PUT  users/me
+  PRO_003: '/pro-003',  // GET  users/me/avatar-url
+
   // ─── Screen Config (CMS) ──────────────────────────────────────────
   SCR_001: '/scr-001/:screenKey',  // GET screen config JSON for a screen
 

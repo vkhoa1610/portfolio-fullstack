@@ -16,5 +16,8 @@ export const config = {
     '/my-expenses/:path*',
     '/manager/:path*',
     '/finance/:path*',
+    '/settings/:path*',
+    '/settings',
+    '/admin/:path*',
   ],
 };

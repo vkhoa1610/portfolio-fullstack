@@ -7,6 +7,9 @@ import { bffCom005 } from '@product/common/com-005/index.js';
 import { bffCom006 } from '@product/common/com-006/index.js';
 import { bffCom007 } from '@product/common/com-007/index.js';
 import { bffScr001 } from '@product/common/scr-001/index.js';
+import { bffPro001 } from '@product/common/pro-001/index.js';
+import { bffPro002 } from '@product/common/pro-002/index.js';
+import { bffPro003 } from '@product/common/pro-003/index.js';
 
 const bffList = [
   bffCom001, // POST /com-001  auth/login
@@ -17,6 +20,9 @@ const bffList = [
   bffCom006, // POST /com-006  onboarding/consent
   bffCom007, // POST /com-007  onboarding/profile
   bffScr001, // GET  /scr-001/:screenKey  screen config
+  bffPro001, // GET  /pro-001  users/me/detail
+  bffPro002, // PUT  /pro-002  users/me
+  bffPro003, // GET  /pro-003  users/me/avatar-url
 ];
 
 export const createCommonRouter = () => createBffRouter('common', bffList);

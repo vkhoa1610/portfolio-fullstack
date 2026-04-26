@@ -142,7 +142,7 @@ export default function Sidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto overflow-x-hidden py-2 px-2">
+      <nav className="flex-1 overflow-y-auto overflow-x-hidden py-2 px-2 flex flex-col">
         {isAdmin ? (
           <div>
             {!collapsed && (
@@ -224,6 +224,18 @@ export default function Sidebar() {
             );
           })
         )}
+
+        {/* Settings — pinned at bottom of nav, visible to all roles */}
+        <div className="mt-auto pt-2 border-t border-[var(--color-sidebar-border,rgba(0,0,0,0.06))]">
+          <Link
+            href="/settings"
+            title={collapsed ? t("nav.settings") : undefined}
+            className={`${styles.navItem} ${pathname === "/settings" ? styles.navItemActive : ""} ${collapsed ? styles.navItemCollapsed : ""}`}
+          >
+            <MIcon name="settings" size={18} />
+            {!collapsed && <span className="flex-1 whitespace-nowrap">{t("nav.settings")}</span>}
+          </Link>
+        </div>
       </nav>
 
     </aside>

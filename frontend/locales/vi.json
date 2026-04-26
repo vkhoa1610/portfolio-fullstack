@@ -346,7 +346,8 @@
     "import_users": "Nhập người dùng",
     "ai_report": "Báo cáo AI",
     "report_template": "Mẫu báo cáo PDF",
-    "ai_playground": "AI Playground"
+    "ai_playground": "AI Playground",
+    "settings": "Cài đặt"
   },
   "template": {
     "template_name": "Tên mẫu",

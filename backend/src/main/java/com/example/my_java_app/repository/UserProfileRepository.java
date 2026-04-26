@@ -19,4 +19,8 @@ public class UserProfileRepository {
     public void saveProfile(String userSub, String languageCode) {
         mapper.insertProfile(userSub, languageCode);
     }
+
+    public void updateProfile(String userSub, String firstName, String lastName, String avatarUrl, String languageCode) {
+        mapper.updateProfile(userSub, firstName, lastName, avatarUrl, languageCode);
+    }
 }

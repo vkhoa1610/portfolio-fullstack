@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { Camera, Calendar, Car, History, LogOut } from "lucide-react";
 import { useAuth } from "@/common/context/AuthContext";
-import { useLogoutMutation } from "@/ducks/auth/authApi";
+import { useLogoutMutation, useGetProfileDetailQuery } from "@/ducks/auth/authApi";
 import { useGetExpensesQuery } from "@/ducks/expenses";
 import type { ExpenseStatus } from "@/ducks/expenses";
 import styles from "./NavBar.module.css";
@@ -91,8 +91,13 @@ export default function NavBar() {
     }
   }, [logout, clearSession, router]);
 
+  const { data: profileDetail } = useGetProfileDetailQuery();
+
   const role = session?.user.role;
-  const initial = (session?.user.email?.[0] ?? "?").toUpperCase();
+  const fullName = profileDetail
+    ? [profileDetail.firstName, profileDetail.lastName].filter(Boolean).join(" ")
+    : "";
+  const initial = fullName?.[0]?.toUpperCase() ?? (session?.user.email?.[0] ?? "?").toUpperCase();
   const displayRole = isAdmin ? "Admin" : role ? role.charAt(0) + role.slice(1).toLowerCase() : "";
 
   return (
@@ -184,19 +189,29 @@ export default function NavBar() {
         <button className={styles.navBtn} title="Notifications">
           <MIcon name="notifications" size={20} />
         </button>
-        <button className={styles.navBtn} title="Settings">
+        <button className={styles.navBtn} title="Settings" onClick={() => router.push("/settings")}>
           <MIcon name="settings" size={20} />
         </button>
 
         {/* User avatar */}
         <div className={styles.avatarBtn} ref={userRef}>
           <button className={styles.avatar} onClick={() => setShowUser((v) => !v)} title={session?.user.email}>
-            {initial}
+            {profileDetail?.avatarUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={profileDetail.avatarUrl}
+                alt={fullName || "Avatar"}
+                style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "9999px" }}
+              />
+            ) : (
+              initial
+            )}
           </button>
 
           {showUser && (
             <div className={styles.userDropdown}>
               <div className={styles.userInfo}>
+                {fullName && <p className={styles.userName}>{fullName}</p>}
                 <p className={styles.userEmail}>{session?.user.email}</p>
                 <p className={styles.userRole}>{displayRole}</p>
               </div>

@@ -38,4 +38,17 @@
             updated_at    = CURRENT_TIMESTAMP
     </insert>
 
+    <update id="updateProfile">
+        UPDATE user_profiles
+        SET
+            first_name    = #{firstName},
+            last_name     = #{lastName},
+            avatar_url    = #{avatarUrl},
+            language_code = #{languageCode},
+            updated_by    = #{userSub},
+            updated_at    = CURRENT_TIMESTAMP
+        WHERE user_sub = #{userSub}
+          AND is_deleted = 0
+    </update>
+
 </mapper>

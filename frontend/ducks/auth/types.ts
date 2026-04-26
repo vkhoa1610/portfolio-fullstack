@@ -102,6 +102,29 @@ export const isLoginSuccess = (response: LoginResponse): response is LoginSucces
 };
 
 // ============================================================================
+// PROFILE TYPES
+// ============================================================================
+
+export interface UserProfileDetail {
+  firstName: string | null;
+  lastName: string | null;
+  avatarUrl: string | null;
+  languageCode: string | null;
+}
+
+export interface UpdateProfileRequest {
+  firstName: string;
+  lastName: string;
+  avatarUrl: string | null;
+  languageCode: string;
+}
+
+export interface AvatarUploadUrlResponse {
+  uploadUrl: string;
+  fileUrl: string;
+}
+
+// ============================================================================
 // ONBOARDING TYPES
 // ============================================================================
 

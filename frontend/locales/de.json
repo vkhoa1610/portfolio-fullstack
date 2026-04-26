@@ -346,7 +346,8 @@
     "import_users": "Benutzer importieren",
     "ai_report": "KI-Berichtsgenerator",
     "report_template": "Berichtsvorlagen PDF",
-    "ai_playground": "KI-Playground"
+    "ai_playground": "KI-Playground",
+    "settings": "Einstellungen"
   },
   "template": {
     "template_name": "Vorlagenname",
