@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import styles from "./expense-type-selector.module.css";
+import PageHeader from "@/components/layout/PageHeader";
 
 function MIcon({ name, size = 24, fill = false }: { name: string; size?: number; fill?: boolean }) {
   return (
@@ -23,23 +24,18 @@ export default function ExpenseTypeSelector() {
   const router = useRouter();
 
   return (
-    <div className={styles.page}>
-      {/* Header */}
-      <div className={styles.header}>
-        <h1 className={styles.headline}>
-          {t("expense.create.headline_prefix", { defaultValue: "How would you like to " })}
-          <span className={styles.headlineAccent}>
-            {t("expense.create.headline_accent", { defaultValue: "file today?" })}
-          </span>
-        </h1>
-        <p className={styles.subheadline}>
-          {t("expense.create.subtitle", {
-            defaultValue:
-              "Select the expense category below. Our AI editor will automatically categorize and format your entry for faster approval.",
-          })}
-        </p>
-      </div>
+    <div>
+      <PageHeader
+        title={t("expense.create.title", { defaultValue: "New Expense" })}
+        subtitle={t("expense.create.subtitle", {
+          defaultValue:
+            "Select the expense category below. Our AI editor will automatically categorize and format your entry for faster approval.",
+        })}
+        backLabel={t("expense.create.back", { defaultValue: "My Expenses" })}
+        backHref="/my-expenses"
+      />
 
+      <div className={styles.page}>
       {/* Grid */}
       <div className={styles.grid}>
         {/* Receipt card — primary */}
@@ -141,6 +137,7 @@ export default function ExpenseTypeSelector() {
             </button>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

@@ -1,0 +1,478 @@
+/* ── Page ──────────────────────────────────────────── */
+.page {
+  width: 100%;
+  max-width: 1100px;
+  padding: 2rem 2.5rem 3rem;
+}
+
+/* ── Header ────────────────────────────────────────── */
+.pageHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+  flex-wrap: wrap;
+}
+
+.pageTitle {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: var(--color-neutral-900);
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin-bottom: 0.5rem;
+}
+
+.pageSubtitle {
+  font-size: 0.9375rem;
+  color: var(--color-neutral-500);
+  max-width: 440px;
+  line-height: 1.6;
+}
+
+.saveBtn {
+  padding: 0.75rem 1.75rem;
+  border-radius: 0.875rem;
+  font-weight: 700;
+  font-size: 0.9375rem;
+  background: linear-gradient(135deg, var(--color-primary-600), #5c60f5);
+  color: #ffffff;
+  box-shadow: 0 6px 20px rgba(90, 103, 216, 0.3);
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+  flex-shrink: 0;
+}
+
+.saveBtn:hover:not(:disabled) {
+  transform: scale(1.02);
+  box-shadow: 0 10px 28px rgba(90, 103, 216, 0.4);
+}
+
+.saveBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* ── Grid ──────────────────────────────────────────── */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: 8fr 4fr;
+  }
+}
+
+/* ── Left column ───────────────────────────────────── */
+.leftCol {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ── Form card ─────────────────────────────────────── */
+.formCard {
+  background: #ffffff;
+  border-radius: 2rem;
+  padding: 2.5rem;
+  border: 1px solid var(--color-neutral-100);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.twoCol {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.fieldLabel {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-neutral-400);
+}
+
+.inputWithIcon {
+  position: relative;
+}
+
+.inputIconLeft {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(90, 103, 216, 0.5);
+  pointer-events: none;
+  display: flex;
+}
+
+.inputIconFlag {
+  color: rgba(148, 68, 0, 0.5);
+}
+
+.fieldInput {
+  width: 100%;
+  padding: 1rem 1.125rem;
+  background: var(--color-neutral-50);
+  border: 1px solid transparent;
+  border-radius: 1rem;
+  font-size: 0.9375rem;
+  color: var(--color-neutral-900);
+  font-weight: 500;
+  outline: none;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.fieldInputPadLeft {
+  padding-left: 2.875rem;
+}
+
+.fieldInput:focus {
+  border-color: rgba(90, 103, 216, 0.3);
+  background: #ffffff;
+}
+
+.fieldInput::placeholder {
+  color: var(--color-neutral-400);
+  font-weight: 400;
+}
+
+/* ── Route Summary card ────────────────────────────── */
+.routeCard {
+  background: #ffffff;
+  border-radius: 2rem;
+  padding: 2rem 2.5rem;
+  border: 1px solid var(--color-neutral-100);
+}
+
+.routeCardTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-neutral-900);
+  margin-bottom: 1.5rem;
+}
+
+.routePlaceholder {
+  font-size: 0.875rem;
+  color: var(--color-neutral-400);
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.routeVisual {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 1rem 0;
+}
+
+.routeCity {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.routeDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 9999px;
+  background: var(--color-primary-600);
+  box-shadow: 0 0 0 4px rgba(90, 103, 216, 0.15);
+}
+
+.routeDotDest {
+  background: #944400;
+  box-shadow: 0 0 0 4px rgba(148, 68, 0, 0.12);
+}
+
+.routeCityName {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--color-neutral-800);
+  white-space: nowrap;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.routeLine {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.routeDash {
+  flex: 1;
+  height: 2px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--color-neutral-300) 0,
+    var(--color-neutral-300) 6px,
+    transparent 6px,
+    transparent 12px
+  );
+}
+
+.routeDistanceBadge {
+  flex-shrink: 0;
+  padding: 0.25rem 0.75rem;
+  background: var(--color-primary-100);
+  color: var(--color-primary-600);
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* ── Right column ──────────────────────────────────── */
+.rightCol {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ── Reimbursement card ────────────────────────────── */
+.reimbCard {
+  background: linear-gradient(135deg, var(--color-primary-600) 0%, #5c60f5 100%);
+  border-radius: 2rem;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(90, 103, 216, 0.3);
+  color: #ffffff;
+}
+
+.reimbGlow {
+  position: absolute;
+  top: -2.5rem;
+  right: -2.5rem;
+  width: 10rem;
+  height: 10rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.1);
+  filter: blur(2rem);
+  pointer-events: none;
+}
+
+.reimbInner {
+  position: relative;
+  z-index: 1;
+}
+
+.reimbTitle {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.7;
+  margin-bottom: 1.5rem;
+}
+
+.reimbRows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.reimbRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+}
+
+.reimbRow span:first-child {
+  opacity: 0.75;
+}
+
+.reimbRow span:last-child {
+  font-weight: 700;
+}
+
+.reimbDivider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.15);
+  margin: 1.25rem 0;
+}
+
+.reimbTotal {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.reimbTotal span:first-child {
+  font-size: 0.875rem;
+  font-weight: 700;
+  opacity: 0.9;
+}
+
+.reimbTotalAmount {
+  font-size: 2.5rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+/* ── Policy Compliance card ────────────────────────── */
+.complianceCard {
+  background: #ffffff;
+  border-radius: 2rem;
+  padding: 1.75rem;
+  border-left: 4px solid #ba5700;
+  border-top: 1px solid var(--color-neutral-100);
+  border-right: 1px solid var(--color-neutral-100);
+  border-bottom: 1px solid var(--color-neutral-100);
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.complianceHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #944400;
+}
+
+.complianceLabel {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.complianceText {
+  font-size: 0.8125rem;
+  color: var(--color-neutral-600);
+  line-height: 1.65;
+}
+
+.complianceProgressWrap {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.complianceTrack {
+  flex: 1;
+  height: 6px;
+  background: var(--color-neutral-100);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.complianceBar {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.5s ease-out;
+}
+
+.complianceBarOk {
+  background: #ba5700;
+}
+
+.complianceBarOver {
+  background: var(--color-error-500);
+}
+
+.compliancePct {
+  font-size: 0.7rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.compliancePctOk {
+  color: #944400;
+}
+
+.compliancePctOver {
+  color: var(--color-error-600);
+}
+
+/* ── Policy Insight card (consistent with per-diem) ── */
+.insightCard {
+  background: rgba(90, 103, 216, 0.04);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 2rem;
+  padding: 1.75rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.insightGlow {
+  position: absolute;
+  top: -2.5rem;
+  right: -2.5rem;
+  width: 10rem;
+  height: 10rem;
+  border-radius: 9999px;
+  background: rgba(148, 68, 0, 0.08);
+  filter: blur(2.5rem);
+  pointer-events: none;
+  transition: background 0.6s;
+}
+
+.insightCard:hover .insightGlow {
+  background: rgba(148, 68, 0, 0.14);
+}
+
+.insightHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #944400;
+  margin-bottom: 1rem;
+}
+
+.insightLabel {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.insightText {
+  font-size: 0.875rem;
+  color: var(--color-neutral-800);
+  line-height: 1.7;
+  position: relative;
+  z-index: 1;
+}
+
+.insightLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin-top: 1.25rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--color-primary-600);
+  cursor: pointer;
+  transition: gap 0.2s;
+}
+
+.insightLink:hover {
+  gap: 0.625rem;
+}

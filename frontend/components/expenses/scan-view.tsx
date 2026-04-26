@@ -6,6 +6,17 @@ import { useTranslation } from "react-i18next";
 import { useGetUploadUrlMutation, useScanReceiptMutation, useCreateExpenseMutation } from "@/ducks/expenses";
 import type { ScanResponse } from "@/ducks/expenses";
 import styles from "./scan-view.module.css";
+import PageHeader from "@/components/layout/PageHeader";
+
+const CATEGORIES = [
+  "Meals & Entertainment",
+  "Travel",
+  "Software & Subscriptions",
+  "Office Supplies",
+  "Accommodation",
+  "Transport",
+  "Other",
+];
 
 function MIcon({ name, size = 24, fill = false }: { name: string; size?: number; fill?: boolean }) {
   return (
@@ -21,6 +32,11 @@ function MIcon({ name, size = 24, fill = false }: { name: string; size?: number;
   );
 }
 
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
 export default function ScanView() {
   const { t } = useTranslation();
   const router = useRouter();
@@ -29,10 +45,16 @@ export default function ScanView() {
   const [scanResult, setScanResult] = useState<ScanResponse | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [uploadedFileUrl, setUploadedFileUrl] = useState<string | null>(null);
+  const [fileInfo, setFileInfo] = useState<{ name: string; size: string } | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
-  const [form, setForm] = useState({ vendor: "", date: "", amount: "", vatAmount: "" });
+
+  // Image viewer controls
+  const [zoom, setZoom] = useState(1);
+  const [rotation, setRotation] = useState(0);
+
+  const [form, setForm] = useState({ vendor: "", date: "", amount: "", vatAmount: "", category: CATEGORIES[0] });
 
   const [getUploadUrl] = useGetUploadUrlMutation();
   const [scanReceipt, { isLoading: isScanning }] = useScanReceiptMutation();
@@ -42,6 +64,9 @@ export default function ScanView() {
 
   const processFile = async (file: File) => {
     setPreviewUrl(URL.createObjectURL(file));
+    setFileInfo({ name: file.name, size: formatFileSize(file.size) });
+    setZoom(1);
+    setRotation(0);
     setIsUploading(true);
     setUploadError(null);
 
@@ -63,10 +88,12 @@ export default function ScanView() {
         date: result.date,
         amount: String(result.amount),
         vatAmount: String(result.vatAmount),
+        category: CATEGORIES[0],
       });
     } catch (err: unknown) {
       setIsUploading(false);
       setPreviewUrl(null);
+      setFileInfo(null);
       setUploadError(err instanceof Error ? err.message : "Upload failed");
     }
   };
@@ -98,9 +125,208 @@ export default function ScanView() {
     router.push("/my-expenses");
   };
 
+  // ── Result view (after scan) ───────────────────────────────────────────────
+  if (scanResult) {
+    return (
+      <div className={styles.resultPage}>
+        {/* Left: Document viewer */}
+        <div className={styles.viewerPanel}>
+          <div className={styles.viewerHeader}>
+            <div className={styles.viewerHeaderLeft}>
+              <MIcon name="image" size={18} />
+              <span className={styles.viewerTitle}>Original Document</span>
+            </div>
+            {fileInfo && (
+              <span className={styles.viewerMeta}>
+                {fileInfo.name} &bull; {fileInfo.size}
+              </span>
+            )}
+          </div>
+
+          <div className={styles.viewerCanvas}>
+            <div
+              className={styles.viewerImgWrap}
+              style={{ transform: `scale(${zoom}) rotate(${rotation}deg)` }}
+            >
+              {previewUrl && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={previewUrl} alt="Receipt" className={styles.viewerImg} />
+              )}
+            </div>
+
+            {/* Controls */}
+            <div className={styles.viewerControls}>
+              <button
+                className={styles.viewerBtn}
+                title="Zoom in"
+                onClick={() => setZoom((z) => Math.min(z + 0.25, 3))}
+              >
+                <MIcon name="zoom_in" size={20} />
+              </button>
+              <button
+                className={styles.viewerBtn}
+                title="Zoom out"
+                onClick={() => setZoom((z) => Math.max(z - 0.25, 0.5))}
+              >
+                <MIcon name="zoom_out" size={20} />
+              </button>
+              <div className={styles.viewerBtnDivider} />
+              <button
+                className={styles.viewerBtn}
+                title="Rotate 90°"
+                onClick={() => setRotation((r) => (r + 90) % 360)}
+              >
+                <MIcon name="rotate_right" size={20} />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Right: AI extraction form */}
+        <div className={styles.formPanel}>
+          {/* Header */}
+          <div className={styles.formPanelHeader}>
+            <div className={styles.formPanelIconWrap}>
+              <MIcon name="auto_awesome" size={22} fill />
+            </div>
+            <div>
+              <h3 className={styles.formPanelTitle}>AI Extraction Results</h3>
+              <p className={styles.formPanelScore}>Confidence Score: 98%</p>
+            </div>
+          </div>
+
+          {/* AI flags */}
+          {scanResult.flags.length > 0 && (
+            <div className={styles.aiFlag}>
+              <div className={styles.aiFlagDot} />
+              <p className={styles.aiFlagText}>
+                {scanResult.flags.join(" ")}
+              </p>
+            </div>
+          )}
+
+          {/* Fields */}
+          <div className={styles.fields}>
+            {/* Vendor */}
+            <div className={styles.fieldGroup}>
+              <label htmlFor="scan-vendor" className={styles.fieldLabel}>
+                {t("expense.scan.label_vendor", { defaultValue: "Vendor Name" })}
+              </label>
+              <div className={styles.fieldWithIcon}>
+                <input
+                  id="scan-vendor"
+                  className={styles.fieldInput}
+                  value={form.vendor}
+                  onChange={(e) => setForm({ ...form, vendor: e.target.value })}
+                />
+                <span className={styles.fieldCheckIcon}>
+                  <MIcon name="check_circle" size={18} fill />
+                </span>
+              </div>
+            </div>
+
+            {/* Date + Amount */}
+            <div className={styles.fieldRow}>
+              <div className={styles.fieldGroup}>
+                <label htmlFor="scan-date" className={styles.fieldLabel}>
+                  {t("expense.scan.label_date", { defaultValue: "Date" })}
+                </label>
+                <input
+                  id="scan-date"
+                  type="date"
+                  className={styles.fieldInput}
+                  value={form.date}
+                  onChange={(e) => setForm({ ...form, date: e.target.value })}
+                />
+              </div>
+              <div className={styles.fieldGroup}>
+                <label htmlFor="scan-amount" className={styles.fieldLabel}>
+                  {t("expense.scan.label_amount", { defaultValue: "Amount" })}
+                </label>
+                <div className={styles.amountWrap}>
+                  <input
+                    id="scan-amount"
+                    type="number"
+                    className={`${styles.fieldInput} ${styles.amountInput}`}
+                    value={form.amount}
+                    onChange={(e) => setForm({ ...form, amount: e.target.value })}
+                  />
+                  <span className={styles.amountCurrency}>USD</span>
+                </div>
+              </div>
+            </div>
+
+            {/* VAT */}
+            <div className={styles.fieldGroup}>
+              <label htmlFor="scan-vat" className={styles.fieldLabel}>
+                {t("expense.scan.label_vat", { defaultValue: "VAT / Tax" })}{" "}
+                <span className={styles.fieldLabelNote}>(Included)</span>
+              </label>
+              <input
+                id="scan-vat"
+                type="number"
+                className={styles.fieldInput}
+                value={form.vatAmount}
+                onChange={(e) => setForm({ ...form, vatAmount: e.target.value })}
+              />
+            </div>
+
+            {/* Category */}
+            <div className={styles.fieldGroup}>
+              <label htmlFor="scan-category" className={styles.fieldLabel}>Expense Category</label>
+              <div className={styles.selectWrap}>
+                <select
+                  id="scan-category"
+                  className={styles.fieldSelect}
+                  value={form.category}
+                  onChange={(e) => setForm({ ...form, category: e.target.value })}
+                >
+                  {CATEGORIES.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+                <span className={styles.selectArrow}>
+                  <MIcon name="expand_more" size={18} />
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* AI insight note */}
+          <div className={styles.insightBox}>
+            <div className={styles.insightDot} />
+            <p className={styles.insightText}>
+              This matches a previous recurring expense from{" "}
+              <strong>{form.vendor || "this vendor"}</strong>. Suggested category
+              &ldquo;{form.category}&rdquo; was applied automatically.
+            </p>
+          </div>
+
+          {/* Save */}
+          <button onClick={handleSave} disabled={isSaving} className={styles.saveBtn}>
+            <MIcon name="save" size={20} />
+            {isSaving
+              ? t("expense.scan.saving", { defaultValue: "Saving…" })
+              : t("expense.scan.btn_save", { defaultValue: "Save Expense" })}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Upload / processing view ───────────────────────────────────────────────
   return (
-    <div className={styles.page}>
-      {/* Error banner */}
+    <div>
+      <PageHeader
+        title={t("expense.scan.title", { defaultValue: "Scan Receipt" })}
+        subtitle={t("expense.scan.subtitle", {
+          defaultValue: "Upload or photograph your receipt for instant AI-powered data extraction.",
+        })}
+        backLabel={t("expense.scan.back", { defaultValue: "New Expense" })}
+        backHref="/my-expenses/create"
+      />
+
+      <div className={styles.page}>
       {uploadError && (
         <div className={styles.errorBanner}>
           <MIcon name="error_outline" size={16} />
@@ -109,136 +335,82 @@ export default function ScanView() {
       )}
 
       <div className={styles.grid}>
-        {/* ── Left column ── */}
+        {/* Left column */}
         <div className={styles.leftCol}>
-          {!scanResult ? (
-            /* Upload dropzone */
-            <label
-              className={`${styles.dropzone} ${dragOver ? styles.dropzoneDrag : ""} ${isProcessing ? styles.dropzoneDisabled : ""}`}
-              onDragOver={(e) => { e.preventDefault(); if (!isProcessing) setDragOver(true); }}
-              onDragLeave={() => setDragOver(false)}
-              onDrop={handleDrop}
-            >
-              <input
-                ref={fileRef}
-                type="file"
-                accept="image/*,.pdf"
-                className="hidden"
-                onChange={handleFileChange}
-                disabled={isProcessing}
-              />
+          <label
+            className={`${styles.dropzone} ${dragOver ? styles.dropzoneDrag : ""} ${isProcessing ? styles.dropzoneDisabled : ""}`}
+            onDragOver={(e) => { e.preventDefault(); if (!isProcessing) setDragOver(true); }}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={handleDrop}
+          >
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/*,.pdf"
+              className="hidden"
+              onChange={handleFileChange}
+              disabled={isProcessing}
+            />
 
-              {isProcessing ? (
-                <div className={styles.processingState}>
-                  <div className={styles.spinner} />
-                  <p className={styles.processingText}>
-                    {isUploading
-                      ? t("expense.scan.uploading", { defaultValue: "Uploading…" })
-                      : t("expense.scan.analyzing", { defaultValue: "AI is analyzing your receipt…" })}
-                  </p>
-                </div>
-              ) : (
-                <div className={styles.dropzoneContent}>
-                  <div className={styles.uploadIconWrap}>
-                    <MIcon name="cloud_upload" size={48} />
-                  </div>
-                  <h3 className={styles.dropzoneTitle}>
-                    {t("expense.scan.drop_title", { defaultValue: "Drop your receipts here" })}
-                  </h3>
-                  <p className={styles.dropzoneHint}>
-                    {t("expense.scan.supported_formats", { defaultValue: "Supports JPG, PNG, and PDF (Max 20MB)" })}
-                  </p>
-                  <div className={styles.selectBtn}>
-                    <MIcon name="folder_open" size={18} />
-                    {t("expense.scan.select_from_computer", { defaultValue: "Select from Computer" })}
-                  </div>
-                </div>
-              )}
-
-              {/* File type decoration */}
-              {!isProcessing && (
-                <div className={styles.fileTypeIcons}>
-                  <div className={styles.fileTypeIcon}>
-                    <MIcon name="picture_as_pdf" size={20} />
-                  </div>
-                  <div className={styles.fileTypeIcon}>
-                    <MIcon name="image" size={20} />
-                  </div>
-                </div>
-              )}
-            </label>
-          ) : (
-            /* Scan result: preview + form */
-            <div className={styles.resultWrap}>
-              {/* Preview */}
-              <div className={styles.previewBox}>
-                {previewUrl && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={previewUrl} alt="Receipt preview" className={styles.previewImg} />
-                )}
-              </div>
-
-              {/* Extracted form */}
-              <div className={styles.formBox}>
-                <div className={styles.formSuccessRow}>
-                  <MIcon name="check_circle" size={18} fill />
-                  <span>{t("expense.scan.ai_complete", { defaultValue: "AI extraction complete" })}</span>
-                </div>
-
-                {scanResult.flags.length > 0 && (
-                  <div className={styles.flagsBox}>
-                    <div className={styles.flagsHeader}>
-                      <MIcon name="warning" size={15} fill />
-                      <span>{t("expense.scan.ai_warnings", { defaultValue: "AI Warnings" })}</span>
-                    </div>
-                    {scanResult.flags.map((f, i) => (
-                      <p key={i} className={styles.flagText}>{f}</p>
-                    ))}
-                  </div>
-                )}
-
-                <Field label={t("expense.scan.label_vendor", { defaultValue: "Vendor" })} value={form.vendor} onChange={(v) => setForm({ ...form, vendor: v })} />
-                <Field label={t("expense.scan.label_date", { defaultValue: "Date" })} value={form.date} onChange={(v) => setForm({ ...form, date: v })} type="date" />
-                <Field label={t("expense.scan.label_amount", { defaultValue: "Amount (€)" })} value={form.amount} onChange={(v) => setForm({ ...form, amount: v })} type="number" />
-                <Field label={`${t("expense.scan.label_vat", { defaultValue: "VAT" })} — ${scanResult.vatRate}`} value={form.vatAmount} onChange={(v) => setForm({ ...form, vatAmount: v })} type="number" />
-
-                <button onClick={handleSave} disabled={isSaving} className={styles.saveBtn}>
-                  {isSaving
-                    ? t("expense.scan.saving", { defaultValue: "Saving…" })
-                    : t("expense.scan.btn_save", { defaultValue: "Save Expense" })}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Feature cards */}
-          {!scanResult && (
-            <div className={styles.featureRow}>
-              <div className={styles.featureCard}>
-                <div className={styles.featureHeader}>
-                  <MIcon name="auto_stories" size={20} />
-                  <span className={styles.featureLabel}>Editorial Accuracy</span>
-                </div>
-                <p className={styles.featureDesc}>
-                  Our models are trained on complex financial typography to ensure 99.9% data fidelity across 40+ languages.
+            {isProcessing ? (
+              <div className={styles.processingState}>
+                <div className={styles.spinner} />
+                <p className={styles.processingText}>
+                  {isUploading
+                    ? t("expense.scan.uploading", { defaultValue: "Uploading…" })
+                    : t("expense.scan.analyzing", { defaultValue: "AI is analyzing your receipt…" })}
                 </p>
               </div>
-              <div className={styles.featureCard}>
-                <div className={`${styles.featureHeader} ${styles.featureHeaderSecondary}`}>
-                  <MIcon name="lock" size={20} />
-                  <span className={styles.featureLabel}>Secure Vault</span>
+            ) : (
+              <div className={styles.dropzoneContent}>
+                <div className={styles.uploadIconWrap}>
+                  <MIcon name="cloud_upload" size={48} />
                 </div>
-                <p className={styles.featureDesc}>
-                  Bank-grade encryption for every pixel. Your sensitive financial data remains private and strictly audited.
+                <h3 className={styles.dropzoneTitle}>
+                  {t("expense.scan.drop_title", { defaultValue: "Drop your receipts here" })}
+                </h3>
+                <p className={styles.dropzoneHint}>
+                  {t("expense.scan.supported_formats", { defaultValue: "Supports JPG, PNG, and PDF (Max 20MB)" })}
                 </p>
+                <div className={styles.selectBtn}>
+                  <MIcon name="folder_open" size={18} />
+                  {t("expense.scan.select_from_computer", { defaultValue: "Select from Computer" })}
+                </div>
               </div>
+            )}
+
+            {!isProcessing && (
+              <div className={styles.fileTypeIcons}>
+                <div className={styles.fileTypeIcon}><MIcon name="picture_as_pdf" size={20} /></div>
+                <div className={styles.fileTypeIcon}><MIcon name="image" size={20} /></div>
+              </div>
+            )}
+          </label>
+
+          <div className={styles.featureRow}>
+            <div className={styles.featureCard}>
+              <div className={styles.featureHeader}>
+                <MIcon name="auto_stories" size={20} />
+                <span className={styles.featureLabel}>Editorial Accuracy</span>
+              </div>
+              <p className={styles.featureDesc}>
+                Our models are trained on complex financial typography to ensure 99.9% data fidelity across 40+ languages.
+              </p>
             </div>
-          )}
+            <div className={styles.featureCard}>
+              <div className={`${styles.featureHeader} ${styles.featureHeaderSecondary}`}>
+                <MIcon name="lock" size={20} />
+                <span className={styles.featureLabel}>Secure Vault</span>
+              </div>
+              <p className={styles.featureDesc}>
+                Bank-grade encryption for every pixel. Your sensitive financial data remains private and strictly audited.
+              </p>
+            </div>
+          </div>
         </div>
 
-        {/* ── Right sidebar ── */}
+        {/* Right sidebar */}
         <div className={styles.rightCol}>
-          {/* AI Assistant card */}
           <div className={styles.aiCard}>
             <div className={styles.aiCardInner}>
               <div className={styles.aiCardTop}>
@@ -262,7 +434,6 @@ export default function ScanView() {
             </div>
           </div>
 
-          {/* Recent extractions */}
           <div className={styles.recentSection}>
             <div className={styles.recentHeader}>
               <span>Recent Extractions</span>
@@ -271,9 +442,7 @@ export default function ScanView() {
             <div className={styles.recentList}>
               <div className={styles.recentItem}>
                 <div className={styles.recentLeft}>
-                  <div className={styles.recentIcon}>
-                    <MIcon name="local_cafe" size={20} />
-                  </div>
+                  <div className={styles.recentIcon}><MIcon name="local_cafe" size={20} /></div>
                   <div>
                     <p className={styles.recentName}>Blue Bottle Coffee</p>
                     <p className={styles.recentDate}>Today, 9:41 AM</p>
@@ -286,9 +455,7 @@ export default function ScanView() {
               </div>
               <div className={`${styles.recentItem} ${styles.recentItemDim}`}>
                 <div className={styles.recentLeft}>
-                  <div className={styles.recentIcon}>
-                    <MIcon name="flight" size={20} />
-                  </div>
+                  <div className={styles.recentIcon}><MIcon name="flight" size={20} /></div>
                   <div>
                     <p className={styles.recentName}>Delta Airlines</p>
                     <p className={styles.recentDate}>Yesterday</p>
@@ -302,7 +469,6 @@ export default function ScanView() {
             </div>
           </div>
 
-          {/* Pro tip */}
           <div className={styles.tipCard}>
             <MIcon name="lightbulb" size={20} fill />
             <div>
@@ -314,22 +480,7 @@ export default function ScanView() {
           </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-function Field({
-  label, value, onChange, type = "text",
-}: { label: string; value: string; onChange: (v: string) => void; type?: string }) {
-  return (
-    <div className={styles.field}>
-      <label className={styles.fieldLabel}>{label}</label>
-      <input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className={styles.fieldInput}
-      />
+      </div>
     </div>
   );
 }

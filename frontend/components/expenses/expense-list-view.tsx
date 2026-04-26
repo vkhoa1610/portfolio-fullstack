@@ -6,6 +6,7 @@ import { Plus, Camera, Calendar, Car, Sparkles, TrendingDown, TrendingUp, ListFi
 import { useGetExpensesQuery } from "@/ducks/expenses";
 import type { Expense, ExpenseStatus } from "@/ducks/expenses";
 import styles from "./expense-list-view.module.css";
+import PageHeader from "@/components/layout/PageHeader";
 
 const STATUS_CLASS: Record<ExpenseStatus, string> = {
   DRAFT: styles.statusDraft,
@@ -73,21 +74,21 @@ export default function ExpenseListView() {
 
   return (
     <div>
-      {/* ── Header ── */}
-      <div className="mb-8 flex items-end justify-between">
-        <h2 className={styles.pageTitle}>{t("expense.list.title")}</h2>
-        <div className="flex items-center gap-3">
-          <button className={styles.btnExport}>Export CSV</button>
-          <button
-            onClick={() => router.push("/my-expenses/create")}
-            className={styles.btnNew}
-          >
-            <Plus className="h-4 w-4" />
-            {t("expense.list.btn_new")}
-          </button>
-        </div>
-      </div>
+      <PageHeader
+        title={t("expense.list.title", { defaultValue: "My Expenses" })}
+        subtitle={t("expense.list.subtitle", { defaultValue: "Manage and track all your expense claims in one place." })}
+        actions={
+          <>
+            <button className={styles.btnExport}>Export CSV</button>
+            <button onClick={() => router.push("/my-expenses/create")} className={styles.btnNew}>
+              <Plus className="h-4 w-4" />
+              {t("expense.list.btn_new")}
+            </button>
+          </>
+        }
+      />
 
+      <div className={styles.content}>
       {/* ── Bento Grid ── */}
       <div className={styles.bentoGrid}>
         {/* Stats */}
@@ -226,6 +227,7 @@ export default function ExpenseListView() {
           </div>
         </>
       )}
+      </div>
     </div>
   );
 }

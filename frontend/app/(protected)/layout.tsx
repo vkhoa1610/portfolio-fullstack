@@ -2,7 +2,6 @@
 import React from "react";
 import Sidebar from "@/components/layout/Sidebar";
 import NavBar from "@/components/layout/NavBar";
-import { Breadcrumb } from "@/common";
 import styles from "./layout.module.css";
 
 export default function ProtectedDashboardLayout({ children }: { children: React.ReactNode }) {
@@ -23,8 +22,7 @@ export default function ProtectedDashboardLayout({ children }: { children: React
         <NavBar />
 
         {/* Scrollable content */}
-        <div className="flex-1 overflow-y-auto p-6 md:p-8">
-          <Breadcrumb />
+        <div className="flex-1 overflow-y-auto">
           {children}
           <div className={styles.footer}>
             <p className={styles.footerText}>© 2025 FintechSaaS GmbH. ISO 27001 Certified.</p>
