@@ -1,5 +1,6 @@
 package com.example.my_java_app.dto.response;
 
+import com.example.my_java_app.dto.common.PolicyEvaluationSnapshotDto;
 import lombok.Data;
 import java.math.BigDecimal;
 
@@ -39,4 +40,7 @@ public class ExpenseResponseDto {
     private String rejectionReason;
 
     private String createdAt;
+
+    // Create-time policy evaluation snapshot for detail screen
+    private PolicyEvaluationSnapshotDto policyEvaluationSnapshot;
 }

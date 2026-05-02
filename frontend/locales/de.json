@@ -188,6 +188,113 @@
       "field_submitted_at": "Eingereicht am",
       "field_vendor_name": "Anbieter"
     },
+    "policy": {
+      "receipt": {
+        "currency_mismatch": {
+          "title": "Währungsabweichung",
+          "pending": "Laden Sie eine Quittung hoch, um die Währung zu prüfen.",
+          "ok": "Quittungswährung stimmt mit dem Firmenkonto (EUR) überein.",
+          "triggered": "Währung weicht von EUR ab — manuelle Umrechnung erforderlich."
+        },
+        "spending_limit": {
+          "title": "Ausgabenlimit",
+          "pending": "Laden Sie eine Quittung hoch, um das 150-€-Limit zu prüfen.",
+          "ok": "Betrag liegt innerhalb des 150-€-Limits.",
+          "triggered": "Betrag überschreitet 150 € — Genehmigung des Managers erforderlich."
+        },
+        "vat_accuracy": {
+          "title": "MwSt.-Genauigkeit",
+          "pending": "Laden Sie eine Quittung hoch, um den MwSt.-Satz zu prüfen.",
+          "ok": "MwSt.-Satz erscheint plausibel.",
+          "triggered": "Ungewöhnlicher MwSt.-Satz — bitte mit der Originalquittung abgleichen."
+        },
+        "merchant_recognized": {
+          "title": "Händlererkennung",
+          "pending": "Laden Sie eine Quittung hoch, um den Anbieter zu identifizieren.",
+          "ok": "Anbieter erkannt und in der Lieferantenliste gefunden.",
+          "triggered": "Anbieter konnte nicht erkannt werden — manuelle Kategorisierung erforderlich."
+        },
+        "ai_confidence": {
+          "title": "KI-Konfidenz",
+          "pending": "Warte auf KI-Extraktionsergebnisse.",
+          "ok": "KI hat Daten mit hoher Konfidenz extrahiert.",
+          "triggered": "Niedrige KI-Konfidenz — bitte extrahierte Felder sorgfältig prüfen."
+        },
+        "insight": {
+          "recurring_vendor": {
+            "title": "Wiederkehrender Anbieter",
+            "text": "Dies entspricht einem wiederkehrenden Ausgabenmuster. Die Kategorie wurde automatisch anhand Ihrer Einreichungshistorie zugewiesen.",
+            "link": "Ausgabenhistorie anzeigen"
+          }
+        }
+      },
+      "per_diem": {
+        "location_tier_match": {
+          "title": "Standortstufe",
+          "pending": "Wählen Sie ein Reiseziel zur Prüfung der Tagegeld-Stufe.",
+          "ok": "Zielort in einer genehmigten Tagegeld-Stufe bestätigt.",
+          "triggered": "Zielort in einer genehmigten Tagegeld-Stufe bestätigt."
+        },
+        "duration_match": {
+          "title": "Reisedauer",
+          "pending": "Geben Sie Reisedaten ein, um den Tagegeld-Zeitraum zu prüfen.",
+          "ok": "Reisedaten definieren einen gültigen Tagegeld-Zeitraum.",
+          "triggered": "Reisedaten bestätigt — Tagegeld-Zeitraum ist gültig."
+        },
+        "meal_deduction": {
+          "title": "Pflichtabzüge für Mahlzeiten",
+          "pending": "Geben Sie Reisedaten ein, um Mahlzeitenabzüge zu prüfen.",
+          "ok": "Reisedauer löst keine Pflichtabzüge für Mahlzeiten aus.",
+          "triggered": "Bei Reisen über 3 Tage sind Mahlzeitenabzüge verpflichtend — Hotelinklusivleistungen prüfen."
+        },
+        "proration": {
+          "title": "Anteilige Berechnung",
+          "pending": "Geben Sie Reisedaten ein, um die anteilige Berechnung zu sehen.",
+          "ok": "Volle Tagespauschale für alle Reisetage angesetzt.",
+          "triggered": "Letzter Tag anteilig (75 %) — Abreise vor 18:00 Uhr Ortszeit."
+        },
+        "insight": {
+          "proration_note": {
+            "title": "Tagegeld-Hinweis",
+            "text": "Ihr Tagegeld für den letzten Tag wird automatisch auf 75 % gekürzt, wenn Ihr Rückflug vor 18:00 Uhr Ortszeit abfährt. Dies entspricht Abschnitt 4.2 der globalen Reiserichtlinie.",
+            "link": "Reiserichtlinie anzeigen"
+          }
+        }
+      },
+      "mileage": {
+        "distance_variance": {
+          "title": "Kilometerabweichung",
+          "pending": "Geben Sie die Fahrstrecke ein, um das Tageslimit zu prüfen.",
+          "ok": "Strecke liegt innerhalb des 200-km-Tageslimits.",
+          "triggered": "Strecke überschreitet 200 km — zusätzliche Genehmigung erforderlich."
+        },
+        "commute_deduction": {
+          "title": "Pendelabzug",
+          "pending": "Geben Sie die Strecke ein, um Pendelabzüge zu prüfen.",
+          "ok": "Route qualifiziert sich für volle Erstattung — keine Pendelstrecke.",
+          "triggered": "Fahrten unter 30 km können als Pendelweg gewertet werden — Abzug möglich."
+        },
+        "reimbursement_rate": {
+          "title": "Erstattungssatz",
+          "pending": "Geben Sie die Strecke ein, um den Erstattungssatz zu bestätigen.",
+          "ok": "Standardsatz von 0,30 €/km für diese Fahrt bestätigt.",
+          "triggered": "Standardsatz von 0,30 €/km gilt für diese Strecke."
+        },
+        "efficiency_suggestion": {
+          "title": "Transporteffizienz",
+          "pending": "Geben Sie die Strecke ein, um die Transporteffizienz zu prüfen.",
+          "ok": "Strecke liegt im empfohlenen Bereich für Autofahrten.",
+          "triggered": "Bei Fahrten über 150 km kann Bahn oder Flug kostengünstiger und umweltfreundlicher sein."
+        },
+        "insight": {
+          "receipt_note": {
+            "title": "Kilometer-Hinweis",
+            "text": "Fahrten unter 50 km benötigen in der Regel keinen Beleg. Bei Strecken über 100 km empfehlen wir einen Routennachweis oder GPS-Protokoll für eine schnellere Genehmigung.",
+            "link": "Kilometerrichtlinie anzeigen"
+          }
+        }
+      }
+    },
     "review": {
       "title": "Überprüfung & Einreichen",
       "subtitle": "Überprüfung vor der endgültigen Einreichung",

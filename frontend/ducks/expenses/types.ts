@@ -4,6 +4,28 @@
 
 export type ExpenseType = 'RECEIPT' | 'PER_DIEM' | 'MILEAGE';
 export type ExpenseStatus = 'DRAFT' | 'PENDING_REVIEW' | 'APPROVED' | 'REJECTED' | 'PAID';
+export type PolicyRuleSeverity = 'error' | 'warning' | 'info' | 'success';
+export type PolicyRuleState = 'pending' | 'ok' | 'triggered';
+
+export interface PolicyEvaluationSnapshotItem {
+  id: string;
+  severity: PolicyRuleSeverity;
+  state: PolicyRuleState;
+  titleKey?: string;
+  pendingDescKey?: string;
+  okDescKey?: string;
+  triggeredDescKey?: string;
+  resolvedTitle?: string;
+  resolvedDesc?: string;
+  blocksSave?: boolean;
+}
+
+export interface PolicyEvaluationSnapshot {
+  screenKey: string;
+  screenVersion?: number;
+  items: PolicyEvaluationSnapshotItem[];
+  inputSnapshot?: Record<string, unknown>;
+}
 
 export interface Expense {
   id: number;
@@ -40,6 +62,7 @@ export interface Expense {
   rejectionReason?: string;
 
   createdAt?: string;
+  policyEvaluationSnapshot?: PolicyEvaluationSnapshot;
 }
 
 export interface CreateExpenseRequest {
@@ -66,6 +89,8 @@ export interface CreateExpenseRequest {
   // Mileage
   distanceKm?: number;
   ratePerKm?: number;
+
+  policyEvaluationSnapshot?: PolicyEvaluationSnapshot;
 }
 
 export interface SubmitExpenseRequest {

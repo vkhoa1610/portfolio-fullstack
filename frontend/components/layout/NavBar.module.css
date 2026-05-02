@@ -10,6 +10,48 @@
   box-shadow: 0 1px 0 0 var(--color-sidebar-border);
 }
 
+/* ── Navbar brand (shown when sidebar collapsed) ── */
+.navBrand {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  flex-shrink: 0;
+  padding-right: 1rem;
+  border-right: 1px solid var(--color-sidebar-border);
+  animation: navBrandIn 0.2s ease-out;
+}
+
+.navBrandLogo {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0.5rem;
+  background: var(--color-brand-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.navBrandLogoText {
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-family: Manrope, sans-serif;
+}
+
+.navBrandName {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-brand-primary);
+  font-family: Manrope, sans-serif;
+  white-space: nowrap;
+}
+
+@keyframes navBrandIn {
+  from { opacity: 0; transform: translateX(-6px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
 /* ── Search ── */
 .searchWrap {
   position: relative;

@@ -45,7 +45,7 @@ function MIcon({ name, size = 20 }: { name: string; size?: number }) {
   );
 }
 
-export default function NavBar() {
+export default function NavBar({ sidebarCollapsed = false }: { sidebarCollapsed?: boolean }) {
   const { t } = useTranslation();
   const router = useRouter();
   const { session, isAdmin, clearSession } = useAuth();
@@ -102,7 +102,17 @@ export default function NavBar() {
 
   return (
     <header className={styles.navbar}>
-      {/* Center: Search */}
+      {/* Brand — visible when sidebar is collapsed */}
+      {sidebarCollapsed && (
+        <div className={styles.navBrand}>
+          <div className={styles.navBrandLogo}>
+            <span className={styles.navBrandLogoText}>F</span>
+          </div>
+          <span className={styles.navBrandName}>FintechSaaS</span>
+        </div>
+      )}
+
+      {/* Search */}
       <div className={styles.searchWrap} ref={searchRef}>
         <div className={styles.searchBox}>
           <span className={`material-symbols-outlined select-none leading-none ${styles.searchIcon}`}

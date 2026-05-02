@@ -132,6 +132,26 @@ CREATE TABLE expenses (
 
 
 -- 4.2 Table: finance_reports
+CREATE TABLE policy_evaluation_history (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    domain VARCHAR(50) NOT NULL,
+    entity_type VARCHAR(50) NOT NULL,
+    entity_id BIGINT NOT NULL,
+    event_type VARCHAR(30) NOT NULL,
+    screen_key VARCHAR(100) NOT NULL,
+    screen_version INT NULL,
+    result_json JSON NOT NULL,
+    input_json JSON NULL,
+    created_by VARCHAR(36) NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_deleted TINYINT(1) DEFAULT 0,
+
+    CONSTRAINT fk_peh_created_by FOREIGN KEY (created_by) REFERENCES users(cognito_sub),
+    INDEX idx_peh_entity_event_created (entity_type, entity_id, event_type, created_at DESC),
+    INDEX idx_peh_domain_screen_created (domain, screen_key, created_at DESC)
+);
+
+-- 4.3 Table: finance_reports
 CREATE TABLE finance_reports (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_sub VARCHAR(36) NOT NULL,

@@ -188,6 +188,113 @@
       "field_submitted_at": "Ngày gửi",
       "field_vendor_name": "Nhà cung cấp"
     },
+    "policy": {
+      "receipt": {
+        "currency_mismatch": {
+          "title": "Sai ngoại tệ",
+          "pending": "Tải hóa đơn lên để kiểm tra ngoại tệ.",
+          "ok": "Ngoại tệ hóa đơn khớp với tài khoản công ty (EUR).",
+          "triggered": "Ngoại tệ khác EUR — cần quy đổi thủ công trước khi duyệt."
+        },
+        "spending_limit": {
+          "title": "Hạn mức chi tiêu",
+          "pending": "Tải hóa đơn lên để kiểm tra hạn mức 150 €.",
+          "ok": "Số tiền nằm trong hạn mức 150 € cho mỗi hóa đơn.",
+          "triggered": "Số tiền vượt 150 € — cần phê duyệt từ quản lý."
+        },
+        "vat_accuracy": {
+          "title": "Độ chính xác VAT",
+          "pending": "Tải hóa đơn lên để xác minh mức VAT.",
+          "ok": "Mức VAT có vẻ hợp lệ với số tiền khai báo.",
+          "triggered": "Mức VAT bất thường — vui lòng đối chiếu với hóa đơn gốc."
+        },
+        "merchant_recognized": {
+          "title": "Nhận diện nhà cung cấp",
+          "pending": "Tải hóa đơn lên để xác định nhà cung cấp.",
+          "ok": "Nhà cung cấp đã được xác định trong danh sách nhà cung ứng.",
+          "triggered": "Không nhận diện được nhà cung cấp — cần phân loại thủ công."
+        },
+        "ai_confidence": {
+          "title": "Độ tin cậy AI",
+          "pending": "Đang chờ kết quả phân tích từ AI.",
+          "ok": "AI đã trích xuất dữ liệu với độ tin cậy cao.",
+          "triggered": "Độ tin cậy AI thấp — vui lòng kiểm tra lại các trường đã trích xuất."
+        },
+        "insight": {
+          "recurring_vendor": {
+            "title": "Nhà cung cấp thường xuyên",
+            "text": "Chi phí này khớp với mẫu hóa đơn định kỳ. Danh mục đã được áp dụng tự động dựa trên lịch sử nộp của bạn.",
+            "link": "Xem lịch sử chi phí"
+          }
+        }
+      },
+      "per_diem": {
+        "location_tier_match": {
+          "title": "Phân hạng địa điểm",
+          "pending": "Chọn điểm đến để xác minh hạng phụ cấp.",
+          "ok": "Điểm đến nằm trong nhóm phụ cấp được phê duyệt.",
+          "triggered": "Điểm đến nằm trong nhóm phụ cấp được phê duyệt."
+        },
+        "duration_match": {
+          "title": "Thời gian công tác",
+          "pending": "Nhập ngày đi/về để xác minh thời gian công tác.",
+          "ok": "Ngày đi/về xác định một kỳ phụ cấp hợp lệ.",
+          "triggered": "Ngày đi/về đã xác nhận — kỳ phụ cấp hợp lệ."
+        },
+        "meal_deduction": {
+          "title": "Khấu trừ bữa ăn bắt buộc",
+          "pending": "Nhập ngày đi/về để kiểm tra quy tắc khấu trừ bữa ăn.",
+          "ok": "Thời gian công tác không kích hoạt khấu trừ bữa ăn bắt buộc.",
+          "triggered": "Công tác trên 3 ngày phải khấu trừ bữa ăn bắt buộc — kiểm tra dịch vụ ăn sáng khách sạn."
+        },
+        "proration": {
+          "title": "Tính toán phân bổ",
+          "pending": "Nhập ngày đi/về để xem phân bổ phụ cấp.",
+          "ok": "Áp dụng phụ cấp nguyên ngày cho tất cả các ngày công tác.",
+          "triggered": "Ngày cuối được tính 75% — chuyến về khởi hành trước 18:00 giờ địa phương."
+        },
+        "insight": {
+          "proration_note": {
+            "title": "Lưu ý chính sách phụ cấp",
+            "text": "Phụ cấp ngày cuối được tự động tính 75% nếu chuyến bay về của bạn khởi hành trước 18:00 giờ địa phương. Quy định này theo Mục 4.2 của Chính sách Du lịch Toàn cầu.",
+            "link": "Xem chính sách du lịch"
+          }
+        }
+      },
+      "mileage": {
+        "distance_variance": {
+          "title": "Giới hạn quãng đường",
+          "pending": "Nhập quãng đường để kiểm tra giới hạn hàng ngày.",
+          "ok": "Quãng đường nằm trong giới hạn 200 km/ngày.",
+          "triggered": "Quãng đường vượt 200 km — cần phê duyệt bổ sung từ quản lý."
+        },
+        "commute_deduction": {
+          "title": "Khấu trừ đi làm",
+          "pending": "Nhập quãng đường để kiểm tra quy tắc khấu trừ đi làm.",
+          "ok": "Tuyến đường đủ điều kiện hoàn tiền toàn bộ — không phải đi làm.",
+          "triggered": "Chuyến đi dưới 30 km có thể bị coi là đi làm — có thể bị khấu trừ."
+        },
+        "reimbursement_rate": {
+          "title": "Mức hoàn tiền",
+          "pending": "Nhập quãng đường để xác nhận mức hoàn tiền áp dụng.",
+          "ok": "Mức tiêu chuẩn 0,30 €/km được xác nhận cho chuyến đi này.",
+          "triggered": "Mức tiêu chuẩn 0,30 €/km áp dụng cho quãng đường này."
+        },
+        "efficiency_suggestion": {
+          "title": "Hiệu quả phương tiện",
+          "pending": "Nhập quãng đường để kiểm tra hiệu quả phương tiện.",
+          "ok": "Quãng đường nằm trong khoảng phù hợp cho di chuyển bằng ô tô.",
+          "triggered": "Với chuyến đi trên 150 km, tàu hỏa hoặc máy bay có thể tiết kiệm hơn và thân thiện môi trường hơn."
+        },
+        "insight": {
+          "receipt_note": {
+            "title": "Lưu ý chính sách số km",
+            "text": "Các chuyến đi dưới 50 km thường không cần chứng từ đính kèm. Với quãng đường trên 100 km, hãy đính kèm ảnh chụp lộ trình hoặc nhật ký GPS để tăng tốc phê duyệt.",
+            "link": "Xem chính sách số km"
+          }
+        }
+      }
+    },
     "review": {
       "title": "Kiểm tra & Gửi",
       "subtitle": "Kiểm tra trước khi gửi duyệt",

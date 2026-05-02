@@ -1,24 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { useCreateExpenseMutation } from "@/ducks/expenses";
+import type { PolicyEvaluationSnapshot } from "@/ducks/expenses";
+import { useGetScreenConfigQuery, useGetPolicyInsightMutation } from "@/ducks/cms/cmsApi";
+import type { PolicyScreenConfig } from "@/ducks/cms/types";
+import type { SeverityCheckItem, SeverityState } from "./policy-compliance";
 import styles from "./per-diem-view.module.css";
 import PageHeader from "@/components/layout/PageHeader";
 import hdrStyles from "@/components/layout/PageHeader.module.css";
 import PolicyCompliance from "./policy-compliance";
-import PolicyInsight, { Highlight } from "./policy-insight";
+import PolicyInsight from "./policy-insight";
 import ReimbursementCard from "./reimbursement-card";
 import DatePicker from "./date-picker";
 
-const PER_DIEM_RATES: Record<string, number> = {
-  DE: 28,
-  AT: 26.4,
-  CH: 65,
-  GB: 45,
-  US: 55,
-  OTHER: 48,
+const PER_DIEM_RATES: Record<string, { rate: number; currencySymbol: string }> = {
+  DE: { rate: 28, currencySymbol: "€" },
+  AT: { rate: 26.4, currencySymbol: "€" },
+  CH: { rate: 65, currencySymbol: "CHF" },
+  GB: { rate: 45, currencySymbol: "£" },
+  US: { rate: 55, currencySymbol: "$" },
+  OTHER: { rate: 48, currencySymbol: "$" },
 };
 
 const COUNTRIES = [
@@ -58,17 +62,113 @@ export default function PerDiemView() {
 
   const [form, setForm] = useState({ title: "", tripFrom: "", tripTo: "", countryCode: "" });
 
-  const rate     = PER_DIEM_RATES[form.countryCode] ?? 0;
+  const rateConfig = PER_DIEM_RATES[form.countryCode];
+  const rate = rateConfig?.rate ?? 0;
+  const currencySymbol = rateConfig?.currencySymbol ?? "€";
   const days     = calcDays(form.tripFrom, form.tripTo);
   const total    = (rate * days).toFixed(2);
 
-  // Policy compliance derived checks
   const locationOk = !!form.countryCode;
   const durationOk = days > 0;
   const readyToSubmit = locationOk && durationOk;
 
+  // ── CMS ────────────────────────────────────────────────────────────────────
+  const { data: rawConfig } = useGetScreenConfigQuery("expense.create.per_diem");
+  const config = rawConfig as PolicyScreenConfig | undefined;
+
+  // ── AI Insight ─────────────────────────────────────────────────────────────
+  const [getInsight] = useGetPolicyInsightMutation();
+  const [aiText, setAiText] = useState<string | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+
+  useEffect(() => {
+    if (!readyToSubmit) return;
+    setAiLoading(true);
+    setAiText(null);
+    const timer = setTimeout(async () => {
+      try {
+        const country = COUNTRIES.find((c) => c.code === form.countryCode)?.label ?? form.countryCode;
+        const res = await getInsight({
+          type: "PER_DIEM",
+          context: { country, rate, days, from: form.tripFrom, to: form.tripTo },
+        }).unwrap();
+        setAiText(res.insight || null);
+      } catch {
+        setAiText(null);
+      } finally {
+        setAiLoading(false);
+      }
+    }, 600);
+    return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.countryCode, form.tripFrom, form.tripTo]);
+
+  function evalCondition(key: string): SeverityState {
+    const hasDates = !!form.tripFrom && !!form.tripTo;
+    switch (key) {
+      case "location_selected":   return locationOk ? "triggered" : "pending";
+      case "duration_valid":      return !hasDates ? "pending" : durationOk ? "triggered" : "pending";
+      case "meal_deduction_required":
+        if (!hasDates) return "pending";
+        return days > 3 ? "triggered" : "ok";
+      case "proration":           return !hasDates ? "pending" : "triggered";
+      default:                    return "pending";
+    }
+  }
+
+  const severityItems: SeverityCheckItem[] = (config?.compliance ?? []).map((rule) => {
+    const state = evalCondition(rule.condition);
+    const desc = t(
+      state === "pending"   ? rule.pending_desc_key  :
+      state === "ok"        ? rule.ok_desc_key        :
+      rule.triggered_desc_key
+    );
+    return { id: rule.id, icon: rule.icon, title: t(rule.title_key), desc, severity: rule.severity, state, blocksSave: rule.blocks_save };
+  });
+
+  // Always show first insight (static text always visible); condition only gates AI call
+  const activeInsight = config?.insight[0];
+
   const handleSave = async () => {
     if (!readyToSubmit) return;
+
+    const policyEvaluationSnapshot: PolicyEvaluationSnapshot | undefined = config
+      ? {
+          screenKey: "expense.create.per_diem",
+          items: (config.compliance ?? []).map((rule) => {
+            const state = evalCondition(rule.condition);
+            const resolvedDescKey =
+              state === "pending"
+                ? rule.pending_desc_key
+                : state === "ok"
+                ? rule.ok_desc_key
+                : rule.triggered_desc_key;
+
+            return {
+              id: rule.id,
+              severity: rule.severity,
+              state,
+              titleKey: rule.title_key,
+              pendingDescKey: rule.pending_desc_key,
+              okDescKey: rule.ok_desc_key,
+              triggeredDescKey: rule.triggered_desc_key,
+              resolvedTitle: t(rule.title_key),
+              resolvedDesc: t(resolvedDescKey),
+              blocksSave: rule.blocks_save,
+            };
+          }),
+          inputSnapshot: {
+            title: form.title,
+            tripFrom: form.tripFrom,
+            tripTo: form.tripTo,
+            countryCode: form.countryCode,
+            perDiemRate: rate,
+            perDiemDays: days,
+            totalAmount: Number(total),
+          },
+        }
+      : undefined;
+
     await createExpense({
       type: "PER_DIEM",
       title: form.title || `Per Diem ${form.tripFrom} – ${form.tripTo}`,
@@ -78,6 +178,7 @@ export default function PerDiemView() {
       countryCode: form.countryCode,
       perDiemRate: rate,
       perDiemDays: days,
+      policyEvaluationSnapshot,
     }).unwrap();
     router.push("/my-expenses");
   };
@@ -105,13 +206,10 @@ export default function PerDiemView() {
       />
 
       <div className={styles.page}>
-      {/* ── Main grid ── */}
       <div className={styles.grid}>
         {/* Left column */}
         <div className={styles.leftCol}>
-          {/* Form card */}
           <div className={styles.formCard}>
-            {/* Title */}
             <div className={styles.fieldGroup}>
               <label htmlFor="pd-title" className={styles.fieldLabel}>
                 {t("expense.per_diem.label_title", { defaultValue: "Expense Title" })}
@@ -126,7 +224,6 @@ export default function PerDiemView() {
               />
             </div>
 
-            {/* Dates */}
             <div className={styles.dateRow}>
               <div className={styles.fieldGroup}>
                 <label htmlFor="pd-from" className={styles.fieldLabel}>
@@ -154,7 +251,6 @@ export default function PerDiemView() {
               </div>
             </div>
 
-            {/* Country */}
             <div className={styles.fieldGroup}>
               <label htmlFor="pd-country" className={styles.fieldLabel}>
                 {t("expense.per_diem.label_country", { defaultValue: "Country & Region" })}
@@ -181,48 +277,60 @@ export default function PerDiemView() {
           <ReimbursementCard
             title={t("expense.per_diem.reimbursement_title", { defaultValue: "Estimated Total" })}
             rows={[
-              { label: t("expense.per_diem.rate_label", { defaultValue: "Rate / Day" }), value: form.countryCode ? `€ ${rate.toFixed(2)}` : "—" },
+              { label: t("expense.per_diem.rate_label", { defaultValue: "Rate / Day" }), value: form.countryCode ? `${currencySymbol} ${rate.toFixed(2)}` : "—" },
               { label: t("expense.per_diem.days_label", { defaultValue: "Total Days" }), value: days > 0 ? `${days} Days` : "—" },
             ]}
             totalLabel={t("expense.per_diem.total_label", { defaultValue: "Estimated Total" })}
-            totalValue={days > 0 && form.countryCode ? `€ ${total}` : "—"}
+            totalValue={days > 0 && form.countryCode ? `${currencySymbol} ${total}` : "—"}
           />
         </div>
 
         {/* Right column */}
         <div className={styles.rightCol}>
-          <PolicyCompliance
-            mode="checklist"
-            items={[
-              {
-                ok: locationOk,
-                pending: !locationOk,
-                title: t("expense.per_diem.policy_location_title", { defaultValue: "Location within tier" }),
-                desc: locationOk
-                  ? t("expense.per_diem.policy_location_ok", { defaultValue: `${COUNTRIES.find((c) => c.code === form.countryCode)?.label} is within the allowed per diem tier.`, location: COUNTRIES.find((c) => c.code === form.countryCode)?.label })
-                  : t("expense.per_diem.policy_location_pending", { defaultValue: "Select a destination to verify location tier." }),
-              },
-              {
-                ok: durationOk,
-                pending: !durationOk,
-                title: t("expense.per_diem.policy_duration_title", { defaultValue: "Duration match" }),
-                desc: durationOk
-                  ? t("expense.per_diem.policy_duration_ok", { defaultValue: "Travel dates match the requested per diem period." })
-                  : t("expense.per_diem.policy_duration_pending", { defaultValue: "Enter travel dates to verify duration." }),
-              },
-              {
-                ok: false,
-                pending: true,
-                title: t("expense.per_diem.policy_meals_title", { defaultValue: "Meal deductions" }),
-                desc: t("expense.per_diem.policy_meals_pending", { defaultValue: "Pending review of hotel-provided breakfast inclusions." }),
-              },
-            ]}
-            readyToSubmit={readyToSubmit}
-          />
+          {config ? (
+            <PolicyCompliance mode="severity" items={severityItems} />
+          ) : (
+            <PolicyCompliance
+              mode="checklist"
+              items={[
+                {
+                  ok: locationOk,
+                  pending: !locationOk,
+                  title: t("expense.per_diem.policy_location_title", { defaultValue: "Location within tier" }),
+                  desc: locationOk
+                    ? t("expense.per_diem.policy_location_ok", { defaultValue: `${COUNTRIES.find((c) => c.code === form.countryCode)?.label} is within the allowed per diem tier.` })
+                    : t("expense.per_diem.policy_location_pending", { defaultValue: "Select a destination to verify location tier." }),
+                },
+                {
+                  ok: durationOk,
+                  pending: !durationOk,
+                  title: t("expense.per_diem.policy_duration_title", { defaultValue: "Duration match" }),
+                  desc: durationOk
+                    ? t("expense.per_diem.policy_duration_ok", { defaultValue: "Travel dates match the requested per diem period." })
+                    : t("expense.per_diem.policy_duration_pending", { defaultValue: "Enter travel dates to verify duration." }),
+                },
+              ]}
+              readyToSubmit={readyToSubmit}
+            />
+          )}
 
-          <PolicyInsight linkLabel={t("expense.per_diem.insight_link", { defaultValue: "View full travel policy" })}>
-            {t("expense.per_diem.insight_text", { defaultValue: "Your per diem for the final day is automatically prorated at 75% because your return flight departs before 6:00 PM local time. This aligns with Section 4.2 of the Global Travel Policy." })}
-          </PolicyInsight>
+          {activeInsight ? (
+            <PolicyInsight
+              linkLabel={activeInsight.link_label_key ? t(activeInsight.link_label_key) : ""}
+              aiText={aiText ?? undefined}
+              aiLoading={aiLoading}
+            >
+              {t(activeInsight.text_key)}
+            </PolicyInsight>
+          ) : !config ? (
+            <PolicyInsight
+              linkLabel={t("expense.per_diem.insight_link", { defaultValue: "View full travel policy" })}
+              aiText={aiText ?? undefined}
+              aiLoading={aiLoading}
+            >
+              {t("expense.per_diem.insight_text", { defaultValue: "Your per diem for the final day is automatically prorated at 75% because your return flight departs before 6:00 PM local time. This aligns with Section 4.2 of the Global Travel Policy." })}
+            </PolicyInsight>
+          ) : null}
         </div>
       </div>
       </div>

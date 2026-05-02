@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.my_java_app.mapper.PolicyEvaluationHistoryMapper">
+
+    <resultMap id="PolicyEvaluationHistoryResultMap" type="com.example.my_java_app.entity.PolicyEvaluationHistoryEntity">
+        <id property="id" column="id"/>
+        <result property="domain" column="domain"/>
+        <result property="entityType" column="entity_type"/>
+        <result property="entityId" column="entity_id"/>
+        <result property="eventType" column="event_type"/>
+        <result property="screenKey" column="screen_key"/>
+        <result property="screenVersion" column="screen_version"/>
+        <result property="resultJson" column="result_json"/>
+        <result property="inputJson" column="input_json"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="isDeleted" column="is_deleted"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.example.my_java_app.entity.PolicyEvaluationHistoryEntity" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO policy_evaluation_history (
+            domain,
+            entity_type,
+            entity_id,
+            event_type,
+            screen_key,
+            screen_version,
+            result_json,
+            input_json,
+            created_by
+        ) VALUES (
+            #{domain},
+            #{entityType},
+            #{entityId},
+            #{eventType},
+            #{screenKey},
+            #{screenVersion},
+            #{resultJson},
+            #{inputJson},
+            #{createdBy}
+        )
+    </insert>
+
+    <select id="findLatestByEntityAndEvent" resultMap="PolicyEvaluationHistoryResultMap">
+        SELECT *
+        FROM policy_evaluation_history
+        WHERE entity_type = #{entityType}
+          AND entity_id = #{entityId}
+          AND event_type = #{eventType}
+          AND is_deleted = 0
+        ORDER BY created_at DESC, id DESC
+        LIMIT 1
+    </select>
+
+</mapper>

@@ -1,6 +1,7 @@
 "use client";
 
 import styles from "./policy-cards.module.css";
+import type { RuleSeverity } from "@/ducks/cms/types";
 
 // ── Shared icon helper ────────────────────────────────────────────────────────
 function MIcon({ name, size = 18, fill = false }: { name: string; size?: number; fill?: boolean }) {
@@ -9,7 +10,7 @@ function MIcon({ name, size = 18, fill = false }: { name: string; size?: number;
       className="material-symbols-outlined select-none leading-none shrink-0"
       style={{
         fontSize: size,
-        fontVariationSettings: `'FILL' ${fill ? 1 : 0}, 'wght' 400, 'GRAD' 0, 'opsz' 24`,
+        fontVariationSettings: `'FILL' ${fill ? 1 : 0}, 'wght' 400, 'GRAD' 0, 'opsz' 20`,
       }}
     >
       {name}
@@ -25,6 +26,18 @@ export interface CheckItem {
   desc: string;
 }
 
+export type SeverityState = "pending" | "ok" | "triggered";
+
+export interface SeverityCheckItem {
+  id: string;
+  icon: string;
+  title: string;
+  desc: string;
+  severity: RuleSeverity;
+  state: SeverityState;
+  blocksSave?: boolean;
+}
+
 interface ChecklistProps {
   mode: "checklist";
   items: CheckItem[];
@@ -34,14 +47,128 @@ interface ChecklistProps {
 interface ProgressProps {
   mode: "progress";
   text: string;
-  /** value 0–100; omit or null to hide the bar */
   progress?: { value: number; label: string; over?: boolean } | null;
 }
 
-type PolicyComplianceProps = ChecklistProps | ProgressProps;
+interface SeverityProps {
+  mode: "severity";
+  items: SeverityCheckItem[];
+}
+
+type PolicyComplianceProps = ChecklistProps | ProgressProps | SeverityProps;
+
+// ── Severity helpers ──────────────────────────────────────────────────────────
+const SEVERITY_DOT: Record<RuleSeverity, string> = {
+  error:   styles.checkDotError,
+  warning: styles.checkDotWarning,
+  info:    styles.checkDotInfo,
+  success: styles.checkDotSuccess,
+};
+
+function severityIcon(severity: RuleSeverity): string {
+  switch (severity) {
+    case "error":   return "close";
+    case "warning": return "warning";
+    case "info":    return "info";
+    case "success": return "check_circle";
+  }
+}
+
+function tooltipText(state: SeverityState, severity: RuleSeverity): string {
+  if (state === "pending")  return "Pending: waiting for input";
+  if (state === "ok")       return "Passed: rule check passed";
+  switch (severity) {
+    case "error":   return "Error: blocks submission";
+    case "warning": return "Warning: advisory";
+    case "info":    return "Info: informational";
+    case "success": return "Success: confirmed";
+  }
+}
 
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function PolicyCompliance(props: PolicyComplianceProps) {
+  // ── Severity mode (4-state CMS-driven) ────────────────────────────────────
+  if (props.mode === "severity") {
+    const { items } = props;
+    const blockedByError = items.some(
+      (it) => it.blocksSave && it.state === "triggered" && it.severity === "error"
+    );
+    const allFilled = items.every((it) => it.state !== "pending");
+
+    return (
+      <div className={styles.card}>
+        <p className={styles.cardTitle}>Policy Compliance</p>
+        <div className={styles.checkList}>
+          {items.map((item) => {
+            const isPending   = item.state === "pending";
+            const isTriggered = item.state === "triggered";
+
+            let dotClass = styles.checkDotPending;
+            let iconName = "schedule";
+            let iconFill = false;
+
+            if (isPending) {
+              dotClass = styles.checkDotPending;
+              iconName = "schedule";
+            } else if (item.state === "ok") {
+              dotClass = styles.checkDotOk;
+              iconName = "check";
+              iconFill = false;
+            } else if (isTriggered) {
+              dotClass = SEVERITY_DOT[item.severity];
+              iconName = severityIcon(item.severity);
+              iconFill = item.severity === "success";
+            }
+
+            return (
+              <div
+                key={item.id}
+                className={`${styles.checkRow} ${isPending ? styles.checkRowDim : ""}`}
+              >
+                <div
+                  className={styles.checkDotWrapper}
+                  data-tooltip={tooltipText(item.state, item.severity)}
+                >
+                  <div className={`${styles.checkDot} ${dotClass}`}>
+                    <MIcon name={iconName} size={14} fill={iconFill} />
+                  </div>
+                </div>
+                <div>
+                  <p className={styles.checkTitle}>{item.title}</p>
+                  <p className={styles.checkDesc}>{item.desc}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div
+          className={`${styles.badge} ${
+            blockedByError
+              ? styles.badgeBlocked
+              : allFilled
+              ? styles.badgeReady
+              : styles.badgePending
+          }`}
+        >
+          <MIcon
+            name={blockedByError ? "block" : allFilled ? "verified" : "pending"}
+            size={18}
+            fill={allFilled && !blockedByError}
+          />
+          <span>
+            {blockedByError
+              ? "Blocked — resolve errors to proceed"
+              : allFilled
+              ? "Ready for Submission"
+              : "Complete the form to proceed"}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Checklist mode ─────────────────────────────────────────────────────────
   if (props.mode === "checklist") {
     const { items, readyToSubmit } = props;
     return (
@@ -55,19 +182,9 @@ export default function PolicyCompliance(props: PolicyComplianceProps) {
             >
               <div className={`${styles.checkDot} ${item.ok ? styles.checkDotOk : styles.checkDotPending}`}>
                 {item.ok ? (
-                  <span
-                    className="material-symbols-outlined select-none"
-                    style={{ fontSize: 14, fontVariationSettings: "'FILL' 0, 'wght' 700, 'GRAD' 0, 'opsz' 20" }}
-                  >
-                    check
-                  </span>
+                  <MIcon name="check" size={14} />
                 ) : (
-                  <span
-                    className="material-symbols-outlined select-none"
-                    style={{ fontSize: 14, fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20" }}
-                  >
-                    schedule
-                  </span>
+                  <MIcon name="schedule" size={14} />
                 )}
               </div>
               <div>
@@ -85,7 +202,7 @@ export default function PolicyCompliance(props: PolicyComplianceProps) {
     );
   }
 
-  // progress mode
+  // ── Progress mode ──────────────────────────────────────────────────────────
   const { text, progress } = props;
   return (
     <div className={styles.cardProgress}>

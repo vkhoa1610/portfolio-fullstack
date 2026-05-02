@@ -116,7 +116,7 @@
   position: relative;
   overflow: hidden;
   box-shadow: 0 1px 4px rgba(66, 68, 219, 0.08);
-  height: 11rem;
+  min-height: 11rem;
 }
 
 .insightAccent {
@@ -156,6 +156,18 @@
   color: #944400;
 }
 
+.aiPill {
+  font-size: 0.55rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: rgba(66, 68, 219, 0.08);
+  border: 1px solid rgba(66, 68, 219, 0.15);
+  color: #4244db;
+  padding: 0.15rem 0.45rem;
+  border-radius: 9999px;
+}
+
 .insightTitle {
   font-size: 0.9375rem;
   font-weight: 700;
@@ -168,6 +180,30 @@
   font-size: 0.8125rem;
   color: var(--color-neutral-500);
   line-height: 1.5;
+}
+
+/* ── Insight skeleton shimmer ── */
+.insightSkeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding-top: 0.25rem;
+}
+
+.insightSkeletonLine {
+  height: 0.8rem;
+  border-radius: 4px;
+  background: linear-gradient(90deg, rgba(148,68,0,0.06) 25%, rgba(148,68,0,0.13) 50%, rgba(148,68,0,0.06) 75%);
+  background-size: 200% 100%;
+  animation: insightShimmer 1.4s ease-in-out infinite;
+}
+
+.insightSkeletonLineShort { width: 55%; }
+.insightSkeletonLineMid   { width: 80%; }
+
+@keyframes insightShimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 /* ── Table Section ── */

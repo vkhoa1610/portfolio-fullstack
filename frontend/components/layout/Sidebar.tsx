@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/common/context/AuthContext";
 
@@ -96,11 +96,16 @@ function MIcon({ name, size = 18 }: { name: string; size?: number }) {
 // Sidebar
 // ─────────────────────────────────────────────────────────────────────────────
 
-export default function Sidebar() {
+export default function Sidebar({
+  collapsed,
+  onCollapse,
+}: {
+  collapsed: boolean;
+  onCollapse: (v: boolean) => void;
+}) {
   const { t } = useTranslation();
   const pathname = usePathname();
   const { session, isAdmin } = useAuth();
-  const [collapsed, setCollapsed] = useState(false);
 
   const role = session?.user.role as UserRole | undefined;
 
@@ -112,17 +117,17 @@ export default function Sidebar() {
     >
       {/* Brand / Logo */}
       <div className={`${styles.brand} ${collapsed ? styles.brandCollapsed : styles.brandExpanded}`}>
-        <div className={styles.brandLogo}>
-          <span className={styles.brandLogoText}>F</span>
-        </div>
         {!collapsed && (
           <>
+            <div className={styles.brandLogo}>
+              <span className={styles.brandLogoText}>F</span>
+            </div>
             <div className="min-w-0 flex-1">
               <p className={styles.brandName}>FintechSaaS</p>
               <p className={styles.brandTagline}>Expense Platform</p>
             </div>
             <button
-              onClick={() => setCollapsed(true)}
+              onClick={() => onCollapse(true)}
               className={styles.collapseBtn}
               title="Collapse sidebar"
             >
@@ -132,7 +137,7 @@ export default function Sidebar() {
         )}
         {collapsed && (
           <button
-            onClick={() => setCollapsed(false)}
+            onClick={() => onCollapse(false)}
             className={styles.collapseBtn}
             title="Expand sidebar"
           >

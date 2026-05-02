@@ -82,10 +82,12 @@ function MileageVisual({
   distanceKm?: number;
   tripDate?: string;
 }) {
-  // Try to parse "from → to" from title
+  // Parse "from → to" when available; otherwise keep title as route label
   const parts = title?.split(/→|->/) ?? [];
-  const from = parts[0]?.replace(/^Mileage\s*/i, "").trim() || "—";
-  const to   = parts[1]?.trim() || "—";
+  const hasExplicitRoute = parts.length > 1;
+  const from = parts[0]?.replace(/^Mileage\s*/i, "").trim() || "Origin";
+  const to = hasExplicitRoute ? (parts[1]?.trim() || "Destination") : "Destination";
+  const routeLabel = title?.trim() || "Business Mileage Trip";
 
   const dateLabel = tripDate
     ? new Date(tripDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
@@ -94,22 +96,44 @@ function MileageVisual({
   return (
     <div className={styles.visualWrap}>
       <div className={styles.routeVisual}>
+        <div className={styles.routeGlow} />
+        <div className={styles.routeGlow2} />
+
+        <div className={styles.routeTopRow}>
+          <p className={styles.routeTag}>
+            <MIcon name="distance" size={14} />
+            Mileage Journey
+          </p>
+          <div className={styles.routeMetaRow}>
+            {distanceKm != null && distanceKm > 0 && (
+              <span className={styles.routePillPrimary}>{distanceKm.toFixed(1)} km</span>
+            )}
+            {dateLabel && (
+              <span className={styles.routePillSoft}>
+                <MIcon name="calendar_today" size={14} />
+                {dateLabel}
+              </span>
+            )}
+          </div>
+        </div>
+
+        <p className={styles.routeTitle}>{routeLabel}</p>
+
         <div className={styles.routeInner}>
           <div className={styles.routeRow}>
             <div className={styles.routeDot} />
             <span className={styles.routeCity}>{from}</span>
           </div>
+
           <div className={styles.routeConnector}>
             <div className={styles.routeLine} />
-            {distanceKm != null && distanceKm > 0 && (
-              <span className={styles.routeDistBadge}>{distanceKm.toFixed(1)} km</span>
-            )}
+            <span className={styles.routeConnectorLabel}>Planned route</span>
           </div>
+
           <div className={styles.routeRow}>
             <div className={`${styles.routeDot} ${styles.routeDotDest}`} />
             <span className={styles.routeCity}>{to}</span>
           </div>
-          {dateLabel && <p className={styles.routeDate}>{dateLabel}</p>}
         </div>
       </div>
     </div>

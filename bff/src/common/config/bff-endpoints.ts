@@ -40,6 +40,9 @@ export const BFF_ENDPOINTS = {
   // ─── Screen Config (CMS) ──────────────────────────────────────────
   SCR_001: '/scr-001/:screenKey',  // GET screen config JSON for a screen
 
+  // ─── AI Insight ───────────────────────────────────────────────────
+  INS_001: '/ins-001',  // POST policy insight (Groq AI)
+
   // ─── Admin ────────────────────────────────────────────────────────
   ADM_001: '/adm-001/users',                   // GET  list all users
   ADM_002: '/adm-002/:sub/permissions',         // GET  permission status (3-state)

@@ -51,12 +51,16 @@ export default function PageHeader({
       <div className={styles.inner}>
         {/* Left */}
         <div className={styles.left}>
-          {backLabel && (
-            <button className={styles.backBtn} onClick={handleBack}>
-              <MIcon name="arrow_back" size={16} />
-              {backLabel}
-            </button>
-          )}
+          <button
+            className={`${styles.backBtn} ${!backLabel ? styles.backBtnHidden : ""}`}
+            onClick={handleBack}
+            disabled={!backLabel}
+            aria-hidden={!backLabel}
+            tabIndex={backLabel ? 0 : -1}
+          >
+            <MIcon name="arrow_back" size={16} />
+            {backLabel || "Back"}
+          </button>
           <h1 className={styles.title}>{title}</h1>
           {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
           {badges && badges.length > 0 && (

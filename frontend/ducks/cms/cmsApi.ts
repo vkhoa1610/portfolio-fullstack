@@ -1,9 +1,16 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-/**
- * RTK Query API for CMS screen configs.
- * Calls BFF GET /scr-001/:screenKey → returns parsed config JSON object.
- */
+export type PolicyInsightType = "RECEIPT" | "PER_DIEM" | "MILEAGE" | "EXPENSE_SUMMARY";
+
+export interface PolicyInsightRequest {
+  type: PolicyInsightType;
+  context: Record<string, unknown>;
+}
+
+export interface PolicyInsightResponse {
+  insight: string;
+}
+
 export const cmsApi = createApi({
   reducerPath: "cmsApi",
   baseQuery: fetchBaseQuery({
@@ -14,7 +21,14 @@ export const cmsApi = createApi({
     getScreenConfig: builder.query<unknown, string>({
       query: (screenKey) => `/scr-001/${encodeURIComponent(screenKey)}`,
     }),
+    getPolicyInsight: builder.mutation<PolicyInsightResponse, PolicyInsightRequest>({
+      query: (body) => ({
+        url: "/ins-001",
+        method: "POST",
+        body,
+      }),
+    }),
   }),
 });
 
-export const { useGetScreenConfigQuery } = cmsApi;
+export const { useGetScreenConfigQuery, useGetPolicyInsightMutation } = cmsApi;

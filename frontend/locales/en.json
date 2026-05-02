@@ -188,6 +188,113 @@
       "field_submitted_at": "Submitted",
       "field_vendor_name": "Vendor"
     },
+    "policy": {
+      "receipt": {
+        "currency_mismatch": {
+          "title": "Currency Mismatch",
+          "pending": "Upload a receipt to check currency alignment.",
+          "ok": "Receipt currency matches company account (EUR).",
+          "triggered": "Currency differs from EUR — manual conversion required."
+        },
+        "spending_limit": {
+          "title": "Spending Limit",
+          "pending": "Upload a receipt to verify spending against the €150 limit.",
+          "ok": "Amount is within the €150 single-receipt policy limit.",
+          "triggered": "Amount exceeds €150 — manager pre-approval is required."
+        },
+        "vat_accuracy": {
+          "title": "VAT Accuracy",
+          "pending": "Upload a receipt to validate the VAT rate.",
+          "ok": "VAT rate appears valid for the stated amount.",
+          "triggered": "VAT rate looks unusual — verify with the original receipt."
+        },
+        "merchant_recognized": {
+          "title": "Merchant Recognition",
+          "pending": "Upload a receipt to identify the vendor.",
+          "ok": "Vendor identified and mapped to known supplier list.",
+          "triggered": "Vendor could not be recognized — manual categorization may be needed."
+        },
+        "ai_confidence": {
+          "title": "AI Confidence",
+          "pending": "Waiting for AI extraction results.",
+          "ok": "AI extracted data with high confidence.",
+          "triggered": "Low AI confidence — review extracted fields carefully."
+        },
+        "insight": {
+          "recurring_vendor": {
+            "title": "Recurring Vendor",
+            "text": "This matches a recurring expense pattern. The category was applied automatically based on your submission history.",
+            "link": "View expense history"
+          }
+        }
+      },
+      "per_diem": {
+        "location_tier_match": {
+          "title": "Location Tier Match",
+          "pending": "Select a destination to verify location tier.",
+          "ok": "Destination confirmed within an approved per diem tier.",
+          "triggered": "Destination confirmed within an approved per diem tier."
+        },
+        "duration_match": {
+          "title": "Duration Match",
+          "pending": "Enter travel dates to verify the per diem period.",
+          "ok": "Travel dates define a valid per diem period.",
+          "triggered": "Travel dates confirmed — per diem period is valid."
+        },
+        "meal_deduction": {
+          "title": "Mandatory Meal Deductions",
+          "pending": "Enter travel dates to check meal deduction rules.",
+          "ok": "Trip duration does not trigger mandatory meal deductions.",
+          "triggered": "Trips over 3 days require mandatory meal deductions — review hotel inclusions."
+        },
+        "proration": {
+          "title": "Proration Calculation",
+          "pending": "Enter travel dates to preview proration.",
+          "ok": "Full-day allowance applies to all travel days.",
+          "triggered": "Final day prorated at 75% — departure before 18:00 local time."
+        },
+        "insight": {
+          "proration_note": {
+            "title": "Per Diem Policy Note",
+            "text": "Your per diem for the final day is automatically prorated at 75% if your return flight departs before 18:00 local time. This aligns with Section 4.2 of the Global Travel Policy.",
+            "link": "View full travel policy"
+          }
+        }
+      },
+      "mileage": {
+        "distance_variance": {
+          "title": "Distance Variance Rule",
+          "pending": "Enter your travel distance to verify the daily limit.",
+          "ok": "Distance is within the 200 km daily reimbursement limit.",
+          "triggered": "Distance exceeds 200 km — additional manager approval required."
+        },
+        "commute_deduction": {
+          "title": "Commute Deduction Rule",
+          "pending": "Enter distance to check commute deduction applicability.",
+          "ok": "Route qualifies for full reimbursement — non-commute distance.",
+          "triggered": "Trips under 30 km may be treated as a commute — deduction may apply."
+        },
+        "reimbursement_rate": {
+          "title": "Reimbursement Rate",
+          "pending": "Enter distance to confirm the applicable reimbursement rate.",
+          "ok": "Standard rate of €0.30/km confirmed for this trip.",
+          "triggered": "Standard rate of €0.30/km applies to this distance."
+        },
+        "efficiency_suggestion": {
+          "title": "Transport Efficiency",
+          "pending": "Enter distance to check transport efficiency.",
+          "ok": "Distance is within the recommended range for car travel.",
+          "triggered": "For trips over 150 km, train or flight may reduce cost and carbon impact."
+        },
+        "insight": {
+          "receipt_note": {
+            "title": "Mileage Policy Note",
+            "text": "Trips under 50 km typically do not require supporting receipts. For distances over 100 km, attach a route screenshot or GPS log to speed up approval.",
+            "link": "View mileage policy"
+          }
+        }
+      }
+    },
     "review": {
       "title": "Review & Submit",
       "subtitle": "Review before final submission",

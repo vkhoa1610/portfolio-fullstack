@@ -1,10 +1,12 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { Plus, Camera, Calendar, Car, Sparkles, TrendingDown, TrendingUp, ListFilter, ArrowUpDown } from "lucide-react";
 import { useGetExpensesQuery } from "@/ducks/expenses";
 import type { Expense, ExpenseStatus } from "@/ducks/expenses";
+import { useGetPolicyInsightMutation } from "@/ducks/cms/cmsApi";
 import styles from "./expense-list-view.module.css";
 import PageHeader from "@/components/layout/PageHeader";
 
@@ -35,9 +37,7 @@ function computeStats(expenses: Expense[]) {
     list.reduce((s, e) => s + (e.amount ?? 0), 0);
 
   const mtdList = expenses.filter((e) => e.createdAt?.startsWith(currentMonth));
-  const lastMtdList = expenses.filter((e) =>
-    e.createdAt?.startsWith(lastMonth)
-  );
+  const lastMtdList = expenses.filter((e) => e.createdAt?.startsWith(lastMonth));
   const pendingList = expenses.filter((e) => e.status === "PENDING_REVIEW");
   const paidList = expenses.filter(
     (e) => e.status === "PAID" && e.createdAt?.startsWith(currentYear)
@@ -48,12 +48,22 @@ function computeStats(expenses: Expense[]) {
   const mtdChange =
     lastMtd > 0 ? Math.round(((mtd - lastMtd) / lastMtd) * 100) : null;
 
+  const byCategory: Record<string, number> = {};
+  for (const e of expenses) {
+    byCategory[e.type] = (byCategory[e.type] ?? 0) + (e.amount ?? 0);
+  }
+  const topCategory =
+    Object.entries(byCategory).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "N/A";
+
   return {
     mtd,
+    lastMtd,
     mtdChange,
     pendingAmount: sum(pendingList),
     pendingCount: pendingList.length,
     reimbursedYTD: sum(paidList),
+    rejectedCount: expenses.filter((e) => e.status === "REJECTED").length,
+    topCategory,
   };
 }
 
@@ -71,6 +81,45 @@ export default function ExpenseListView() {
   };
 
   const stats = computeStats(expenses);
+
+  // ── AI Insight ──────────────────────────────────────────
+  const [getInsight] = useGetPolicyInsightMutation();
+  const [aiTitle, setAiTitle] = useState<string | null>(null);
+  const [aiBody, setAiBody] = useState<string | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+
+  useEffect(() => {
+    if (expenses.length === 0) return;
+    setAiLoading(true);
+    setAiTitle(null);
+    setAiBody(null);
+    const timer = setTimeout(async () => {
+      try {
+        const res = await getInsight({
+          type: "EXPENSE_SUMMARY",
+          context: {
+            mtd: stats.mtd,
+            lastMtd: stats.lastMtd,
+            mtdChange: stats.mtdChange,
+            pendingCount: stats.pendingCount,
+            pendingAmount: stats.pendingAmount,
+            reimbursedYTD: stats.reimbursedYTD,
+            rejectedCount: stats.rejectedCount,
+            topCategory: stats.topCategory,
+          },
+        }).unwrap();
+        const lines = (res.insight ?? "").trim().split("\n").filter(Boolean);
+        setAiTitle(lines[0] ?? null);
+        setAiBody(lines.slice(1).join(" ") || null);
+      } catch {
+        // fall through to static fallback text
+      } finally {
+        setAiLoading(false);
+      }
+    }, 800);
+    return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [expenses.length, stats.pendingCount]);
 
   return (
     <div>
@@ -168,14 +217,26 @@ export default function ExpenseListView() {
                   <Sparkles className="h-4 w-4" />
                 </div>
                 <span className={styles.insightTag}>Editorial Insight</span>
+                {(aiLoading || aiTitle) && (
+                  <span className={styles.aiPill}>AI</span>
+                )}
               </div>
-              <h3 className={styles.insightTitle}>
-                Submit expenses promptly to avoid reimbursement delays.
-              </h3>
-              <p className={styles.insightBody}>
-                Expenses submitted within 3 days of the transaction are approved
-                40% faster on average.
-              </p>
+              {aiLoading ? (
+                <div className={styles.insightSkeleton}>
+                  <div className={styles.insightSkeletonLine} />
+                  <div className={`${styles.insightSkeletonLine} ${styles.insightSkeletonLineShort}`} />
+                  <div className={`${styles.insightSkeletonLine} ${styles.insightSkeletonLineMid}`} />
+                </div>
+              ) : (
+                <>
+                  <h3 className={styles.insightTitle}>
+                    {aiTitle ?? "Submit expenses promptly to avoid reimbursement delays."}
+                  </h3>
+                  <p className={styles.insightBody}>
+                    {aiBody ?? "Expenses submitted within 3 days of the transaction are approved 40% faster on average."}
+                  </p>
+                </>
+              )}
             </div>
           </div>
         </div>

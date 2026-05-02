@@ -1,22 +1,33 @@
 package com.example.my_java_app.service;
 
 import com.example.my_java_app.client.GroqClient;
+import com.example.my_java_app.dto.common.PolicyEvaluationItemDto;
+import com.example.my_java_app.dto.common.PolicyEvaluationSnapshotDto;
 import com.example.my_java_app.dto.request.CreateExpenseRequestDto;
 import com.example.my_java_app.dto.response.ExpenseResponseDto;
 import com.example.my_java_app.dto.response.ScanResponseDto;
 import com.example.my_java_app.entity.ExpenseEntity;
+import com.example.my_java_app.entity.PolicyEvaluationHistoryEntity;
+import com.example.my_java_app.entity.ScreenConfigEntity;
 import com.example.my_java_app.exception.NotFoundException;
 import com.example.my_java_app.repository.ExpenseRepository;
+import com.example.my_java_app.repository.PolicyEvaluationHistoryRepository;
+import com.example.my_java_app.repository.ScreenConfigRepository;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Map;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,20 +37,27 @@ public class ExpenseService {
     private static final Logger log = LoggerFactory.getLogger(ExpenseService.class);
 
     private final ExpenseRepository expenseRepository;
+    private final PolicyEvaluationHistoryRepository policyEvaluationHistoryRepository;
+    private final ScreenConfigRepository screenConfigRepository;
     private final GroqClient groqClient;
     private final StorageService storageService;
     private final ObjectMapper objectMapper;
 
     public ExpenseService(ExpenseRepository expenseRepository,
+                          PolicyEvaluationHistoryRepository policyEvaluationHistoryRepository,
+                          ScreenConfigRepository screenConfigRepository,
                           GroqClient groqClient,
                           StorageService storageService,
                           ObjectMapper objectMapper) {
         this.expenseRepository = expenseRepository;
+        this.policyEvaluationHistoryRepository = policyEvaluationHistoryRepository;
+        this.screenConfigRepository = screenConfigRepository;
         this.groqClient = groqClient;
         this.storageService = storageService;
         this.objectMapper = objectMapper;
     }
 
+    @Transactional
     public ExpenseResponseDto create(String cognitoSub, CreateExpenseRequestDto dto) {
         ExpenseEntity entity = new ExpenseEntity();
         entity.setUserSub(cognitoSub);
@@ -48,10 +66,19 @@ public class ExpenseService {
         entity.setAmount(dto.getAmount());
         entity.setCurrency(dto.getCurrency() != null ? dto.getCurrency() : "EUR");
         entity.setVendorName(dto.getVendorName());
+        if (dto.getReceiptDate() != null && !dto.getReceiptDate().isBlank()) {
+            entity.setReceiptDate(LocalDate.parse(dto.getReceiptDate()));
+        }
         entity.setVatAmount(dto.getVatAmount());
         entity.setReceiptFileUrl(dto.getReceiptFileUrl());
         entity.setAiExtractedData(dto.getAiExtractedData());
         entity.setAiFlags(dto.getAiFlags());
+        if (dto.getTripFrom() != null && !dto.getTripFrom().isBlank()) {
+            entity.setTripFrom(LocalDate.parse(dto.getTripFrom()));
+        }
+        if (dto.getTripTo() != null && !dto.getTripTo().isBlank()) {
+            entity.setTripTo(LocalDate.parse(dto.getTripTo()));
+        }
         entity.setCountryCode(dto.getCountryCode());
         entity.setPerDiemRate(dto.getPerDiemRate());
         entity.setPerDiemDays(dto.getPerDiemDays());
@@ -59,20 +86,22 @@ public class ExpenseService {
         entity.setRatePerKm(dto.getRatePerKm() != null ? dto.getRatePerKm() : new BigDecimal("0.30"));
 
         expenseRepository.save(entity);
-        return toDto(entity);
+        savePolicySnapshotIfPresent(cognitoSub, entity.getId(), dto.getPolicyEvaluationSnapshot());
+        return toDto(entity, dto.getPolicyEvaluationSnapshot());
     }
 
     public List<ExpenseResponseDto> listByUser(String cognitoSub) {
         return expenseRepository.findByUserSub(cognitoSub)
                 .stream()
-                .map(this::toDto)
+                .map(expense -> toDto(expense, null))
                 .collect(Collectors.toList());
     }
 
     public ExpenseResponseDto getById(Long id) {
         ExpenseEntity entity = expenseRepository.findById(id);
         if (entity == null) throw new NotFoundException("Expense not found: " + id);
-        return toDto(entity);
+        PolicyEvaluationSnapshotDto policySnapshot = findCreatePolicySnapshot(entity.getId());
+        return toDto(entity, policySnapshot);
     }
 
     public void submit(Long id) {
@@ -155,7 +184,72 @@ public class ExpenseService {
         );
     }
 
-    private ExpenseResponseDto toDto(ExpenseEntity e) {
+    private void savePolicySnapshotIfPresent(String cognitoSub, Long expenseId, PolicyEvaluationSnapshotDto snapshot) {
+        if (snapshot == null || snapshot.getScreenKey() == null || snapshot.getScreenKey().isBlank()) {
+            return;
+        }
+        if (snapshot.getItems() == null || snapshot.getItems().isEmpty()) {
+            return;
+        }
+
+        Integer screenVersion = screenConfigRepository.findActive(snapshot.getScreenKey())
+                .map(ScreenConfigEntity::getVersion)
+                .orElse(null);
+
+        try {
+            PolicyEvaluationHistoryEntity history = new PolicyEvaluationHistoryEntity();
+            history.setDomain("EXPENSE");
+            history.setEntityType("EXPENSE");
+            history.setEntityId(expenseId);
+            history.setEventType("CREATE");
+            history.setScreenKey(snapshot.getScreenKey());
+            history.setScreenVersion(screenVersion);
+            history.setResultJson(objectMapper.writeValueAsString(snapshot.getItems()));
+            history.setInputJson(
+                    snapshot.getInputSnapshot() == null ? null : objectMapper.writeValueAsString(snapshot.getInputSnapshot())
+            );
+            history.setCreatedBy(cognitoSub);
+
+            policyEvaluationHistoryRepository.save(history);
+        } catch (Exception ex) {
+            log.warn("Failed to persist policy evaluation snapshot for expense {}: {}", expenseId, ex.getMessage());
+        }
+    }
+
+    private PolicyEvaluationSnapshotDto findCreatePolicySnapshot(Long expenseId) {
+        PolicyEvaluationHistoryEntity history = policyEvaluationHistoryRepository.findLatestByEntityAndEvent(
+                "EXPENSE", expenseId, "CREATE"
+        );
+        if (history == null) return null;
+
+        PolicyEvaluationSnapshotDto snapshot = new PolicyEvaluationSnapshotDto();
+        snapshot.setScreenKey(history.getScreenKey());
+        snapshot.setScreenVersion(history.getScreenVersion());
+
+        try {
+            List<PolicyEvaluationItemDto> items = objectMapper.readValue(
+                    history.getResultJson(), new TypeReference<List<PolicyEvaluationItemDto>>() {}
+            );
+            snapshot.setItems(items);
+        } catch (Exception ex) {
+            log.warn("Failed to parse policy evaluation result_json for expense {}: {}", expenseId, ex.getMessage());
+            snapshot.setItems(Collections.emptyList());
+        }
+
+        if (history.getInputJson() != null && !history.getInputJson().isBlank()) {
+            try {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> input = objectMapper.readValue(history.getInputJson(), Map.class);
+                snapshot.setInputSnapshot(input);
+            } catch (Exception ex) {
+                log.warn("Failed to parse policy evaluation input_json for expense {}: {}", expenseId, ex.getMessage());
+            }
+        }
+
+        return snapshot;
+    }
+
+    private ExpenseResponseDto toDto(ExpenseEntity e, PolicyEvaluationSnapshotDto policyEvaluationSnapshot) {
         ExpenseResponseDto dto = new ExpenseResponseDto();
         dto.setId(e.getId());
         dto.setUserSub(e.getUserSub());
@@ -182,6 +276,7 @@ public class ExpenseService {
         dto.setReviewedBy(e.getReviewedBy());
         dto.setRejectionReason(e.getRejectionReason());
         dto.setCreatedAt(e.getCreatedAt() != null ? e.getCreatedAt().toString() : null);
+        dto.setPolicyEvaluationSnapshot(policyEvaluationSnapshot);
         return dto;
     }
 }

@@ -1,9 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { useCreateExpenseMutation } from "@/ducks/expenses";
+import type { PolicyEvaluationSnapshot } from "@/ducks/expenses";
+import { useGetScreenConfigQuery, useGetPolicyInsightMutation } from "@/ducks/cms/cmsApi";
+import type { PolicyScreenConfig } from "@/ducks/cms/types";
+import type { SeverityCheckItem, SeverityState } from "./policy-compliance";
 import styles from "./mileage-view.module.css";
 import PageHeader from "@/components/layout/PageHeader";
 import hdrStyles from "@/components/layout/PageHeader.module.css";
@@ -14,6 +18,8 @@ import DatePicker from "./date-picker";
 
 const RATE_PER_KM = 0.3;
 const DAILY_LIMIT_KM = 200;
+const EFFICIENCY_THRESHOLD_KM = 150;
+const COMMUTE_THRESHOLD_KM = 30;
 
 function MIcon({ name, size = 20, fill = false }: { name: string; size?: number; fill?: boolean }) {
   return (
@@ -38,12 +44,117 @@ export default function MileageView() {
 
   const distance   = parseFloat(form.distanceKm) || 0;
   const total      = (distance * RATE_PER_KM).toFixed(2);
-  const limitPct   = Math.min((distance / DAILY_LIMIT_KM) * 100, 100);
   const withinLimit = distance > 0 && distance <= DAILY_LIMIT_KM;
   const canSave    = distance > 0 && !!form.tripDate;
 
+  // ── CMS ────────────────────────────────────────────────────────────────────
+  const { data: rawConfig } = useGetScreenConfigQuery("expense.create.mileage");
+  const config = rawConfig as PolicyScreenConfig | undefined;
+
+  function evalCondition(key: string): SeverityState {
+    switch (key) {
+      case "distance_over_limit":
+        if (distance === 0) return "pending";
+        return distance > DAILY_LIMIT_KM ? "triggered" : "ok";
+      case "possible_commute":
+        if (distance === 0) return "pending";
+        return distance < COMMUTE_THRESHOLD_KM ? "triggered" : "ok";
+      case "has_distance":
+        return distance > 0 ? "triggered" : "pending";
+      case "distance_over_efficiency":
+        if (distance === 0) return "pending";
+        return distance > EFFICIENCY_THRESHOLD_KM ? "triggered" : "ok";
+      default:
+        return "pending";
+    }
+  }
+
+  function evalInsightCondition(key: string): boolean {
+    switch (key) {
+      case "has_distance": return distance > 0;
+      case "always":       return true;
+      default:             return false;
+    }
+  }
+
+  const severityItems: SeverityCheckItem[] = (config?.compliance ?? []).map((rule) => {
+    const state = evalCondition(rule.condition);
+    const desc = t(
+      state === "pending"   ? rule.pending_desc_key  :
+      state === "ok"        ? rule.ok_desc_key        :
+      rule.triggered_desc_key
+    );
+    return { id: rule.id, icon: rule.icon, title: t(rule.title_key), desc, severity: rule.severity, state, blocksSave: rule.blocks_save };
+  });
+
+  const activeInsight = config?.insight.find((ins) => evalInsightCondition(ins.condition));
+
+  // ── AI Insight ─────────────────────────────────────────────────────────────
+  const [getInsight] = useGetPolicyInsightMutation();
+  const [aiText, setAiText] = useState<string | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+
+  useEffect(() => {
+    if (!canSave) return;
+    setAiLoading(true);
+    setAiText(null);
+    const timer = setTimeout(async () => {
+      try {
+        const res = await getInsight({
+          type: "MILEAGE",
+          context: { from: form.from, to: form.to, distance, rate: RATE_PER_KM, total },
+        }).unwrap();
+        setAiText(res.insight || null);
+      } catch {
+        setAiText(null);
+      } finally {
+        setAiLoading(false);
+      }
+    }, 600);
+    return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.distanceKm, form.tripDate]);
+
   const handleSave = async () => {
     if (!canSave) return;
+
+    const policyEvaluationSnapshot: PolicyEvaluationSnapshot | undefined = config
+      ? {
+          screenKey: "expense.create.mileage",
+          items: (config.compliance ?? []).map((rule) => {
+            const state = evalCondition(rule.condition);
+            const resolvedDescKey =
+              state === "pending"
+                ? rule.pending_desc_key
+                : state === "ok"
+                ? rule.ok_desc_key
+                : rule.triggered_desc_key;
+
+            return {
+              id: rule.id,
+              severity: rule.severity,
+              state,
+              titleKey: rule.title_key,
+              pendingDescKey: rule.pending_desc_key,
+              okDescKey: rule.ok_desc_key,
+              triggeredDescKey: rule.triggered_desc_key,
+              resolvedTitle: t(rule.title_key),
+              resolvedDesc: t(resolvedDescKey),
+              blocksSave: rule.blocks_save,
+            };
+          }),
+          inputSnapshot: {
+            title: form.title,
+            from: form.from,
+            to: form.to,
+            tripDate: form.tripDate,
+            distanceKm: distance,
+            ratePerKm: RATE_PER_KM,
+            totalAmount: Number(total),
+          },
+        }
+      : undefined;
+
     await createExpense({
       type: "MILEAGE",
       title: form.title || `Mileage ${form.from} → ${form.to}`,
@@ -51,6 +162,7 @@ export default function MileageView() {
       distanceKm: distance,
       ratePerKm: RATE_PER_KM,
       receiptDate: form.tripDate,
+      policyEvaluationSnapshot,
     }).unwrap();
     router.push("/my-expenses");
   };
@@ -78,13 +190,10 @@ export default function MileageView() {
       />
 
       <div className={styles.page}>
-      {/* ── Main grid ── */}
       <div className={styles.grid}>
         {/* ── Left column ── */}
         <div className={styles.leftCol}>
-          {/* Form card */}
           <div className={styles.formCard}>
-            {/* Trip title */}
             <div className={styles.fieldGroup}>
               <label htmlFor="ml-title" className={styles.fieldLabel}>
                 {t("expense.mileage.label_title", { defaultValue: "Trip Title (Optional)" })}
@@ -99,7 +208,6 @@ export default function MileageView() {
               />
             </div>
 
-            {/* From / To */}
             <div className={styles.twoCol}>
               <div className={styles.fieldGroup}>
                 <label htmlFor="ml-from" className={styles.fieldLabel}>
@@ -137,7 +245,6 @@ export default function MileageView() {
               </div>
             </div>
 
-            {/* Date / Distance */}
             <div className={styles.twoCol}>
               <div className={styles.fieldGroup}>
                 <label htmlFor="ml-date" className={styles.fieldLabel}>
@@ -184,44 +291,62 @@ export default function MileageView() {
 
         {/* ── Right column ── */}
         <div className={styles.rightCol}>
-          <PolicyCompliance
-            mode="checklist"
-            items={[
-              {
-                ok: !!(form.from && form.to),
-                pending: !(form.from && form.to),
-                title: t("expense.mileage.policy_route_title", { defaultValue: "Route details" }),
-                desc:
-                  form.from && form.to
-                    ? t("expense.mileage.policy_route_ok", { defaultValue: `Route from ${form.from} to ${form.to} is confirmed.`, from: form.from, to: form.to })
-                    : t("expense.mileage.policy_route_pending", { defaultValue: "Enter departure and destination to verify your route." }),
-              },
-              {
-                ok: !!form.tripDate,
-                pending: !form.tripDate,
-                title: t("expense.mileage.policy_date_title", { defaultValue: "Date of travel" }),
-                desc: form.tripDate
-                  ? t("expense.mileage.policy_date_ok", { defaultValue: "Travel date is recorded and within the current period." })
-                  : t("expense.mileage.policy_date_pending", { defaultValue: "Select a travel date to proceed." }),
-              },
-              {
-                ok: withinLimit,
-                pending: !withinLimit && distance === 0,
-                title: t("expense.mileage.policy_distance_title", { defaultValue: "Distance within limit" }),
-                desc:
-                  distance === 0
-                    ? t("expense.mileage.policy_distance_pending", { defaultValue: "Enter your travel distance to verify the 200 km daily limit." })
-                    : withinLimit
-                    ? t("expense.mileage.policy_distance_ok", { defaultValue: `${distance.toFixed(1)} km is within the standard 200 km daily limit.`, distance: distance.toFixed(1) })
-                    : t("expense.mileage.policy_distance_over", { defaultValue: `${distance.toFixed(1)} km exceeds the 200 km limit — additional approval required.`, distance: distance.toFixed(1) }),
-              },
-            ]}
-            readyToSubmit={canSave && withinLimit}
-          />
+          {config ? (
+            <PolicyCompliance mode="severity" items={severityItems} />
+          ) : (
+            <PolicyCompliance
+              mode="checklist"
+              items={[
+                {
+                  ok: !!(form.from && form.to),
+                  pending: !(form.from && form.to),
+                  title: t("expense.mileage.policy_route_title", { defaultValue: "Route details" }),
+                  desc:
+                    form.from && form.to
+                      ? t("expense.mileage.policy_route_ok", { defaultValue: `Route from ${form.from} to ${form.to} is confirmed.` })
+                      : t("expense.mileage.policy_route_pending", { defaultValue: "Enter departure and destination to verify your route." }),
+                },
+                {
+                  ok: !!form.tripDate,
+                  pending: !form.tripDate,
+                  title: t("expense.mileage.policy_date_title", { defaultValue: "Date of travel" }),
+                  desc: form.tripDate
+                    ? t("expense.mileage.policy_date_ok", { defaultValue: "Travel date is recorded and within the current period." })
+                    : t("expense.mileage.policy_date_pending", { defaultValue: "Select a travel date to proceed." }),
+                },
+                {
+                  ok: withinLimit,
+                  pending: !withinLimit && distance === 0,
+                  title: t("expense.mileage.policy_distance_title", { defaultValue: "Distance within limit" }),
+                  desc:
+                    distance === 0
+                      ? t("expense.mileage.policy_distance_pending", { defaultValue: "Enter your travel distance to verify the 200 km daily limit." })
+                      : withinLimit
+                      ? t("expense.mileage.policy_distance_ok", { defaultValue: `${distance.toFixed(1)} km is within the standard 200 km daily limit.` })
+                      : t("expense.mileage.policy_distance_over", { defaultValue: `${distance.toFixed(1)} km exceeds the 200 km limit — additional approval required.` }),
+                },
+              ]}
+              readyToSubmit={canSave && withinLimit}
+            />
+          )}
 
-          <PolicyInsight linkLabel={t("expense.mileage.insight_link", { defaultValue: "View mileage policy" })}>
-            {t("expense.mileage.insight_text", { defaultValue: "Trips under 50km typically don't require supporting receipts. For distances over 100km, attach a route screenshot or GPS log to speed up approval." })}
-          </PolicyInsight>
+          {activeInsight ? (
+            <PolicyInsight
+              linkLabel={activeInsight.link_label_key ? t(activeInsight.link_label_key) : ""}
+              aiText={aiText ?? undefined}
+              aiLoading={aiLoading}
+            >
+              {t(activeInsight.text_key)}
+            </PolicyInsight>
+          ) : !config ? (
+            <PolicyInsight
+              linkLabel={t("expense.mileage.insight_link", { defaultValue: "View mileage policy" })}
+              aiText={aiText ?? undefined}
+              aiLoading={aiLoading}
+            >
+              {t("expense.mileage.insight_text", { defaultValue: "Trips under 50km typically don't require supporting receipts. For distances over 100km, attach a route screenshot or GPS log to speed up approval." })}
+            </PolicyInsight>
+          ) : null}
         </div>
       </div>
       </div>

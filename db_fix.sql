@@ -1,5 +1,5 @@
 SET FOREIGN_KEY_CHECKS = 0;
-DROP TABLE IF EXISTS finance_reports, report_templates, expense_reports, expenses, audit_logs, user_consents, policies, user_profiles,
+DROP TABLE IF EXISTS finance_reports, report_templates, expense_reports, policy_evaluation_history, expenses, audit_logs, user_consents, policies, user_profiles,
     items, screen_configs, functions,
     user_permissions, user_roles, roles, permissions, system_admins, users;
 SET FOREIGN_KEY_CHECKS = 1;
@@ -113,6 +113,25 @@ CREATE TABLE expenses (
     is_deleted TINYINT(1) DEFAULT 0,
 
     CONSTRAINT fk_exp_user FOREIGN KEY (user_sub) REFERENCES users(cognito_sub)
+);
+
+CREATE TABLE policy_evaluation_history (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    domain VARCHAR(50) NOT NULL,
+    entity_type VARCHAR(50) NOT NULL,
+    entity_id BIGINT NOT NULL,
+    event_type VARCHAR(30) NOT NULL,
+    screen_key VARCHAR(100) NOT NULL,
+    screen_version INT NULL,
+    result_json JSON NOT NULL,
+    input_json JSON NULL,
+    created_by VARCHAR(36) NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_deleted TINYINT(1) DEFAULT 0,
+
+    CONSTRAINT fk_peh_created_by FOREIGN KEY (created_by) REFERENCES users(cognito_sub),
+    INDEX idx_peh_entity_event_created (entity_type, entity_id, event_type, created_at DESC),
+    INDEX idx_peh_domain_screen_created (domain, screen_key, created_at DESC)
 );
 
 -- ============================================
@@ -302,6 +321,204 @@ CREATE TABLE expense_reports (
     generated_at  DATETIME,
     created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Screen configs: expense creation policy panels (text stored as i18n keys)
+INSERT INTO screen_configs (screen_key, version, config_json, updated_by) VALUES
+('expense.create.receipt', 1, '{
+  "part_id": "EXP_CREATE_RECEIPT",
+  "compliance": [
+    {
+      "id": "currency_mismatch",
+      "icon": "currency_exchange",
+      "title_key": "expense.policy.receipt.currency_mismatch.title",
+      "pending_desc_key": "expense.policy.receipt.currency_mismatch.pending",
+      "ok_desc_key": "expense.policy.receipt.currency_mismatch.ok",
+      "triggered_desc_key": "expense.policy.receipt.currency_mismatch.triggered",
+      "severity": "error",
+      "blocks_save": true,
+      "condition": "currency_mismatch"
+    },
+    {
+      "id": "spending_limit",
+      "icon": "price_check",
+      "title_key": "expense.policy.receipt.spending_limit.title",
+      "pending_desc_key": "expense.policy.receipt.spending_limit.pending",
+      "ok_desc_key": "expense.policy.receipt.spending_limit.ok",
+      "triggered_desc_key": "expense.policy.receipt.spending_limit.triggered",
+      "severity": "warning",
+      "blocks_save": false,
+      "condition": "spending_limit_exceeded"
+    },
+    {
+      "id": "vat_accuracy",
+      "icon": "receipt_long",
+      "title_key": "expense.policy.receipt.vat_accuracy.title",
+      "pending_desc_key": "expense.policy.receipt.vat_accuracy.pending",
+      "ok_desc_key": "expense.policy.receipt.vat_accuracy.ok",
+      "triggered_desc_key": "expense.policy.receipt.vat_accuracy.triggered",
+      "severity": "warning",
+      "blocks_save": false,
+      "condition": "vat_unusual"
+    },
+    {
+      "id": "merchant_recognized",
+      "icon": "storefront",
+      "title_key": "expense.policy.receipt.merchant_recognized.title",
+      "pending_desc_key": "expense.policy.receipt.merchant_recognized.pending",
+      "ok_desc_key": "expense.policy.receipt.merchant_recognized.ok",
+      "triggered_desc_key": "expense.policy.receipt.merchant_recognized.triggered",
+      "severity": "info",
+      "blocks_save": false,
+      "condition": "merchant_unrecognized"
+    },
+    {
+      "id": "ai_confidence",
+      "icon": "psychology",
+      "title_key": "expense.policy.receipt.ai_confidence.title",
+      "pending_desc_key": "expense.policy.receipt.ai_confidence.pending",
+      "ok_desc_key": "expense.policy.receipt.ai_confidence.ok",
+      "triggered_desc_key": "expense.policy.receipt.ai_confidence.triggered",
+      "severity": "warning",
+      "blocks_save": false,
+      "condition": "ai_low_confidence"
+    }
+  ],
+  "insight": [
+    {
+      "id": "recurring_vendor",
+      "icon": "auto_awesome",
+      "severity": "info",
+      "title_key": "expense.policy.receipt.insight.recurring_vendor.title",
+      "text_key": "expense.policy.receipt.insight.recurring_vendor.text",
+      "link_label_key": "expense.policy.receipt.insight.recurring_vendor.link",
+      "condition": "has_scan_result"
+    }
+  ]
+}', 'system');
+
+INSERT INTO screen_configs (screen_key, version, config_json, updated_by) VALUES
+('expense.create.per_diem', 1, '{
+  "part_id": "EXP_CREATE_PER_DIEM",
+  "compliance": [
+    {
+      "id": "location_tier_match",
+      "icon": "location_on",
+      "title_key": "expense.policy.per_diem.location_tier_match.title",
+      "pending_desc_key": "expense.policy.per_diem.location_tier_match.pending",
+      "ok_desc_key": "expense.policy.per_diem.location_tier_match.ok",
+      "triggered_desc_key": "expense.policy.per_diem.location_tier_match.triggered",
+      "severity": "success",
+      "blocks_save": false,
+      "condition": "location_selected"
+    },
+    {
+      "id": "duration_match",
+      "icon": "date_range",
+      "title_key": "expense.policy.per_diem.duration_match.title",
+      "pending_desc_key": "expense.policy.per_diem.duration_match.pending",
+      "ok_desc_key": "expense.policy.per_diem.duration_match.ok",
+      "triggered_desc_key": "expense.policy.per_diem.duration_match.triggered",
+      "severity": "success",
+      "blocks_save": false,
+      "condition": "duration_valid"
+    },
+    {
+      "id": "meal_deduction",
+      "icon": "restaurant",
+      "title_key": "expense.policy.per_diem.meal_deduction.title",
+      "pending_desc_key": "expense.policy.per_diem.meal_deduction.pending",
+      "ok_desc_key": "expense.policy.per_diem.meal_deduction.ok",
+      "triggered_desc_key": "expense.policy.per_diem.meal_deduction.triggered",
+      "severity": "warning",
+      "blocks_save": false,
+      "condition": "meal_deduction_required"
+    },
+    {
+      "id": "proration",
+      "icon": "calculate",
+      "title_key": "expense.policy.per_diem.proration.title",
+      "pending_desc_key": "expense.policy.per_diem.proration.pending",
+      "ok_desc_key": "expense.policy.per_diem.proration.ok",
+      "triggered_desc_key": "expense.policy.per_diem.proration.triggered",
+      "severity": "info",
+      "blocks_save": false,
+      "condition": "duration_valid"
+    }
+  ],
+  "insight": [
+    {
+      "id": "proration_note",
+      "icon": "auto_awesome",
+      "severity": "info",
+      "title_key": "expense.policy.per_diem.insight.proration_note.title",
+      "text_key": "expense.policy.per_diem.insight.proration_note.text",
+      "link_label_key": "expense.policy.per_diem.insight.proration_note.link",
+      "condition": "duration_valid"
+    }
+  ]
+}', 'system');
+
+INSERT INTO screen_configs (screen_key, version, config_json, updated_by) VALUES
+('expense.create.mileage', 1, '{
+  "part_id": "EXP_CREATE_MILEAGE",
+  "compliance": [
+    {
+      "id": "distance_variance",
+      "icon": "route",
+      "title_key": "expense.policy.mileage.distance_variance.title",
+      "pending_desc_key": "expense.policy.mileage.distance_variance.pending",
+      "ok_desc_key": "expense.policy.mileage.distance_variance.ok",
+      "triggered_desc_key": "expense.policy.mileage.distance_variance.triggered",
+      "severity": "warning",
+      "blocks_save": false,
+      "condition": "distance_over_limit"
+    },
+    {
+      "id": "commute_deduction",
+      "icon": "directions_car",
+      "title_key": "expense.policy.mileage.commute_deduction.title",
+      "pending_desc_key": "expense.policy.mileage.commute_deduction.pending",
+      "ok_desc_key": "expense.policy.mileage.commute_deduction.ok",
+      "triggered_desc_key": "expense.policy.mileage.commute_deduction.triggered",
+      "severity": "info",
+      "blocks_save": false,
+      "condition": "possible_commute"
+    },
+    {
+      "id": "reimbursement_rate",
+      "icon": "payments",
+      "title_key": "expense.policy.mileage.reimbursement_rate.title",
+      "pending_desc_key": "expense.policy.mileage.reimbursement_rate.pending",
+      "ok_desc_key": "expense.policy.mileage.reimbursement_rate.ok",
+      "triggered_desc_key": "expense.policy.mileage.reimbursement_rate.triggered",
+      "severity": "info",
+      "blocks_save": false,
+      "condition": "has_distance"
+    },
+    {
+      "id": "efficiency_suggestion",
+      "icon": "eco",
+      "title_key": "expense.policy.mileage.efficiency_suggestion.title",
+      "pending_desc_key": "expense.policy.mileage.efficiency_suggestion.pending",
+      "ok_desc_key": "expense.policy.mileage.efficiency_suggestion.ok",
+      "triggered_desc_key": "expense.policy.mileage.efficiency_suggestion.triggered",
+      "severity": "warning",
+      "blocks_save": false,
+      "condition": "distance_over_efficiency"
+    }
+  ],
+  "insight": [
+    {
+      "id": "receipt_note",
+      "icon": "auto_awesome",
+      "severity": "info",
+      "title_key": "expense.policy.mileage.insight.receipt_note.title",
+      "text_key": "expense.policy.mileage.insight.receipt_note.text",
+      "link_label_key": "expense.policy.mileage.insight.receipt_note.link",
+      "condition": "always"
+    }
+  ]
+}', 'system');
 
 -- Screen config: manager approvals detail
 INSERT INTO screen_configs (screen_key, version, config_json, updated_by) VALUES

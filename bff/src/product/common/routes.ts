@@ -11,6 +11,7 @@ import { bffPro001 } from '@product/common/pro-001/index.js';
 import { bffPro002 } from '@product/common/pro-002/index.js';
 import { bffPro003 } from '@product/common/pro-003/index.js';
 import { bffDemo001 } from '@product/common/demo-001/index.js';
+import { bffIns001 } from '@product/common/ins-001/index.js';
 
 const bffList = [
   bffCom001, // POST /com-001  auth/login
@@ -25,6 +26,7 @@ const bffList = [
   bffPro002, // PUT  /pro-002  users/me
   bffPro003, // GET  /pro-003  users/me/avatar-url
   bffDemo001, // POST /demo-001  demo login by role
+  bffIns001,  // POST /ins-001  policy insight (Groq AI)
 ];
 
 export const createCommonRouter = () => createBffRouter('common', bffList);

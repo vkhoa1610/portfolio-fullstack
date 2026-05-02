@@ -7,6 +7,8 @@ interface PolicyInsightProps {
   children: React.ReactNode;
   linkLabel: string;
   onLinkClick?: () => void;
+  aiText?: string;
+  aiLoading?: boolean;
 }
 
 function MIcon({ name, size = 18, fill = false }: { name: string; size?: number; fill?: boolean }) {
@@ -23,7 +25,9 @@ function MIcon({ name, size = 18, fill = false }: { name: string; size?: number;
   );
 }
 
-export default function PolicyInsight({ children, linkLabel, onLinkClick }: PolicyInsightProps) {
+export default function PolicyInsight({ children, linkLabel, onLinkClick, aiText, aiLoading }: PolicyInsightProps) {
+  const showAi = aiLoading || !!aiText;
+
   return (
     <div className={styles.insightCard}>
       <div className={styles.insightGlow} />
@@ -31,16 +35,38 @@ export default function PolicyInsight({ children, linkLabel, onLinkClick }: Poli
         <MIcon name="auto_awesome" size={18} fill />
         <span className={styles.insightHeaderLabel}>Policy Insight</span>
       </div>
+
+      {/* Static CMS text */}
       <p className={styles.insightText}>{children}</p>
-      <button className={styles.insightLink} onClick={onLinkClick}>
-        {linkLabel}
-        <MIcon name="arrow_forward" size={16} />
-      </button>
+
+      {linkLabel && (
+        <button className={styles.insightLink} onClick={onLinkClick}>
+          {linkLabel}
+          <MIcon name="arrow_forward" size={16} />
+        </button>
+      )}
+
+      {/* AI-generated section */}
+      {showAi && (
+        <div className={styles.aiSection}>
+          <div className={styles.aiLabel}>
+            <MIcon name="auto_awesome" size={13} fill />
+            <span>AI-assisted</span>
+          </div>
+          {aiLoading ? (
+            <div className={styles.aiSkeleton}>
+              <div className={styles.aiSkeletonLine} />
+              <div className={`${styles.aiSkeletonLine} ${styles.aiSkeletonLineShort}`} />
+            </div>
+          ) : (
+            <p className={styles.aiText}>{aiText}</p>
+          )}
+        </div>
+      )}
     </div>
   );
 }
 
-// Re-export highlight helper for use in parent components
 export function Highlight({ children }: { children: React.ReactNode }) {
   return <strong className={styles.insightHighlight}>{children}</strong>;
 }

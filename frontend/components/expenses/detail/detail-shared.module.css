@@ -218,26 +218,154 @@
 
 /* ── Mileage route visual ── */
 .routeVisual {
-  display: flex; align-items: center; justify-content: center;
-  height: 100%; padding: 2rem;
-  background: linear-gradient(135deg, #f5f2ff 0%, #e9e6f3 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: 100%;
+  padding: 1.75rem;
+  background: linear-gradient(135deg, #302f39 0%, #3b3d88 50%, #4244db 100%);
+  position: relative;
+  overflow: hidden;
 }
-.routeInner { display: flex; flex-direction: column; gap: 0; width: 100%; max-width: 24rem; }
-.routeRow { display: flex; align-items: center; gap: 1rem; }
-.routeDot {
-  width: 0.875rem; height: 0.875rem; border-radius: 9999px;
-  background: var(--color-primary-600); flex-shrink: 0;
+
+.routeGlow {
+  position: absolute;
+  top: -3rem;
+  right: -3rem;
+  width: 13rem;
+  height: 13rem;
+  border-radius: 9999px;
+  background: rgba(92, 96, 245, 0.38);
+  filter: blur(3.2rem);
+  pointer-events: none;
 }
-.routeDotDest { background: transparent; border: 2px solid var(--color-primary-600); }
-.routeCity { font-size: 1rem; font-weight: 700; color: #1b1b24; }
-.routeConnector { padding: 0.375rem 0 0.375rem 0.375rem; display: flex; align-items: center; gap: 0.875rem; }
-.routeLine { width: 2px; height: 2.5rem; background: #c6c4d8; }
-.routeDistBadge {
-  font-size: 0.8125rem; font-weight: 700; color: var(--color-primary-600);
-  background: rgba(90, 103, 216, 0.1); padding: 0.375rem 0.875rem;
+
+.routeGlow2 {
+  position: absolute;
+  bottom: -2.5rem;
+  left: -2.5rem;
+  width: 10rem;
+  height: 10rem;
+  border-radius: 9999px;
+  background: rgba(242, 239, 252, 0.12);
+  filter: blur(2.3rem);
+  pointer-events: none;
+}
+
+.routeTopRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+.routeTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(242, 239, 252, 0.68);
+}
+
+.routeMetaRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.routePillPrimary {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: white;
+  background: rgba(92, 96, 245, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.325rem 0.75rem;
   border-radius: 9999px;
 }
-.routeDate { font-size: 0.75rem; color: #767586; margin-top: 0.25rem; }
+
+.routePillSoft {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3125rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(242, 239, 252, 0.86);
+  background: rgba(242, 239, 252, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  padding: 0.3rem 0.625rem;
+  border-radius: 9999px;
+}
+
+.routeTitle {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: white;
+  line-height: 1.2;
+  margin-top: 1rem;
+  margin-bottom: 1.15rem;
+  position: relative;
+  z-index: 1;
+}
+
+.routeInner {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: 100%;
+  max-width: 26rem;
+  position: relative;
+  z-index: 1;
+}
+
+.routeRow { display: flex; align-items: center; gap: 0.875rem; }
+.routeDot {
+  width: 0.875rem;
+  height: 0.875rem;
+  border-radius: 9999px;
+  background: #f2effc;
+  box-shadow: 0 0 0 6px rgba(242, 239, 252, 0.18);
+  flex-shrink: 0;
+}
+.routeDotDest {
+  background: transparent;
+  border: 2px solid rgba(242, 239, 252, 0.95);
+  box-shadow: none;
+}
+
+.routeCity {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: #f2effc;
+}
+
+.routeConnector {
+  padding: 0.5rem 0 0.5rem 0.375rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.routeLine {
+  width: 2px;
+  height: 2.35rem;
+  background: linear-gradient(to bottom, rgba(242, 239, 252, 0.65), rgba(242, 239, 252, 0.25));
+}
+
+.routeConnectorLabel {
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: rgba(242, 239, 252, 0.62);
+}
 
 /* ── Info Section ── */
 .infoGrid { display: grid; gap: 2rem; }

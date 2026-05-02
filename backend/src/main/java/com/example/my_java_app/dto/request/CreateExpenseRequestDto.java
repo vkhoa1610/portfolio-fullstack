@@ -1,5 +1,6 @@
 package com.example.my_java_app.dto.request;
 
+import com.example.my_java_app.dto.common.PolicyEvaluationSnapshotDto;
 import lombok.Data;
 import java.math.BigDecimal;
 
@@ -28,4 +29,7 @@ public class CreateExpenseRequestDto {
     // Mileage
     private BigDecimal distanceKm;
     private BigDecimal ratePerKm;
+
+    // Policy evaluation snapshot (immutable snapshot at create-time)
+    private PolicyEvaluationSnapshotDto policyEvaluationSnapshot;
 }

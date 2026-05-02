@@ -39,7 +39,7 @@ function MIcon({ name, size = 20, fill = false }: { name: string; size?: number;
 }
 
 export default function SettingsView() {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { theme: currentTheme, setTheme: applyTheme } = useTheme();
@@ -127,6 +127,8 @@ export default function SettingsView() {
       <PageHeader
         title="Settings"
         subtitle="Manage your preferences and account security."
+        backLabel={t("nav.dashboard", { defaultValue: "Dashboard" })}
+        backHref="/dashboard"
       />
 
       <div className={styles.content}>

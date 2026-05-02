@@ -9,6 +9,9 @@ export const AUTH0_AUDIENCE       = process.env.AUTH0_AUDIENCE || '';
 export const JAVA_API_URL         = process.env.JAVA_API_URL || 'http://localhost:8080';
 
 // ── Demo accounts (portfolio demo) ────────────────────────────────
+export const GROQ_API_KEY = process.env.GROQ_API_KEY || '';
+export const GROQ_MODEL   = process.env.GROQ_MODEL   || 'llama-3.3-70b-versatile';
+
 export const DEMO_CREDENTIALS: Record<string, { email: string; password: string }> = {
   EMPLOYEE: {
     email:    process.env.DEMO_EMPLOYEE_EMAIL    || '',

@@ -41,6 +41,18 @@ services:
       - AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
       - PORT=4000
       - JAVA_API_URL=http://spring-backend:8080
+      # ── Demo accounts ──
+      - DEMO_EMPLOYEE_EMAIL=${DEMO_EMPLOYEE_EMAIL}
+      - DEMO_EMPLOYEE_PASSWORD=${DEMO_EMPLOYEE_PASSWORD}
+      - DEMO_MANAGER_EMAIL=${DEMO_MANAGER_EMAIL}
+      - DEMO_MANAGER_PASSWORD=${DEMO_MANAGER_PASSWORD}
+      - DEMO_FINANCE_EMAIL=${DEMO_FINANCE_EMAIL}
+      - DEMO_FINANCE_PASSWORD=${DEMO_FINANCE_PASSWORD}
+      - DEMO_ADMIN_EMAIL=${DEMO_ADMIN_EMAIL}
+      - DEMO_ADMIN_PASSWORD=${DEMO_ADMIN_PASSWORD}
+      # ── Groq AI (policy insight) ──
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - GROQ_MODEL=${GROQ_MODEL:-llama-3.3-70b-versatile}
 
   # ============================================
   # Spring Boot Backend

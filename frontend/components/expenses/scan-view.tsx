@@ -1,12 +1,18 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { useGetUploadUrlMutation, useScanReceiptMutation, useCreateExpenseMutation } from "@/ducks/expenses";
-import type { ScanResponse } from "@/ducks/expenses";
+import type { ScanResponse, PolicyEvaluationSnapshot } from "@/ducks/expenses";
+import { useGetScreenConfigQuery, useGetPolicyInsightMutation } from "@/ducks/cms/cmsApi";
+import type { PolicyScreenConfig } from "@/ducks/cms/types";
+import type { SeverityCheckItem, SeverityState } from "./policy-compliance";
 import styles from "./scan-view.module.css";
 import PageHeader from "@/components/layout/PageHeader";
+import DetailInsight from "./detail/detail-insight";
+import PolicyCompliance from "./policy-compliance";
+import PolicyInsight from "./policy-insight";
 
 const CATEGORIES = [
   "Meals & Entertainment",
@@ -62,6 +68,80 @@ export default function ScanView() {
 
   const isProcessing = isUploading || isScanning;
 
+  // ── CMS ────────────────────────────────────────────────────────────────────
+  const { data: rawConfig } = useGetScreenConfigQuery("expense.create.receipt");
+  const config = rawConfig as PolicyScreenConfig | undefined;
+
+  function evalCondition(key: string): SeverityState {
+    switch (key) {
+      case "currency_mismatch":
+        return !scanResult ? "pending" : "ok"; // no currency field in ScanResponse — assume EUR
+      case "spending_limit_exceeded":
+        if (!form.amount) return "pending";
+        return parseFloat(form.amount) > 150 ? "triggered" : "ok";
+      case "vat_unusual": {
+        const amt = parseFloat(form.amount);
+        const vat = parseFloat(form.vatAmount);
+        if (!form.amount || !form.vatAmount || amt <= 0) return "pending";
+        const ratio = vat / amt;
+        return ratio > 0 && (ratio < 0.03 || ratio > 0.30) ? "triggered" : "ok";
+      }
+      case "merchant_unrecognized":
+        if (!scanResult) return "pending";
+        return !scanResult.vendor || scanResult.vendor.toLowerCase() === "unknown" ? "triggered" : "ok";
+      case "ai_low_confidence":
+        if (!scanResult) return "pending";
+        return scanResult.flags.length > 0 ? "triggered" : "ok";
+      default:
+        return "pending";
+    }
+  }
+
+  const severityItems: SeverityCheckItem[] = (config?.compliance ?? []).map((rule) => {
+    const state = evalCondition(rule.condition);
+    const desc = t(
+      state === "pending"   ? rule.pending_desc_key  :
+      state === "ok"        ? rule.ok_desc_key        :
+      rule.triggered_desc_key
+    );
+    return { id: rule.id, icon: rule.icon, title: t(rule.title_key), desc, severity: rule.severity, state, blocksSave: rule.blocks_save };
+  });
+
+  const activeInsight = config?.insight.find((ins) => ins.condition === "has_scan_result" ? !!scanResult : true);
+
+  // ── AI Insight ─────────────────────────────────────────────────────────────
+  const [getInsight] = useGetPolicyInsightMutation();
+  const [aiText, setAiText] = useState<string | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+
+  useEffect(() => {
+    if (!scanResult) return;
+    setAiLoading(true);
+    setAiText(null);
+    const timer = setTimeout(async () => {
+      try {
+        const res = await getInsight({
+          type: "RECEIPT",
+          context: {
+            vendor: form.vendor,
+            amount: form.amount,
+            vatAmount: form.vatAmount,
+            vatRate: scanResult.vatRate,
+            category: form.category,
+            flags: scanResult.flags.join(", ") || "none",
+          },
+        }).unwrap();
+        setAiText(res.insight || null);
+      } catch {
+        setAiText(null);
+      } finally {
+        setAiLoading(false);
+      }
+    }, 600);
+    return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scanResult]);
+
   const processFile = async (file: File) => {
     setPreviewUrl(URL.createObjectURL(file));
     setFileInfo({ name: file.name, size: formatFileSize(file.size) });
@@ -111,6 +191,42 @@ export default function ScanView() {
   };
 
   const handleSave = async () => {
+    const policyEvaluationSnapshot: PolicyEvaluationSnapshot | undefined = config
+      ? {
+          screenKey: "expense.create.receipt",
+          items: (config.compliance ?? []).map((rule) => {
+            const state = evalCondition(rule.condition);
+            const resolvedDescKey =
+              state === "pending"
+                ? rule.pending_desc_key
+                : state === "ok"
+                ? rule.ok_desc_key
+                : rule.triggered_desc_key;
+
+            return {
+              id: rule.id,
+              severity: rule.severity,
+              state,
+              titleKey: rule.title_key,
+              pendingDescKey: rule.pending_desc_key,
+              okDescKey: rule.ok_desc_key,
+              triggeredDescKey: rule.triggered_desc_key,
+              resolvedTitle: t(rule.title_key),
+              resolvedDesc: t(resolvedDescKey),
+              blocksSave: rule.blocks_save,
+            };
+          }),
+          inputSnapshot: {
+            vendor: form.vendor,
+            receiptDate: form.date,
+            amount: parseFloat(form.amount),
+            vatAmount: parseFloat(form.vatAmount),
+            category: form.category,
+            flags: scanResult?.flags ?? [],
+          },
+        }
+      : undefined;
+
     await createExpense({
       type: "RECEIPT",
       title: form.vendor,
@@ -121,6 +237,7 @@ export default function ScanView() {
       receiptFileUrl: uploadedFileUrl ?? undefined,
       aiExtractedData: scanResult ? JSON.stringify(scanResult) : undefined,
       aiFlags: scanResult?.flags?.length ? JSON.stringify(scanResult.flags) : undefined,
+      policyEvaluationSnapshot,
     }).unwrap();
     router.push("/my-expenses");
   };
@@ -128,7 +245,15 @@ export default function ScanView() {
   // ── Result view (after scan) ───────────────────────────────────────────────
   if (scanResult) {
     return (
-      <div className={styles.resultPage}>
+      <div>
+        <PageHeader
+          title={t("expense.scan.result_title", { defaultValue: "Upload Receipt" })}
+          subtitle={t("expense.scan.result_subtitle", { defaultValue: "Upload a receipt — AI will extract the data" })}
+          backLabel={t("expense.scan.back", { defaultValue: "New Expense" })}
+          backHref="/my-expenses/create"
+        />
+
+        <div className={styles.resultPage}>
         {/* Left: Document viewer */}
         <div className={styles.viewerPanel}>
           <div className={styles.viewerHeader}>
@@ -292,15 +417,26 @@ export default function ScanView() {
             </div>
           </div>
 
-          {/* AI insight note */}
-          <div className={styles.insightBox}>
-            <div className={styles.insightDot} />
-            <p className={styles.insightText}>
-              This matches a previous recurring expense from{" "}
-              <strong>{form.vendor || "this vendor"}</strong>. Suggested category
-              &ldquo;{form.category}&rdquo; was applied automatically.
-            </p>
-          </div>
+          {/* Policy compliance (CMS-driven) */}
+          {config && severityItems.length > 0 && (
+            <PolicyCompliance mode="severity" items={severityItems} />
+          )}
+
+          {/* Insight note — CMS when available, static fallback otherwise */}
+          {activeInsight ? (
+            <PolicyInsight
+              linkLabel={activeInsight.link_label_key ? t(activeInsight.link_label_key) : ""}
+              aiText={aiText ?? undefined}
+              aiLoading={aiLoading}
+            >
+              {t(activeInsight.text_key)}
+            </PolicyInsight>
+          ) : (
+            <DetailInsight
+              variant="simple"
+              text={`This matches a previous recurring expense from ${form.vendor || "this vendor"}. Suggested category "${form.category}" was applied automatically.`}
+            />
+          )}
 
           {/* Save */}
           <button onClick={handleSave} disabled={isSaving} className={styles.saveBtn}>
@@ -311,6 +447,7 @@ export default function ScanView() {
           </button>
         </div>
       </div>
+      </div>
     );
   }
 
@@ -318,9 +455,9 @@ export default function ScanView() {
   return (
     <div>
       <PageHeader
-        title={t("expense.scan.title", { defaultValue: "Scan Receipt" })}
+        title={t("expense.scan.title", { defaultValue: "Upload Receipt" })}
         subtitle={t("expense.scan.subtitle", {
-          defaultValue: "Upload or photograph your receipt for instant AI-powered data extraction.",
+          defaultValue: "Upload a receipt — AI will extract the data",
         })}
         backLabel={t("expense.scan.back", { defaultValue: "New Expense" })}
         backHref="/my-expenses/create"

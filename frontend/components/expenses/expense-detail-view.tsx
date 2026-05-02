@@ -2,6 +2,7 @@
 
 import { useGetExpenseByIdQuery, useSubmitExpenseMutation } from "@/ducks/expenses";
 import type { Expense, ExpenseStatus } from "@/ducks/expenses";
+import type { PolicyEvaluationSnapshotItem } from "@/ducks/expenses";
 import styles from "./detail/detail-shared.module.css";
 import PageHeader from "@/components/layout/PageHeader";
 import hdrStyles from "@/components/layout/PageHeader.module.css";
@@ -180,6 +181,45 @@ function buildInsight(expense: Expense): React.ComponentProps<typeof DetailInsig
   };
 }
 
+function buildInsightFromPolicySnapshot(items: PolicyEvaluationSnapshotItem[]): React.ComponentProps<typeof DetailInsight> {
+  const mappedItems: InsightItem[] = items.map((item) => {
+    if (item.state === "pending") {
+      return {
+        icon: "schedule",
+        iconColor: "#6b7280",
+        title: item.resolvedTitle ?? item.id,
+        desc: item.resolvedDesc ?? "Pending: waiting for required input.",
+      };
+    }
+
+    if (item.state === "ok") {
+      return {
+        icon: "check_circle",
+        iconColor: "#16a34a",
+        title: item.resolvedTitle ?? item.id,
+        desc: item.resolvedDesc ?? "Passed policy validation.",
+      };
+    }
+
+    const iconBySeverity: Record<string, { icon: string; color: string }> = {
+      error: { icon: "error", color: "#dc2626" },
+      warning: { icon: "warning", color: "#d97706" },
+      info: { icon: "info", color: "#2563eb" },
+      success: { icon: "verified", color: "#16a34a" },
+    };
+
+    const mapped = iconBySeverity[item.severity] ?? { icon: "info", color: "#2563eb" };
+    return {
+      icon: mapped.icon,
+      iconColor: mapped.color,
+      title: item.resolvedTitle ?? item.id,
+      desc: item.resolvedDesc ?? "Policy rule evaluated.",
+    };
+  });
+
+  return { variant: "items", items: mappedItems };
+}
+
 // ── Main component ────────────────────────────────────────
 export default function ExpenseDetailView({ id }: { id: number }) {
   const { data: expense, isLoading } = useGetExpenseByIdQuery(id);
@@ -258,6 +298,11 @@ export default function ExpenseDetailView({ id }: { id: number }) {
     await submitExpense(expense.id).unwrap();
   };
 
+  const snapshotInsight =
+    expense.policyEvaluationSnapshot?.items && expense.policyEvaluationSnapshot.items.length > 0
+      ? buildInsightFromPolicySnapshot(expense.policyEvaluationSnapshot.items)
+      : null;
+
   return (
     <div>
       <PageHeader
@@ -325,7 +370,7 @@ export default function ExpenseDetailView({ id }: { id: number }) {
 
           {/* Right column */}
           <div className={styles.rightCol}>
-            <DetailInsight {...buildInsight(expense)} />
+            <DetailInsight {...(snapshotInsight ?? buildInsight(expense))} />
             <DetailTimeline steps={buildTimeline(expense)} />
           </div>
         </div>
