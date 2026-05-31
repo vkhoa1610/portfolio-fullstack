@@ -98,3 +98,52 @@ export interface ReportTemplate {
 export interface ReportTemplateListResponse {
   templates: ReportTemplate[];
 }
+
+// ─── GDPR ─────────────────────────────────────────────────────
+
+export type GdprRequestStatus = 'PENDING' | 'PROCESSING' | 'COMPLETED';
+
+export interface GdprErasureRequest {
+  requestId: number;
+  subjectSub: string | null;
+  subjectToken: string;
+  status: GdprRequestStatus;
+  requestedAt: string | null;
+  deadlineAt: string | null;
+  daysRemaining: number;
+  reason: string;
+}
+
+export type GdprTableClassification = 'PII_HARD_DELETE' | 'FINANCIAL_PSEUDONYMIZE' | 'AUDIT_NULLIFY';
+
+export interface GdprDataMapTable {
+  name: string;
+  rowCount: number;
+  classification: GdprTableClassification;
+  note: string;
+}
+
+export interface GdprDataMap {
+  subjectSub: string;
+  tables: GdprDataMapTable[];
+}
+
+export interface GdprAuditEntry {
+  id: number;
+  eventType: string;
+  subjectSub: string | null;
+  subjectToken: string;
+  actorSub: string | null;
+  actorRole: string | null;
+  detailsJson: string | null;
+  createdAt: string | null;
+}
+
+export interface GdprProcessResult {
+  requestId: number;
+  subjectSub: string;
+  expensesPseudonymized: number;
+  consentsAnonymized: number;
+  policyEvalHistoryNullified: number;
+  anonymizedSub: string;
+}

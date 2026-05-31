@@ -33,7 +33,7 @@ public interface ExpenseMapper {
 
     List<ExpenseEntity> findAllApproved();
 
-    void markPaid(@Param("id") Long id, @Param("paidAt") String paidAt);
+    void markPaid(@Param("id") Long id);
 
-    void markBatchPaid(@Param("ids") List<Long> ids, @Param("paidAt") String paidAt);
+    void markBatchPaid(@Param("ids") List<Long> ids);
 }

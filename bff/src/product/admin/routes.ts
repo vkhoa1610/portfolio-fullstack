@@ -16,6 +16,10 @@ import { bffAdm014 } from '@product/admin/adm-014/index.js';
 import { bffAdm015 } from '@product/admin/adm-015/index.js';
 import { bffAdm016 } from '@product/admin/adm-016/index.js';
 import { bffAdm017 } from '@product/admin/adm-017/index.js';
+import { bffAdm018 } from '@product/admin/adm-018/index.js';
+import { bffAdm019 } from '@product/admin/adm-019/index.js';
+import { bffAdm020 } from '@product/admin/adm-020/index.js';
+import { bffAdm021 } from '@product/admin/adm-021/index.js';
 
 const bffList = [
   bffAdm001, // GET    /adm-001/users
@@ -35,6 +39,10 @@ const bffList = [
   bffAdm015, // GET/PUT  /adm-015/report-templates/:id
   bffAdm016, // POST   /adm-016/report-templates/generate-pdf
   bffAdm017, // POST   /adm-017/ai-playground/chat
+  bffAdm018, // GET    /adm-018/gdpr/requests
+  bffAdm019, // GET    /adm-019/gdpr/data-map/:sub
+  bffAdm020, // POST   /adm-020/gdpr/process/:id
+  bffAdm021, // GET    /adm-021/gdpr/audit-log
 ];
 
 export const createAdminRouter = () => createBffRouter('admin', bffList);

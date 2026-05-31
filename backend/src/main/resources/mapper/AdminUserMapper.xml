@@ -5,17 +5,20 @@
 
 <mapper namespace="com.example.my_java_app.mapper.AdminUserMapper">
 
+    <!-- NOTE: `onboarding_status` + `budget` were referenced in an earlier iteration but
+         never actually added to user_profiles. Returning NULL keeps the AdminUser shape
+         intact (the TS type already types both as nullable) without a schema change.
+         Re-introduce the columns + JOIN if/when per-user onboarding/budget tracking ships. -->
     <select id="findAllUsers" resultType="java.util.LinkedHashMap">
         SELECT
             u.cognito_sub        AS cognitoSub,
             u.email              AS email,
             r.role_name          AS role,
-            p.onboarding_status  AS onboardingStatus,
-            p.budget             AS budget
+            NULL                 AS onboardingStatus,
+            NULL                 AS budget
         FROM users u
         LEFT JOIN user_roles ur ON u.cognito_sub = ur.user_sub
         LEFT JOIN roles r       ON ur.role_id = r.id
-        LEFT JOIN user_profiles p ON u.cognito_sub = p.user_sub
         WHERE u.is_deleted = 0
         ORDER BY u.email
     </select>

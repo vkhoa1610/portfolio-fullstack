@@ -6,5 +6,8 @@ interface Props {
 
 export default async function AdminUserDetailPage({ params }: Props) {
   const { sub } = await params;
-  return <AdminUserDetailView sub={sub} />;
+  // Cognito sub format `auth0|<hex>` — the pipe is URL-encoded as `%7C` in the path.
+  // Next.js 15 leaves dynamic params raw, so decode here so downstream comparisons
+  // (e.g. matching against API responses) work without surprises.
+  return <AdminUserDetailView sub={decodeURIComponent(sub)} />;
 }

@@ -26,12 +26,14 @@
         <result property="perDiemDays"      column="per_diem_days" />
         <result property="distanceKm"       column="distance_km" />
         <result property="ratePerKm"        column="rate_per_km" />
-        <result property="submittedAt"      column="submitted_at" />
-        <result property="reviewedAt"       column="reviewed_at" />
-        <result property="reviewedBy"       column="reviewed_by" />
-        <result property="rejectionReason"  column="rejection_reason" />
-        <result property="createdAt"        column="created_at" />
-        <result property="createdBy"        column="created_by" />
+        <result property="submittedAt"        column="submitted_at" />
+        <result property="reviewedAt"         column="reviewed_at" />
+        <result property="reviewedBy"         column="reviewed_by" />
+        <result property="rejectionReason"    column="rejection_reason" />
+        <result property="paidAt"             column="paid_at" />
+        <result property="retentionExpiresAt" column="retention_expires_at" />
+        <result property="createdAt"          column="created_at" />
+        <result property="createdBy"          column="created_by" />
     </resultMap>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
@@ -104,18 +106,22 @@
         ORDER BY reviewed_at ASC
     </select>
 
+    <!-- NOW() is evaluated once per statement in MySQL, so all rows in a batch get the same paid_at. -->
+    <!-- retention_expires_at = paid_date + 10 years (GoBD §14). Computed in SQL to avoid clock drift. -->
     <update id="markPaid">
         UPDATE expenses
-        SET status     = 'PAID',
-            updated_at = #{paidAt}
+        SET status               = 'PAID',
+            paid_at              = NOW(),
+            retention_expires_at = DATE_ADD(CURDATE(), INTERVAL 10 YEAR)
         WHERE id = #{id}
           AND status = 'APPROVED'
     </update>
 
     <update id="markBatchPaid">
         UPDATE expenses
-        SET status     = 'PAID',
-            updated_at = #{paidAt}
+        SET status               = 'PAID',
+            paid_at              = NOW(),
+            retention_expires_at = DATE_ADD(CURDATE(), INTERVAL 10 YEAR)
         WHERE id IN
         <foreach item="id" collection="ids" open="(" separator="," close=")">
             #{id}

@@ -1,5 +1,5 @@
 SET FOREIGN_KEY_CHECKS = 0;
-DROP TABLE IF EXISTS finance_reports, report_templates, expense_reports, policy_evaluation_history, expenses, audit_logs, user_consents, policies, user_profiles,
+DROP TABLE IF EXISTS finance_reports, report_templates, expense_reports, gdpr_audit_log, policy_evaluation_history, expenses, audit_logs, user_consents, policies, user_profiles,
     items, screen_configs, functions,
     user_permissions, user_roles, roles, permissions, system_admins, users;
 SET FOREIGN_KEY_CHECKS = 1;
@@ -52,6 +52,7 @@ CREATE TABLE policies (
     id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     slug VARCHAR(100) NOT NULL UNIQUE,
+    policy_type ENUM('TERMS_OF_SERVICE', 'PRIVACY_POLICY', 'AI_DATA_PROCESSING') NOT NULL DEFAULT 'TERMS_OF_SERVICE',
     version VARCHAR(20) NOT NULL,
     content LONGTEXT NOT NULL,
     is_current_active TINYINT(1) DEFAULT 1,
@@ -59,21 +60,28 @@ CREATE TABLE policies (
     is_deleted TINYINT(1) DEFAULT 0
 );
 
+-- NOTE: user_consents has no FK to users(cognito_sub) — intentional, to allow
+-- post-erasure anonymization (user_sub → 'DELETED-<sha256>') without losing consent evidence.
+-- user_sub widened to VARCHAR(80) to fit 'DELETED-' + 64-char SHA-256 hex digest.
 CREATE TABLE user_consents (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    user_sub VARCHAR(36) NOT NULL,
+    user_sub VARCHAR(80) NULL,
     policy_id INT NOT NULL,
     ip_address VARCHAR(45),
     user_agent VARCHAR(255),
+    consent_method ENUM('explicit_checkbox', 'demo_login', 'api_import') NOT NULL DEFAULT 'explicit_checkbox',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     revoked_at TIMESTAMP NULL DEFAULT NULL,
-    CONSTRAINT fk_uc_user FOREIGN KEY (user_sub) REFERENCES users(cognito_sub),
-    CONSTRAINT fk_uc_policy FOREIGN KEY (policy_id) REFERENCES policies(id)
+    CONSTRAINT fk_uc_policy FOREIGN KEY (policy_id) REFERENCES policies(id),
+    INDEX idx_uc_user_policy (user_sub, policy_id)
 );
 
+-- NOTE: expenses.user_sub has no FK to users — intentional, to allow
+-- GDPR pseudonymization (user_sub → 'DELETED-<sha256>') while keeping the
+-- financial record intact (GoBD §14, 10-year retention).
 CREATE TABLE expenses (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    user_sub VARCHAR(36) NOT NULL,
+    user_sub VARCHAR(80) NOT NULL,
     type ENUM('RECEIPT', 'PER_DIEM', 'MILEAGE') NOT NULL,
     title VARCHAR(255),
     amount DECIMAL(10,2),
@@ -104,6 +112,12 @@ CREATE TABLE expenses (
     reviewed_at TIMESTAMP NULL,
     reviewed_by VARCHAR(36) NULL,
     rejection_reason TEXT,
+    paid_at TIMESTAMP NULL,
+
+    -- GoBD retention. Populated atomically by ExpenseService.pay() / batchPay()
+    -- at the same moment paid_at is set: retention_expires_at = paid_date + 10 years.
+    -- Computed in SQL (DATE_ADD) so there's no Java/DB clock drift and no backfill needed.
+    retention_expires_at DATE NULL,
 
     -- Audit
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -112,7 +126,8 @@ CREATE TABLE expenses (
     updated_by VARCHAR(36) NULL,
     is_deleted TINYINT(1) DEFAULT 0,
 
-    CONSTRAINT fk_exp_user FOREIGN KEY (user_sub) REFERENCES users(cognito_sub)
+    INDEX idx_exp_user_status (user_sub, status),
+    INDEX idx_exp_retention (retention_expires_at)
 );
 
 CREATE TABLE policy_evaluation_history (
@@ -134,6 +149,31 @@ CREATE TABLE policy_evaluation_history (
     INDEX idx_peh_domain_screen_created (domain, screen_key, created_at DESC)
 );
 
+-- GDPR audit log: tracks erasure & export events for compliance evidence.
+-- No FK to users — subject may already be hard-deleted; subject_token (SHA-256 of original
+-- cognito_sub) links related events across the erasure workflow lifecycle.
+-- This table is append-only and must NEVER be deleted.
+CREATE TABLE gdpr_audit_log (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    event_type ENUM(
+        'ERASURE_REQUESTED',
+        'ERASURE_PII_DELETED',
+        'ERASURE_FINANCIAL_PSEUDONYMIZED',
+        'ERASURE_COMPLETED',
+        'DATA_EXPORTED',
+        'FINANCE_GOBD_CONFIRMED'
+    ) NOT NULL,
+    subject_sub   VARCHAR(36) NULL,
+    subject_token VARCHAR(64) NOT NULL,
+    actor_sub     VARCHAR(36) NULL,
+    actor_role    VARCHAR(32),
+    details_json  JSON,
+    created_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    INDEX idx_gdpr_subject_token (subject_token, created_at DESC),
+    INDEX idx_gdpr_event_created (event_type, created_at DESC)
+);
+
 -- ============================================
 -- SEED DATA
 -- ============================================
@@ -144,9 +184,10 @@ INSERT INTO roles (id, role_name, description) VALUES
 (3, 'FINANCE', 'Finance accountant');
 
 -- id=1 → Terms of Service, id=2 → Privacy Policy (compliance-view sends policyIds: [1, 2])
-INSERT INTO policies (id, title, slug, version, content) VALUES
-(1, 'Terms of Service', 'tos', '1.0', 'By using this platform you agree to our terms and conditions.'),
-(2, 'Privacy Policy', 'privacy', '1.0', 'We collect and process your data in accordance with GDPR.');
+INSERT INTO policies (id, title, slug, policy_type, version, content) VALUES
+(1, 'Terms of Service', 'tos', 'TERMS_OF_SERVICE', '1.0', 'By using this platform you agree to our terms and conditions.'),
+(2, 'Privacy Policy', 'privacy', 'PRIVACY_POLICY', '1.0', 'We collect and process your data in accordance with GDPR.'),
+(3, 'AI Data Processing', 'ai-data', 'AI_DATA_PROCESSING', '1.0', 'You consent to OCR processing of uploaded receipt images via Groq Vision API.');
 
 -- ============================================
 -- DEMO USERS (Auth0)
@@ -691,3 +732,52 @@ INSERT INTO finance_reports (user_sub, title, report_type, fiscal_period, due_da
   'DRAFT',
   '2026-03-22 11:00:00'
 );
+
+-- ============================================
+-- GDPR demo: PENDING erasure request for Anna Müller (employee).
+--
+-- INTENTIONALLY COMMENTED OUT so the demo flow starts clean:
+--   1. Login as Anna → /profile/privacy → erasure form is visible → submit reason
+--   2. Status banner appears ("being processed... GDPR Art. 12")
+--   3. Login as David Kim (admin) → /admin/users/auth0|69db... → Privacy & GDPR tab
+--      → process erasure → 3 audit events ghi liên tiếp
+--
+-- Uncomment if you need the admin queue pre-populated (e.g. screenshot of pending state
+-- without going through the submit step first).
+-- ============================================
+-- INSERT INTO gdpr_audit_log (event_type, subject_sub, subject_token, actor_sub, actor_role, details_json) VALUES (
+--   'ERASURE_REQUESTED',
+--   'auth0|69db9135b65ad959bd52d81e',
+--   SHA2('auth0|69db9135b65ad959bd52d81e', 256),
+--   'auth0|69db9135b65ad959bd52d81e',
+--   'EMPLOYEE',
+--   JSON_OBJECT('reason', 'Left the company, please remove my personal data per GDPR Art. 17.')
+-- );
+
+-- ============================================
+-- Demo: consent records for Anna Müller (employee)
+-- so the Privacy Center consent history isn't empty.
+-- ============================================
+INSERT INTO user_consents (user_sub, policy_id, ip_address, user_agent, consent_method, created_at) VALUES
+('auth0|69db9135b65ad959bd52d81e', 1, '203.0.113.42', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/605.1.15', 'explicit_checkbox', '2025-11-15 09:23:00'),
+('auth0|69db9135b65ad959bd52d81e', 2, '203.0.113.42', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/605.1.15', 'explicit_checkbox', '2025-11-15 09:23:00'),
+('auth0|69db9135b65ad959bd52d81e', 3, '203.0.113.42', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/605.1.15', 'explicit_checkbox', '2025-12-02 14:11:00');
+
+-- ============================================
+-- Phase 4 demo seeds: PAID expenses (for retention badge) + one
+-- already-pseudonymized erasure (for Finance GoBD confirmation banner)
+-- ============================================
+
+-- PAID expense, retention active (~10 years from now): Under retention badge
+INSERT INTO expenses (user_sub, type, title, amount, currency, status, vendor_name, receipt_date, vat_amount, submitted_at, reviewed_at, paid_at, retention_expires_at, created_at) VALUES
+('auth0|69db9135b65ad959bd52d81e', 'RECEIPT', 'DB Bahn ticket Berlin → Frankfurt', 89.50, 'EUR', 'PAID', 'Deutsche Bahn AG', '2026-04-10', 5.73, '2026-04-11 09:00:00', '2026-04-12 10:00:00', '2026-04-15 08:00:00', '2036-04-15', '2026-04-10 14:00:00');
+
+-- PAID expense, retention already expired (paid in 2014): Expired badge
+INSERT INTO expenses (user_sub, type, title, amount, currency, status, vendor_name, receipt_date, vat_amount, submitted_at, reviewed_at, paid_at, retention_expires_at, created_at) VALUES
+('auth0|69db9135b65ad959bd52d81e', 'RECEIPT', 'Office supplies — legacy entry', 42.00, 'EUR', 'PAID', 'Staples', '2014-03-15', 6.71, '2014-03-16 09:00:00', '2014-03-17 10:00:00', '2014-03-20 08:00:00', '2024-03-20', '2014-03-15 14:00:00');
+
+-- Demo pre-processed erasure for Sarah Chen (FINANCE) to confirm — fictitious legacy employee.
+-- Two events written in order: PSEUDONYMIZED (awaiting FINANCE_GOBD_CONFIRMED).
+INSERT INTO gdpr_audit_log (event_type, subject_sub, subject_token, actor_sub, actor_role, details_json, created_at) VALUES
+('ERASURE_REQUESTED',                'auth0|legacy0000000000000000legacy', SHA2('auth0|legacy0000000000000000legacy', 256), 'auth0|legacy0000000000000000legacy', 'EMPLOYEE', JSON_OBJECT('reason', 'Former employee, contract ended 2025-12.'),                                                                              '2026-05-01 09:30:00'),
+('ERASURE_FINANCIAL_PSEUDONYMIZED', 'auth0|legacy0000000000000000legacy', SHA2('auth0|legacy0000000000000000legacy', 256), 'auth0|admin000000000000000000001', 'ADMIN',    JSON_OBJECT('anonymized_sub', CONCAT('DELETED-', SHA2('auth0|legacy0000000000000000legacy', 256)), 'expenses_pseudonymized', 3, 'user_consents_anonymized', 2), '2026-05-02 14:00:00');

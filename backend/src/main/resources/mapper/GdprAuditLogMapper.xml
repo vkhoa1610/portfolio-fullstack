@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.my_java_app.mapper.GdprAuditLogMapper">
+
+    <resultMap id="GdprAuditLogResultMap" type="com.example.my_java_app.entity.GdprAuditLogEntity">
+        <id     property="id"            column="id"/>
+        <result property="eventType"     column="event_type"/>
+        <result property="subjectSub"    column="subject_sub"/>
+        <result property="subjectToken"  column="subject_token"/>
+        <result property="actorSub"      column="actor_sub"/>
+        <result property="actorRole"     column="actor_role"/>
+        <result property="detailsJson"   column="details_json"/>
+        <result property="createdAt"     column="created_at"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.example.my_java_app.entity.GdprAuditLogEntity" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO gdpr_audit_log (
+            event_type, subject_sub, subject_token, actor_sub, actor_role, details_json
+        ) VALUES (
+            #{eventType}, #{subjectSub}, #{subjectToken}, #{actorSub}, #{actorRole}, #{detailsJson}
+        )
+    </insert>
+
+    <select id="findBySubjectToken" resultMap="GdprAuditLogResultMap">
+        SELECT * FROM gdpr_audit_log
+        WHERE subject_token = #{subjectToken}
+        ORDER BY created_at DESC, id DESC
+    </select>
+
+    <select id="findById" resultMap="GdprAuditLogResultMap">
+        SELECT * FROM gdpr_audit_log WHERE id = #{id}
+    </select>
+
+    <select id="findAllErasureRequests" resultMap="GdprAuditLogResultMap">
+        SELECT * FROM gdpr_audit_log
+        WHERE event_type = 'ERASURE_REQUESTED'
+        ORDER BY created_at DESC, id DESC
+    </select>
+
+    <select id="findRecent" resultMap="GdprAuditLogResultMap">
+        SELECT * FROM gdpr_audit_log
+        <where>
+            <if test="subjectToken != null">subject_token = #{subjectToken}</if>
+        </where>
+        ORDER BY created_at DESC, id DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="existsLaterEvent" resultType="int">
+        SELECT COUNT(*) FROM gdpr_audit_log
+        WHERE subject_token = #{subjectToken}
+          AND event_type = #{eventType}
+          AND created_at &gt;= #{after}
+    </select>
+
+    <select id="findPendingFinanceConfirmations" resultMap="GdprAuditLogResultMap">
+        SELECT pseudo.*
+        FROM gdpr_audit_log pseudo
+        WHERE pseudo.event_type = 'ERASURE_FINANCIAL_PSEUDONYMIZED'
+          AND NOT EXISTS (
+              SELECT 1
+              FROM gdpr_audit_log conf
+              WHERE conf.event_type = 'FINANCE_GOBD_CONFIRMED'
+                AND conf.subject_token = pseudo.subject_token
+                AND conf.created_at &gt;= pseudo.created_at
+          )
+        ORDER BY pseudo.created_at DESC, pseudo.id DESC
+    </select>
+
+</mapper>

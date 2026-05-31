@@ -17,6 +17,11 @@ export const BFF_ENDPOINTS = {
   EMP_005: '/emp-005/:id',  // GET  expenses/:id — canonical (shared với mgr-004)
   EMP_006: '/emp-006/:id',  // POST expenses/:id/submit
   EMP_007: '/emp-007',      // GET  expenses/view-url (presigned GET for private bucket)
+  EMP_008: '/emp-008',      // GET  user/privacy/data-map
+  EMP_009: '/emp-009',      // GET  user/privacy/consents
+  EMP_010: '/emp-010',      // GET  user/privacy/erasure-status
+  EMP_011: '/emp-011',      // POST user/privacy/erasure-request
+  EMP_012: '/emp-012',      // GET  user/data-export (ZIP download)
 
   // ─── Manager ──────────────────────────────────────────────────────
   MGR_001: '/mgr-001',      // GET manager/expenses
@@ -31,6 +36,8 @@ export const BFF_ENDPOINTS = {
   FIN_003: '/fin-003/batch-pay',// PUT  finance/expenses/batch-pay
   FIN_004: '/fin-004/reports',  // POST create finance report
   FIN_005: '/fin-005/reports',  // GET  list finance reports
+  FIN_006: '/fin-006/gdpr/pending',     // GET  pseudonymizations awaiting Finance sign-off
+  FIN_007: '/fin-007/gdpr/confirm/:id', // PUT  confirm one pseudonymization
 
   // ─── Profile ──────────────────────────────────────────────────────
   PRO_001: '/pro-001',  // GET  users/me/detail
@@ -65,4 +72,10 @@ export const BFF_ENDPOINTS = {
   ADM_015: '/adm-015/report-templates/:id',     // GET one / PUT update
   ADM_016: '/adm-016/report-templates/generate-pdf', // POST generate PDF
   ADM_017: '/adm-017/ai-playground/chat',            // POST AI model test (admin)
+
+  // ─── Admin: GDPR ──────────────────────────────────────────────
+  ADM_018: '/adm-018/gdpr/requests',                 // GET  erasure request queue
+  ADM_019: '/adm-019/gdpr/data-map/:sub',            // GET  per-user data inventory
+  ADM_020: '/adm-020/gdpr/process/:id',              // POST run full erasure for request id
+  ADM_021: '/adm-021/gdpr/audit-log',                // GET  recent audit events (?subjectSub=)
 } as const;

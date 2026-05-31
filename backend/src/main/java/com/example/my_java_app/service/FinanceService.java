@@ -10,7 +10,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,7 +17,6 @@ import java.util.stream.Collectors;
 public class FinanceService {
 
     private static final Logger log = LoggerFactory.getLogger(FinanceService.class);
-    private static final DateTimeFormatter DT_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
     private final ExpenseMapper expenseMapper;
 
@@ -39,14 +37,14 @@ public class FinanceService {
         if (!"APPROVED".equals(entity.getStatus())) {
             throw new IllegalStateException("Expense " + id + " is not APPROVED (status=" + entity.getStatus() + ")");
         }
-        expenseMapper.markPaid(id, now());
+        expenseMapper.markPaid(id);
         log.info("Expense {} marked as PAID", id);
     }
 
     /** Bulk mark list of expenses as PAID */
     public int batchPay(List<Long> ids) {
         if (ids == null || ids.isEmpty()) return 0;
-        expenseMapper.markBatchPaid(ids, now());
+        expenseMapper.markBatchPaid(ids);
         log.info("Batch-paid {} expense(s): {}", ids.size(), ids);
         return ids.size();
     }
@@ -71,15 +69,11 @@ public class FinanceService {
             return;
         }
         List<Long> ids = approved.stream().map(ExpenseEntity::getId).collect(Collectors.toList());
-        expenseMapper.markBatchPaid(ids, now());
+        expenseMapper.markBatchPaid(ids);
         log.info("[ScheduledBatchPay] Auto-paid {} expense(s) on day {}", ids.size(), day);
     }
 
     // ─────────────────────────────────────────────────────────────
-
-    private String now() {
-        return LocalDateTime.now().format(DT_FMT);
-    }
 
     private ExpenseResponseDto toDto(ExpenseEntity e) {
         ExpenseResponseDto dto = new ExpenseResponseDto();
@@ -107,6 +101,8 @@ public class FinanceService {
         dto.setReviewedAt(e.getReviewedAt() != null ? e.getReviewedAt().toString() : null);
         dto.setReviewedBy(e.getReviewedBy());
         dto.setRejectionReason(e.getRejectionReason());
+        dto.setPaidAt(e.getPaidAt() != null ? e.getPaidAt().toString() : null);
+        dto.setRetentionExpiresAt(e.getRetentionExpiresAt() != null ? e.getRetentionExpiresAt().toString() : null);
         dto.setCreatedAt(e.getCreatedAt() != null ? e.getCreatedAt().toString() : null);
         return dto;
     }

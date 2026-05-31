@@ -2,11 +2,48 @@
 
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Camera, Calendar, Car, CheckCircle, AlertTriangle } from "lucide-react";
+import { Camera, Calendar, Car, CheckCircle, AlertTriangle, ShieldCheck, Clock } from "lucide-react";
 import { useGetFinanceExpensesQuery } from "@/ducks/expenses";
 import type { Expense } from "@/ducks/expenses";
+import {
+  useGetPendingFinanceConfirmationsQuery,
+  useConfirmFinanceGobdMutation,
+  type PendingFinanceConfirmation,
+} from "@/ducks/finance-gdpr/financeGdprApi";
 
 const TYPE_ICON = { RECEIPT: Camera, PER_DIEM: Calendar, MILEAGE: Car };
+
+// GoBD retention helpers ────────────────────────────────────────────────
+function classifyRetention(retentionExpiresAt?: string): "UNDER_RETENTION" | "EXPIRED" | null {
+  if (!retentionExpiresAt) return null;
+  const expires = new Date(retentionExpiresAt);
+  return expires.getTime() > Date.now() ? "UNDER_RETENTION" : "EXPIRED";
+}
+
+function RetentionBadge({ retentionExpiresAt }: { retentionExpiresAt?: string }) {
+  const state = classifyRetention(retentionExpiresAt);
+  if (state === null) return <span className="text-xs text-neutral-300">—</span>;
+  if (state === "UNDER_RETENTION") {
+    return (
+      <span
+        title={`GoBD §14 — retention until ${retentionExpiresAt}`}
+        className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-700"
+      >
+        <Clock className="h-2.5 w-2.5" />
+        Under retention
+      </span>
+    );
+  }
+  return (
+    <span
+      title={`Retention expired on ${retentionExpiresAt} — eligible for hard deletion`}
+      className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-green-700"
+    >
+      <CheckCircle className="h-2.5 w-2.5" />
+      Expired
+    </span>
+  );
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Finance Check View
@@ -16,9 +53,13 @@ const TYPE_ICON = { RECEIPT: Camera, PER_DIEM: Calendar, MILEAGE: Car };
 export default function FinanceCheckView() {
   const { t } = useTranslation();
   const { data: all = [], isLoading } = useGetFinanceExpensesQuery();
+  const { data: pendingConfirmations = [] } = useGetPendingFinanceConfirmationsQuery();
+  const [pendingModalOpen, setPendingModalOpen] = useState(false);
 
   // Finance check only shows APPROVED items (manager already signed off)
   const approved = all.filter((e) => e.status === "APPROVED");
+  // Paid items — surfaced so retention status is visible to Finance auditors.
+  const paid = all.filter((e) => e.status === "PAID");
 
   // Local mock state: ids that accountant has "released for payment"
   const [released, setReleased] = useState<Set<number>>(new Set());
@@ -47,6 +88,14 @@ export default function FinanceCheckView() {
         </p>
       </div>
 
+      {/* GDPR pseudonymization confirmation banner — separation of duties (GoBD) */}
+      {pendingConfirmations.length > 0 && (
+        <GoBDConfirmationBanner
+          count={pendingConfirmations.length}
+          onReview={() => setPendingModalOpen(true)}
+        />
+      )}
+
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
         <StatCard label={t("finance.check.stat_pending")} value={pendingCheck.length} color="warning" />
@@ -69,6 +118,7 @@ export default function FinanceCheckView() {
                 <th className="px-5 py-3 text-left">{t("finance.check.col_amount")}</th>
                 <th className="px-5 py-3 text-left">{t("finance.check.col_submitted")}</th>
                 <th className="px-5 py-3 text-left">{t("finance.check.col_flags")}</th>
+                <th className="px-5 py-3 text-left">Retention</th>
                 <th className="px-5 py-3 text-left">{t("finance.check.col_actions")}</th>
               </tr>
             </thead>
@@ -110,6 +160,26 @@ export default function FinanceCheckView() {
         </Section>
       )}
 
+      {/* Recently paid — read-only retention audit */}
+      {paid.length > 0 && (
+        <Section title="Recently paid (GoBD retention audit)" count={paid.length}>
+          <table className="w-full text-sm">
+            <thead className="bg-neutral-50 text-xs uppercase text-neutral-500">
+              <tr>
+                <th className="px-5 py-3 text-left">{t("finance.check.col_type")}</th>
+                <th className="px-5 py-3 text-left">{t("finance.check.col_title")}</th>
+                <th className="px-5 py-3 text-left">{t("finance.check.col_amount")}</th>
+                <th className="px-5 py-3 text-left">Paid on</th>
+                <th className="px-5 py-3 text-left">Retention</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paid.map((e) => <PaidRow key={e.id} expense={e} />)}
+            </tbody>
+          </table>
+        </Section>
+      )}
+
       {/* Flagged */}
       {flaggedItems.length > 0 && (
         <Section title={t("finance.check.section_flagged")} count={flaggedItems.length} accent="error">
@@ -143,6 +213,14 @@ export default function FinanceCheckView() {
           </table>
         </Section>
       )}
+
+      {/* GDPR pseudonymization confirmation modal */}
+      {pendingModalOpen && (
+        <PendingConfirmationsModal
+          items={pendingConfirmations}
+          onClose={() => setPendingModalOpen(false)}
+        />
+      )}
     </div>
   );
 }
@@ -150,6 +228,122 @@ export default function FinanceCheckView() {
 // ─────────────────────────────────────────────────────────────────────────────
 // Sub-components
 // ─────────────────────────────────────────────────────────────────────────────
+
+function GoBDConfirmationBanner({ count, onReview }: { count: number; onReview: () => void }) {
+  return (
+    <div className="flex items-start gap-4 rounded-xl border border-amber-200 bg-amber-50 px-5 py-4">
+      <div className="rounded-full bg-amber-100 p-2 text-amber-700">
+        <ShieldCheck className="h-5 w-5" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-semibold text-amber-900">
+          {count} GDPR pseudonymization{count === 1 ? "" : "s"} awaiting your GoBD sign-off
+        </p>
+        <p className="mt-1 text-xs text-amber-800">
+          Admin has anonymized employee data on expense records. Confirm the action is GoBD-compliant
+          to close the audit loop (separation of duties — accounting integrity is Finance&apos;s responsibility).
+        </p>
+      </div>
+      <button
+        onClick={onReview}
+        className="flex-shrink-0 rounded-full bg-amber-600 px-4 py-2 text-xs font-bold text-white hover:bg-amber-700"
+      >
+        Review &amp; confirm
+      </button>
+    </div>
+  );
+}
+
+function PaidRow({ expense }: { expense: Expense }) {
+  const Icon = TYPE_ICON[expense.type] ?? Camera;
+  return (
+    <tr className="border-t border-neutral-100">
+      <td className="px-5 py-3"><Icon className="h-4 w-4 text-neutral-400" /></td>
+      <td className="max-w-[200px] truncate px-5 py-3 text-neutral-700">
+        {expense.title || expense.vendorName || "—"}
+      </td>
+      <td className="px-5 py-3">{expense.amount != null ? `${expense.amount.toFixed(2)} €` : "—"}</td>
+      <td className="px-5 py-3 text-xs text-neutral-500">{expense.paidAt?.slice(0, 10) ?? "—"}</td>
+      <td className="px-5 py-3"><RetentionBadge retentionExpiresAt={expense.retentionExpiresAt} /></td>
+    </tr>
+  );
+}
+
+function PendingConfirmationsModal({
+  items,
+  onClose,
+}: {
+  items: PendingFinanceConfirmation[];
+  onClose: () => void;
+}) {
+  const [confirm, { isLoading }] = useConfirmFinanceGobdMutation();
+  const [busyId, setBusyId] = useState<number | null>(null);
+
+  const handleConfirm = async (id: number) => {
+    setBusyId(id);
+    try { await confirm(id).unwrap(); } catch { /* error surfaced inline below */ }
+    finally { setBusyId(null); }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+      <div className="w-full max-w-2xl rounded-2xl bg-white shadow-2xl">
+        <div className="flex items-start justify-between gap-4 border-b border-neutral-100 p-5">
+          <div>
+            <h2 className="text-base font-bold text-neutral-900">GoBD pseudonymization sign-off</h2>
+            <p className="mt-1 text-xs text-neutral-500">
+              Each item below represents an erasure where Admin has anonymized expense records for an
+              employee. Confirming records your acknowledgement in the immutable GDPR audit log.
+            </p>
+          </div>
+          <button onClick={onClose} className="rounded-full p-1 text-neutral-400 hover:bg-neutral-100">
+            ✕
+          </button>
+        </div>
+
+        <div className="max-h-[60vh] overflow-y-auto p-5">
+          {items.length === 0 ? (
+            <p className="py-8 text-center text-sm text-neutral-400">Nothing pending — all caught up.</p>
+          ) : (
+            <ul className="space-y-3">
+              {items.map((it) => (
+                <li key={it.pseudoEventId} className="flex items-start gap-3 rounded-lg border border-neutral-200 p-4">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-mono text-xs font-medium text-neutral-700">
+                      pseudo event #{it.pseudoEventId}
+                    </p>
+                    <p className="mt-1 text-xs text-neutral-500">
+                      Subject: <span className="font-mono">{it.subjectSub ?? "(already deleted)"}</span>
+                    </p>
+                    <p className="mt-0.5 text-xs text-neutral-500">
+                      Pseudonymized at {it.pseudonymizedAt?.slice(0, 19).replace("T", " ")} by {it.actorRole}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => handleConfirm(it.pseudoEventId)}
+                    disabled={isLoading && busyId === it.pseudoEventId}
+                    className="flex-shrink-0 rounded-full bg-amber-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-amber-700 disabled:opacity-50"
+                  >
+                    {isLoading && busyId === it.pseudoEventId ? "Confirming…" : "Confirm GoBD"}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        <div className="flex justify-end border-t border-neutral-100 px-5 py-4">
+          <button
+            onClick={onClose}
+            className="rounded-full border border-neutral-300 px-4 py-2 text-xs font-medium text-neutral-700 hover:bg-neutral-50"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function StatCard({ label, value, color }: { label: string; value: number; color: string }) {
   const colorMap: Record<string, string> = {
@@ -232,6 +426,9 @@ function CheckRow({
             {labelClear}
           </span>
         )}
+      </td>
+      <td className="px-5 py-3">
+        <RetentionBadge retentionExpiresAt={expense.retentionExpiresAt} />
       </td>
       <td className="px-5 py-3">
         <div className="flex gap-2">

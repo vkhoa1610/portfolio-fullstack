@@ -5,9 +5,44 @@
 
 <mapper namespace="com.example.my_java_app.mapper.UserConsentMapper">
 
+    <resultMap id="UserConsentResultMap" type="com.example.my_java_app.entity.UserConsentEntity">
+        <id     property="id"             column="id"/>
+        <result property="userSub"        column="user_sub"/>
+        <result property="policyId"       column="policy_id"/>
+        <result property="ipAddress"      column="ip_address"/>
+        <result property="userAgent"      column="user_agent"/>
+        <result property="consentMethod"  column="consent_method"/>
+        <result property="createdAt"      column="created_at"/>
+        <result property="revokedAt"      column="revoked_at"/>
+        <result property="policyTitle"    column="policy_title"/>
+        <result property="policySlug"     column="policy_slug"/>
+        <result property="policyType"     column="policy_type"/>
+        <result property="policyVersion"  column="policy_version"/>
+    </resultMap>
+
     <insert id="insertConsent">
         INSERT INTO user_consents (user_sub, policy_id, ip_address, user_agent)
         VALUES (#{userSub}, #{policyId}, #{ipAddress}, #{userAgent})
     </insert>
+
+    <select id="findByUserSub" resultMap="UserConsentResultMap">
+        SELECT
+            uc.id,
+            uc.user_sub,
+            uc.policy_id,
+            uc.ip_address,
+            uc.user_agent,
+            uc.consent_method,
+            uc.created_at,
+            uc.revoked_at,
+            p.title       AS policy_title,
+            p.slug        AS policy_slug,
+            p.policy_type AS policy_type,
+            p.version     AS policy_version
+        FROM user_consents uc
+        JOIN policies p ON uc.policy_id = p.id
+        WHERE uc.user_sub = #{userSub}
+        ORDER BY uc.created_at DESC, uc.id DESC
+    </select>
 
 </mapper>

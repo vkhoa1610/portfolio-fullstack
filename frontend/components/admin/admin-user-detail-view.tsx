@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { useAuth } from "@/common/context/AuthContext";
@@ -13,10 +13,13 @@ import {
   useRevokeFunctionMutation,
 } from "@/ducks/admin/adminApi";
 import type { PermissionStatus, FunctionStatus, PermissionState } from "@/ducks/admin/types";
+import GdprPrivacyPanel from "./gdpr-privacy-panel";
 
 interface Props {
   sub: string;
 }
+
+type Tab = "permissions" | "functions" | "gdpr";
 
 const STATE_BADGE: Record<PermissionState, string> = {
   ACTIVE: "bg-green-100 text-green-700",
@@ -33,6 +36,7 @@ const STATE_LABEL: Record<PermissionState, string> = {
 export default function AdminUserDetailView({ sub }: Props) {
   const router = useRouter();
   const { isAdmin, isLoading: isAuthLoading, session } = useAuth();
+  const [activeTab, setActiveTab] = useState<Tab>("permissions");
 
   const { data: permissions = [], isLoading: isPermLoading } = useGetUserPermissionsQuery(sub);
   const { data: functions = [], isLoading: isFuncLoading } = useGetUserFunctionsQuery(sub);
@@ -65,74 +69,100 @@ export default function AdminUserDetailView({ sub }: Props) {
         <h2 className="text-2xl font-bold text-neutral-900 truncate">{sub}</h2>
       </div>
 
-      {/* Permissions section */}
-      <section>
-        <h3 className="mb-3 text-lg font-semibold text-neutral-800">Permissions</h3>
-        {isPermLoading ? (
-          <Spinner />
-        ) : permissions.length === 0 ? (
-          <Empty label="No permissions defined" />
-        ) : (
-          <div className="overflow-hidden rounded-xl border border-neutral-200 bg-white">
-            <table className="w-full text-sm">
-              <thead className="bg-neutral-50 text-left text-xs font-medium text-neutral-500 uppercase">
-                <tr>
-                  <th className="px-4 py-3">Code</th>
-                  <th className="px-4 py-3">Description</th>
-                  <th className="px-4 py-3">State</th>
-                  <th className="px-4 py-3 text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-neutral-100">
-                {permissions.map((p) => (
-                  <PermissionRow
-                    key={p.permissionCode}
-                    item={p}
-                    disabled={isPermBusy}
-                    onGrant={() => grantPermission({ sub, permissionCode: p.permissionCode })}
-                    onRevoke={() => revokePermission({ sub, code: p.permissionCode })}
-                  />
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
+      {/* Tabs */}
+      <div className="flex gap-1 border-b border-neutral-200">
+        <TabButton label="Permissions"    active={activeTab === "permissions"} onClick={() => setActiveTab("permissions")} />
+        <TabButton label="UI Functions"   active={activeTab === "functions"}   onClick={() => setActiveTab("functions")} />
+        <TabButton label="Privacy & GDPR" active={activeTab === "gdpr"}        onClick={() => setActiveTab("gdpr")} />
+      </div>
 
-      {/* Functions section */}
-      <section>
-        <h3 className="mb-3 text-lg font-semibold text-neutral-800">UI Functions</h3>
-        {isFuncLoading ? (
-          <Spinner />
-        ) : functions.length === 0 ? (
-          <Empty label="No functions defined" />
-        ) : (
-          <div className="overflow-hidden rounded-xl border border-neutral-200 bg-white">
-            <table className="w-full text-sm">
-              <thead className="bg-neutral-50 text-left text-xs font-medium text-neutral-500 uppercase">
-                <tr>
-                  <th className="px-4 py-3">Key</th>
-                  <th className="px-4 py-3">Module</th>
-                  <th className="px-4 py-3">State</th>
-                  <th className="px-4 py-3 text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-neutral-100">
-                {functions.map((f) => (
-                  <FunctionRow
-                    key={f.functionKey}
-                    item={f}
-                    disabled={isFuncBusy}
-                    onGrant={() => grantFunction({ sub, functionKey: f.functionKey })}
-                    onRevoke={() => revokeFunction({ sub, key: f.functionKey })}
-                  />
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
+      {/* Permissions tab */}
+      {activeTab === "permissions" && (
+        <section>
+          {isPermLoading ? (
+            <Spinner />
+          ) : permissions.length === 0 ? (
+            <Empty label="No permissions defined" />
+          ) : (
+            <div className="overflow-hidden rounded-xl border border-neutral-200 bg-white">
+              <table className="w-full text-sm">
+                <thead className="bg-neutral-50 text-left text-xs font-medium text-neutral-500 uppercase">
+                  <tr>
+                    <th className="px-4 py-3">Code</th>
+                    <th className="px-4 py-3">Description</th>
+                    <th className="px-4 py-3">State</th>
+                    <th className="px-4 py-3 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-neutral-100">
+                  {permissions.map((p) => (
+                    <PermissionRow
+                      key={p.permissionCode}
+                      item={p}
+                      disabled={isPermBusy}
+                      onGrant={() => grantPermission({ sub, permissionCode: p.permissionCode })}
+                      onRevoke={() => revokePermission({ sub, code: p.permissionCode })}
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* Functions tab */}
+      {activeTab === "functions" && (
+        <section>
+          {isFuncLoading ? (
+            <Spinner />
+          ) : functions.length === 0 ? (
+            <Empty label="No functions defined" />
+          ) : (
+            <div className="overflow-hidden rounded-xl border border-neutral-200 bg-white">
+              <table className="w-full text-sm">
+                <thead className="bg-neutral-50 text-left text-xs font-medium text-neutral-500 uppercase">
+                  <tr>
+                    <th className="px-4 py-3">Key</th>
+                    <th className="px-4 py-3">Module</th>
+                    <th className="px-4 py-3">State</th>
+                    <th className="px-4 py-3 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-neutral-100">
+                  {functions.map((f) => (
+                    <FunctionRow
+                      key={f.functionKey}
+                      item={f}
+                      disabled={isFuncBusy}
+                      onGrant={() => grantFunction({ sub, functionKey: f.functionKey })}
+                      onRevoke={() => revokeFunction({ sub, key: f.functionKey })}
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* GDPR tab */}
+      {activeTab === "gdpr" && <GdprPrivacyPanel sub={sub} />}
     </div>
+  );
+}
+
+function TabButton({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`relative px-4 py-2.5 text-sm font-semibold transition-colors ${
+        active ? "text-primary-600" : "text-neutral-500 hover:text-neutral-800"
+      }`}
+    >
+      {label}
+      {active && <span className="absolute inset-x-0 -bottom-px h-0.5 bg-primary-500" />}
+    </button>
   );
 }
 

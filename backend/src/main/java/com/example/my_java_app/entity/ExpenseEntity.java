@@ -42,6 +42,8 @@ public class ExpenseEntity {
     private LocalDateTime reviewedAt;
     private String reviewedBy;
     private String rejectionReason;
+    private LocalDateTime paidAt;
+    private LocalDate retentionExpiresAt;
 
     // Audit
     private LocalDateTime createdAt;

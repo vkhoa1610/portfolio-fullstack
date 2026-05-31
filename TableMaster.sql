@@ -57,10 +57,12 @@ CREATE TABLE user_profiles (
 -- =============================================
 
 -- 3.1 Table: policies
+-- policy_type added for typed lookups (TERMS_OF_SERVICE / PRIVACY_POLICY / AI_DATA_PROCESSING).
 CREATE TABLE policies (
     id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     slug VARCHAR(100) NOT NULL UNIQUE,
+    policy_type ENUM('TERMS_OF_SERVICE', 'PRIVACY_POLICY', 'AI_DATA_PROCESSING') NOT NULL DEFAULT 'TERMS_OF_SERVICE',
     version VARCHAR(20) NOT NULL,
     content LONGTEXT NOT NULL,
     is_current_active TINYINT(1) DEFAULT 1,
@@ -69,16 +71,47 @@ CREATE TABLE policies (
 );
 
 -- 3.2 Table: user_consents
+-- No FK to users(cognito_sub) — intentional, to allow post-erasure anonymization
+-- (user_sub → 'DELETED-<sha256>') without losing consent evidence (GDPR Art. 7).
+-- user_sub widened to VARCHAR(80) to fit 'DELETED-' + 64-char SHA-256 hex digest.
 CREATE TABLE user_consents (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    user_sub VARCHAR(36) NOT NULL,
+    user_sub VARCHAR(80) NULL,
     policy_id INT NOT NULL,
     ip_address VARCHAR(45),
     user_agent VARCHAR(255),
+    consent_method ENUM('explicit_checkbox', 'demo_login', 'api_import') NOT NULL DEFAULT 'explicit_checkbox',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     revoked_at TIMESTAMP NULL DEFAULT NULL,
-    CONSTRAINT fk_uc_user FOREIGN KEY (user_sub) REFERENCES users(cognito_sub),
-    CONSTRAINT fk_uc_policy FOREIGN KEY (policy_id) REFERENCES policies(id)
+    CONSTRAINT fk_uc_policy FOREIGN KEY (policy_id) REFERENCES policies(id),
+    INDEX idx_uc_user_policy (user_sub, policy_id)
+);
+
+-- 3.3 Table: gdpr_audit_log
+-- Append-only compliance ledger for all GDPR-relevant actions.
+-- No FK to users — subject may already be hard-deleted by the time later events fire.
+-- subject_token = SHA-256(original_cognito_sub) acts as the durable link across the
+-- erasure lifecycle (REQUESTED → PSEUDONYMIZED → PII_DELETED → COMPLETED).
+-- This table must NEVER be deleted — it is the legal proof of compliance.
+CREATE TABLE gdpr_audit_log (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    event_type ENUM(
+        'ERASURE_REQUESTED',
+        'ERASURE_PII_DELETED',
+        'ERASURE_FINANCIAL_PSEUDONYMIZED',
+        'ERASURE_COMPLETED',
+        'DATA_EXPORTED',
+        'FINANCE_GOBD_CONFIRMED'         -- post-hoc Finance sign-off on a pseudonymization
+    ) NOT NULL,
+    subject_sub   VARCHAR(36) NULL,     -- nullable: cleared after hard delete
+    subject_token VARCHAR(64) NOT NULL, -- always set: hex(SHA-256(original_sub))
+    actor_sub     VARCHAR(36) NULL,     -- who performed it (admin/employee/null=system)
+    actor_role    VARCHAR(32),
+    details_json  JSON,                 -- { tables_affected, rows_deleted, reason, ... }
+    created_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    INDEX idx_gdpr_subject_token (subject_token, created_at DESC),
+    INDEX idx_gdpr_event_created (event_type, created_at DESC)
 );
 
 -- =============================================
@@ -86,14 +119,18 @@ CREATE TABLE user_consents (
 -- =============================================
 
 -- 4.1 Table: expenses
+-- user_sub widened to VARCHAR(80) and FK removed to support GDPR pseudonymization
+-- (user_sub → 'DELETED-<sha256>') while preserving the row for GoBD §14 (10-year retention).
+-- paid_at + retention_expires_at populated atomically by ExpenseService.markPaid()
+-- using SQL DATE_ADD(CURDATE(), INTERVAL 10 YEAR) — no Java/DB clock drift, no backfill.
 CREATE TABLE expenses (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    user_sub VARCHAR(36) NOT NULL,
+    user_sub VARCHAR(80) NOT NULL,
     type ENUM('RECEIPT', 'PER_DIEM', 'MILEAGE') NOT NULL,
     title VARCHAR(255),
     amount DECIMAL(10,2),
     currency VARCHAR(3) DEFAULT 'EUR',
-    status ENUM('DRAFT', 'PENDING_REVIEW', 'APPROVED', 'REJECTED') DEFAULT 'DRAFT',
+    status ENUM('DRAFT', 'PENDING_REVIEW', 'APPROVED', 'REJECTED', 'PAID') DEFAULT 'DRAFT',
 
     -- Receipt fields
     vendor_name VARCHAR(255),
@@ -119,6 +156,10 @@ CREATE TABLE expenses (
     reviewed_at TIMESTAMP NULL,
     reviewed_by VARCHAR(36) NULL,
     rejection_reason TEXT,
+    paid_at TIMESTAMP NULL,
+
+    -- GoBD retention (paid_date + 10 years; set together with paid_at)
+    retention_expires_at DATE NULL,
 
     -- Audit
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -127,7 +168,8 @@ CREATE TABLE expenses (
     updated_by VARCHAR(36) NULL,
     is_deleted TINYINT(1) DEFAULT 0,
 
-    CONSTRAINT fk_exp_user FOREIGN KEY (user_sub) REFERENCES users(cognito_sub)
+    INDEX idx_exp_user_status (user_sub, status),
+    INDEX idx_exp_retention (retention_expires_at)
 );
 
 

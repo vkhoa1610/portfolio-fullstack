@@ -60,6 +60,10 @@ export interface Expense {
   reviewedAt?: string;
   reviewedBy?: string;
   rejectionReason?: string;
+  paidAt?: string;
+
+  /** GoBD retention deadline (paid_at + 10 years). Null until expense reaches PAID. */
+  retentionExpiresAt?: string;
 
   createdAt?: string;
   policyEvaluationSnapshot?: PolicyEvaluationSnapshot;

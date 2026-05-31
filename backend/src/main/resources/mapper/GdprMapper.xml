@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.my_java_app.mapper.GdprMapper">
+
+    <!-- Pseudonymization: replace user_sub with anonymized token. Keeps row, removes link to identity. -->
+    <update id="pseudonymizeExpenses">
+        UPDATE expenses
+        SET user_sub = #{anonymizedSub}
+        WHERE user_sub = #{originalSub}
+    </update>
+
+    <update id="anonymizeUserConsents">
+        UPDATE user_consents
+        SET user_sub = #{anonymizedSub}
+        WHERE user_sub = #{originalSub}
+    </update>
+
+    <update id="nullifyPolicyEvalHistoryCreatedBy">
+        UPDATE policy_evaluation_history
+        SET created_by = NULL
+        WHERE created_by = #{originalSub}
+    </update>
+
+    <!-- Hard delete of personal identifiable info. Order matters: profile + roles before users (FK). -->
+    <delete id="deleteUserProfile">
+        DELETE FROM user_profiles WHERE user_sub = #{userSub}
+    </delete>
+
+    <delete id="deleteUserRoles">
+        DELETE FROM user_roles WHERE user_sub = #{userSub}
+    </delete>
+
+    <delete id="deleteUser">
+        DELETE FROM users WHERE cognito_sub = #{userSub}
+    </delete>
+
+    <!-- Counts for data-map summary -->
+    <select id="countExpensesByUser" resultType="int">
+        SELECT COUNT(*) FROM expenses WHERE user_sub = #{userSub}
+    </select>
+
+    <select id="countConsentsByUser" resultType="int">
+        SELECT COUNT(*) FROM user_consents WHERE user_sub = #{userSub}
+    </select>
+
+    <select id="countUserProfilesByUser" resultType="int">
+        SELECT COUNT(*) FROM user_profiles WHERE user_sub = #{userSub}
+    </select>
+
+    <select id="countUserRolesByUser" resultType="int">
+        SELECT COUNT(*) FROM user_roles WHERE user_sub = #{userSub}
+    </select>
+
+    <select id="countPolicyEvalHistoryByUser" resultType="int">
+        SELECT COUNT(*) FROM policy_evaluation_history WHERE created_by = #{userSub}
+    </select>
+
+    <select id="countUsersBySub" resultType="int">
+        SELECT COUNT(*) FROM users WHERE cognito_sub = #{userSub}
+    </select>
+
+</mapper>

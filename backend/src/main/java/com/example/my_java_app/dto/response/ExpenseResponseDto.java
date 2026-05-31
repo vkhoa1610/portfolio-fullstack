@@ -38,6 +38,10 @@ public class ExpenseResponseDto {
     private String reviewedAt;
     private String reviewedBy;
     private String rejectionReason;
+    private String paidAt;
+
+    // GoBD retention deadline (paid_at + 10 years). Null when not yet PAID.
+    private String retentionExpiresAt;
 
     private String createdAt;
 

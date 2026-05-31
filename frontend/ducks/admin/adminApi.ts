@@ -3,6 +3,7 @@ import {
   AdminUser, PermissionStatus, FunctionStatus, ImportResult,
   ExpenseReport, GenerateReportResponse, LatestReportResponse, NoReportResponse,
   ReportTemplate, ReportTemplateListResponse,
+  GdprErasureRequest, GdprDataMap, GdprAuditEntry, GdprProcessResult,
 } from './types';
 
 export const adminApi = createApi({
@@ -11,7 +12,7 @@ export const adminApi = createApi({
     baseUrl: process.env.NEXT_PUBLIC_BFF_URL || '/api',
     credentials: 'include',
   }),
-  tagTypes: ['AdminUsers', 'UserPermissions', 'UserFunctions', 'ExpenseReport', 'ReportTemplate'],
+  tagTypes: ['AdminUsers', 'UserPermissions', 'UserFunctions', 'ExpenseReport', 'ReportTemplate', 'GdprRequests', 'GdprDataMap', 'GdprAuditLog'],
   endpoints: (builder) => ({
 
     // ── Users ─────────────────────────────────────────────────────────
@@ -135,6 +136,38 @@ export const adminApi = createApi({
       query: ({ id, ...body }) => ({ url: `/adm-015/report-templates/${id}`, method: 'PUT', body }),
       invalidatesTags: ['ReportTemplate'],
     }),
+
+    // ── GDPR ──────────────────────────────────────────────────────
+    getGdprRequests: builder.query<GdprErasureRequest[], void>({
+      query: () => '/adm-018/gdpr/requests',
+      providesTags: ['GdprRequests'],
+    }),
+
+    getGdprDataMap: builder.query<GdprDataMap, string>({
+      query: (sub) => `/adm-019/gdpr/data-map/${sub}`,
+      providesTags: (_r, _e, sub) => [{ type: 'GdprDataMap', id: sub }],
+    }),
+
+    processGdprRequest: builder.mutation<GdprProcessResult, { id: number; sub: string }>({
+      query: ({ id }) => ({ url: `/adm-020/gdpr/process/${id}`, method: 'POST' }),
+      invalidatesTags: (_r, _e, { sub }) => [
+        'GdprRequests',
+        'GdprAuditLog',
+        'AdminUsers',
+        { type: 'GdprDataMap', id: sub },
+      ],
+    }),
+
+    getGdprAuditLog: builder.query<GdprAuditEntry[], { subjectSub?: string; limit?: number } | void>({
+      query: (arg) => {
+        const params = new URLSearchParams();
+        if (arg && arg.subjectSub) params.set('subjectSub', arg.subjectSub);
+        if (arg && arg.limit) params.set('limit', String(arg.limit));
+        const qs = params.toString();
+        return `/adm-021/gdpr/audit-log${qs ? `?${qs}` : ''}`;
+      },
+      providesTags: ['GdprAuditLog'],
+    }),
   }),
 });
 
@@ -157,4 +190,8 @@ export const {
   useGetReportTemplateQuery,
   useCreateReportTemplateMutation,
   useUpdateReportTemplateMutation,
+  useGetGdprRequestsQuery,
+  useGetGdprDataMapQuery,
+  useProcessGdprRequestMutation,
+  useGetGdprAuditLogQuery,
 } = adminApi;

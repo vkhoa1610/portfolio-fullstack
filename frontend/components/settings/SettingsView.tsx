@@ -337,6 +337,29 @@ export default function SettingsView() {
               <section className={styles.section}>
                 <h2 className={styles.sectionTitle}>Security</h2>
                 <p className={styles.fieldDesc}>Two-factor authentication and security settings coming soon.</p>
+
+                {/* Privacy & Data — link to /profile/privacy */}
+                <a
+                  href="/profile/privacy"
+                  style={{
+                    display: "flex", alignItems: "center", justifyContent: "space-between",
+                    marginTop: "1.5rem", padding: "1rem 1.25rem",
+                    border: "1px solid var(--color-neutral-200)", borderRadius: "0.75rem",
+                    background: "var(--color-neutral-50)",
+                    textDecoration: "none", color: "inherit",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                    <MIcon name="shield_lock" size={20} />
+                    <div>
+                      <div style={{ fontWeight: 600, fontSize: "0.875rem" }}>Privacy &amp; Data</div>
+                      <div style={{ fontSize: "0.75rem", color: "var(--color-neutral-500)" }}>
+                        View what we store, download a copy, or request deletion (GDPR).
+                      </div>
+                    </div>
+                  </div>
+                  <MIcon name="chevron_right" size={20} />
+                </a>
               </section>
             )}
 
