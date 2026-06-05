@@ -32,3 +32,6 @@ localstack/cognito-secrets.json
 localstack/cognito-secrets.txt
 
 .claude/
+
+# Internal notes & WIP design docs (kept local; public docs live in /docs)
+document/
