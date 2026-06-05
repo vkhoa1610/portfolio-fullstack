@@ -22,10 +22,11 @@ target/
 docker-compose.override.yml
 
 
-# Secrets
+# Secrets — allow .env.example to be committed as a template
 .env
 .env.*
-! .env.example
+!.env.example
+!**/.env.example
 
 # LocalStack
 localstack/cognito-secrets.json

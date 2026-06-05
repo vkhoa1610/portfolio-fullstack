@@ -1,0 +1,85 @@
+{
+  "name": "FintechSaaS",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
+
+  // ── Auxiliary services start automatically via docker-compose. ──────
+  // We use the bundled image as the dev shell, but rely on docker-in-docker
+  // so the candidate / recruiter can run `npm run docker:up` to bring up
+  // MySQL, the backend, BFF, etc.
+  "features": {
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "21",
+      "installMaven": "true"
+    },
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "version": "latest",
+      "moby": true
+    }
+  },
+
+  // ── Editor setup ────────────────────────────────────────────────────
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        // Frontend
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss",
+        // Java backend
+        "vscjava.vscode-java-pack",
+        "vscjava.vscode-maven",
+        // Database
+        "mtxr.sqltools",
+        "mtxr.sqltools-driver-mysql",
+        // General
+        "eamodio.gitlens",
+        "yzhang.markdown-all-in-one"
+      ],
+      "settings": {
+        "java.configuration.updateBuildConfiguration": "automatic",
+        "files.exclude": {
+          "**/.git": true,
+          "**/node_modules": true,
+          "**/target": true,
+          "**/.next": true
+        }
+      }
+    }
+  },
+
+  // ── Port forwarding ─────────────────────────────────────────────────
+  // Codespaces will publish each one as a separate HTTPS URL.
+  "forwardPorts": [3000, 4000, 8080, 8081, 3307, 9000],
+  "portsAttributes": {
+    "3000": { "label": "Frontend (Next.js)", "onAutoForward": "notify" },
+    "4000": { "label": "BFF (Express)", "onAutoForward": "silent" },
+    "8080": { "label": "Nginx Gateway",  "onAutoForward": "openBrowser" },
+    "8081": { "label": "Backend (Spring Boot)", "onAutoForward": "silent" },
+    "3307": { "label": "MySQL", "onAutoForward": "silent" },
+    "9000": { "label": "MinIO Console", "onAutoForward": "silent" }
+  },
+
+  // ── First-run setup: copy env template, install all deps. ───────────
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+
+  // ── Codespaces Secrets (set at https://github.com/settings/codespaces)
+  // The candidate creates these once on GitHub; recruiters opening a
+  // Codespace inherit them automatically. They never see the values.
+  "secrets": {
+    "GROQ_API_KEY": {
+      "description": "Groq API key for receipt OCR + policy insights. Free tier: https://console.groq.com/keys"
+    },
+    "DEMO_EMPLOYEE_PASSWORD": { "description": "Auth0/Cognito password for Anna Müller (EMPLOYEE)" },
+    "DEMO_MANAGER_PASSWORD":  { "description": "Auth0/Cognito password for Thomas Weber (MANAGER)" },
+    "DEMO_FINANCE_PASSWORD":  { "description": "Auth0/Cognito password for Sarah Chen (FINANCE)" },
+    "DEMO_ADMIN_PASSWORD":    { "description": "Auth0/Cognito password for David Kim (ADMIN)" }
+  },
+
+  // ── Codespaces machine size suggestion ──────────────────────────────
+  // 4-core / 16 GB is the sweet spot; this stack needs ~6 GB at peak
+  // (Java + MySQL + 2 Node processes + Maven build cache).
+  "hostRequirements": {
+    "cpus": 4,
+    "memory": "16gb"
+  }
+}
