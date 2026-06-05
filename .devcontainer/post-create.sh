@@ -7,9 +7,12 @@
 #    1. Materialize a working .env from secrets + reasonable defaults
 #    2. Install dependencies for all three services
 #    3. Print clear next-step instructions
+#
+#  IMPORTANT: This script intentionally does NOT use `set -e`. Failure of
+#  any individual step (e.g. npm install hitting a registry timeout, or
+#  Maven prefetch failing on a flaky network) must NOT abort the whole
+#  container build — the user can always re-run a missing step manually.
 # ════════════════════════════════════════════════════════════════════════
-
-set -e
 
 echo ""
 echo "════════════════════════════════════════════════════════════════════"
@@ -74,8 +77,14 @@ echo "▸ Installing BFF deps…"
 
 echo ""
 echo "▸ Pre-fetching Maven dependencies (Spring Boot)…"
-echo "  (first run takes ~3 minutes, subsequent runs are cached)"
-(cd backend && ./mvnw dependency:go-offline -B -q) || true
+echo "  (first run takes ~3 minutes — skipped if mvnw missing or network fails)"
+if [ -f backend/mvnw ]; then
+  chmod +x backend/mvnw 2>/dev/null || true
+  (cd backend && ./mvnw dependency:go-offline -B -q 2>/dev/null) || \
+    echo "  ⚠ Maven prefetch skipped (will run on first 'docker compose up')"
+else
+  echo "  ⚠ backend/mvnw not found — skipping prefetch"
+fi
 
 # ── 3. Next-step instructions ───────────────────────────────────────────
 cat <<'BANNER'
