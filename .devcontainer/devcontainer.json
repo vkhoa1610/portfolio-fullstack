@@ -2,15 +2,11 @@
   "name": "FintechSaaS",
 
   // ── Universal image already has Node 20 + Java 21 + Maven + Python + Docker CLI ──
-  // Lower chance of feature-version conflicts than building from javascript-node + the Java feature.
+  // No `features` block on purpose: the recent GitHub bump to Debian Trixie broke
+  // both docker-in-docker (no moby package) and docker-outside-of-docker
+  // (apt-get can't find docker-ce-cli). The universal image already ships everything
+  // we need, so we just don't add features.
   "image": "mcr.microsoft.com/devcontainers/universal:2-linux",
-
-  // ── Use host Docker (faster, fewer permission issues than DiD) ──────
-  "features": {
-    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
-      "version": "latest"
-    }
-  },
 
   // ── Editor setup ────────────────────────────────────────────────────
   "customizations": {
