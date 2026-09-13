@@ -4,8 +4,10 @@ services:
   # ============================================
   frontend:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
+      # Context widened to repo root so the Dockerfile can COPY the top-level
+      # docs/ folder into the image (needed for the /wiki route's generateStaticParams).
+      context: .
+      dockerfile: frontend/Dockerfile
       args:
         - BFF_INTERNAL_URL=http://nextjs-bff:4000
     container_name: react-frontend

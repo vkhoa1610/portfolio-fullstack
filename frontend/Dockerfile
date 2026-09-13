@@ -1,4 +1,10 @@
 # ============================================
+# NOTE: Build context is the REPO ROOT (see docker-compose.yml), not ./frontend.
+# All COPY sources are therefore prefixed with `frontend/`, and the repo-root
+# `docs/` folder is copied into the image so the /wiki route's SSG works.
+# ============================================
+
+# ============================================
 # Stage 1: Dependencies
 # ============================================
 FROM node:20-alpine AS deps
@@ -8,8 +14,8 @@ RUN apk add --no-cache libc6-compat
 
 WORKDIR /app
 
-# Copy package files
-COPY package.json package-lock.json* ./
+# Copy package files (from ./frontend in the build context)
+COPY frontend/package.json frontend/package-lock.json* ./
 
 # Install ALL dependencies (including devDependencies for build)
 # --ignore-scripts prevents husky from running in Docker
@@ -24,7 +30,14 @@ WORKDIR /app
 
 # Copy dependencies from deps stage
 COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+
+# Copy the frontend project itself
+COPY frontend/. .
+
+# Copy the repo-root docs/ folder into /app/docs so lib/wiki.ts can find it
+# during `next build`. The candidate-paths logic in lib/wiki.ts handles both
+# this Docker layout AND the local dev layout (../docs).
+COPY docs ./docs
 
 # Disable telemetry
 ENV NEXT_TELEMETRY_DISABLED=1

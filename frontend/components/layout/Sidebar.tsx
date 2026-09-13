@@ -230,8 +230,16 @@ export default function Sidebar({
           })
         )}
 
-        {/* Settings — pinned at bottom of nav, visible to all roles */}
+        {/* Bottom-pinned: Documentation + Settings — visible to all roles */}
         <div className="mt-auto pt-2 border-t border-[var(--color-sidebar-border,rgba(0,0,0,0.06))]">
+          <Link
+            href="/wiki"
+            title={collapsed ? "Documentation" : undefined}
+            className={`${styles.navItem} ${pathname.startsWith("/wiki") ? styles.navItemActive : ""} ${collapsed ? styles.navItemCollapsed : ""}`}
+          >
+            <MIcon name="menu_book" size={18} />
+            {!collapsed && <span className="flex-1 whitespace-nowrap">Documentation</span>}
+          </Link>
           <Link
             href="/settings"
             title={collapsed ? t("nav.settings") : undefined}

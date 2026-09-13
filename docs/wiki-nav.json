@@ -1,0 +1,32 @@
+{
+  "sections": [
+    {
+      "title": "Overview",
+      "items": [
+        { "title": "Home", "slug": "home" },
+        { "title": "Demo guide", "slug": "demo-guide" }
+      ]
+    },
+    {
+      "title": "Architecture",
+      "items": [
+        { "title": "System architecture", "slug": "architecture" },
+        { "title": "Expense lifecycle", "slug": "expense-lifecycle" }
+      ]
+    },
+    {
+      "title": "Compliance",
+      "items": [
+        { "title": "GDPR / DSGVO", "slug": "gdpr-compliance" },
+        { "title": "GoBD notes", "slug": "gobd-notes" }
+      ]
+    },
+    {
+      "title": "Reference",
+      "items": [
+        { "title": "API reference", "slug": "api-reference" },
+        { "title": "Tax export (DATEV/SEPA)", "slug": "tax-export" }
+      ]
+    }
+  ]
+}
