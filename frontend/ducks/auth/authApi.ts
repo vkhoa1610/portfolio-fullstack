@@ -126,7 +126,7 @@ export const authApi = createApi({
     // ─────────────────────────────────────────────────────────────────
     // Demo Login - One-click login as a specific role (portfolio demo)
     // ─────────────────────────────────────────────────────────────────
-    demoLogin: builder.mutation<LoginSuccessResponse, 'EMPLOYEE' | 'MANAGER' | 'FINANCE' | 'ADMIN'>({
+    demoLogin: builder.mutation<LoginSuccessResponse, 'EMPLOYEE' | 'MANAGER' | 'FINANCE' | 'ADMIN' | 'NEW_EMPLOYEE'>({
       query: (role) => ({
         url: `/demo-001?role=${role}`,
         method: 'POST',

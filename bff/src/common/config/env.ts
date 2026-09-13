@@ -29,4 +29,9 @@ export const DEMO_CREDENTIALS: Record<string, { email: string; password: string 
     email:    process.env.DEMO_ADMIN_EMAIL    || '',
     password: process.env.DEMO_ADMIN_PASSWORD || '',
   },
+  // Fresh employee — no user_profiles row → triggers onboarding flow on login.
+  NEW_EMPLOYEE: {
+    email:    process.env.DEMO_NEW_EMPLOYEE_EMAIL    || '',
+    password: process.env.DEMO_NEW_EMPLOYEE_PASSWORD || '',
+  },
 };

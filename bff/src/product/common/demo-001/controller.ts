@@ -7,7 +7,7 @@ import { fetchUserProfile, fetchUserPermissions, fetchUserFunctions, fetchUserAd
 import { LoginSuccessResponse } from '@common/types/auth-types.js';
 import { DEMO_CREDENTIALS } from '@common/config/env.js';
 
-const VALID_ROLES = ['EMPLOYEE', 'MANAGER', 'FINANCE', 'ADMIN'] as const;
+const VALID_ROLES = ['EMPLOYEE', 'MANAGER', 'FINANCE', 'ADMIN', 'NEW_EMPLOYEE'] as const;
 type DemoRole = typeof VALID_ROLES[number];
 
 /**
@@ -20,7 +20,7 @@ export const handle = async (req: Request, res: Response<LoginSuccessResponse | 
     const role = (req.query.role as string)?.toUpperCase() as DemoRole;
 
     if (!role || !VALID_ROLES.includes(role)) {
-      return throwBffError('Invalid demo role. Must be EMPLOYEE, MANAGER, FINANCE, or ADMIN.', 400);
+      return throwBffError('Invalid demo role. Must be EMPLOYEE, MANAGER, FINANCE, ADMIN, or NEW_EMPLOYEE.', 400);
     }
 
     const creds = DEMO_CREDENTIALS[role];

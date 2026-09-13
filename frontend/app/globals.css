@@ -5,15 +5,12 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Body & root styles */
+/* Body styles. Design tokens (--background, --foreground, --color-card-bg, ...)
+ * are owned by tokens.css — do NOT redefine them here. Tailwind's PostCSS
+ * pipeline compiles away @layer wrappers, so a duplicate :root { --color-...: #fff }
+ * here would land AFTER the tokens.css [data-theme="dark"] override in the compiled
+ * bundle and, at equal specificity, WIN the cascade — silently breaking dark mode. */
 @layer base {
-  :root {
-    --background: #ffffff;
-    --foreground: #171717;
-    --color-card-bg: #ffffff;
-    --color-card-border: rgba(27, 27, 36, 0.06);
-  }
-
   body {
     background: var(--background);
     color: var(--foreground);
@@ -34,18 +31,39 @@
   color: var(--foreground);
 }
 
-/* Sections / cards (CSS modules use hardcoded #fff — override globally) */
-[data-theme="dark"] [class*="section"],
-[data-theme="dark"] [class*="card"],
-[data-theme="dark"] [class*="bentoCard"],
-[data-theme="dark"] [class*="panel"] {
+/* Sections / cards (CSS modules use hardcoded #fff — override globally).
+ * `i` flag = case-insensitive match. CSS modules generate camelCase class names
+ * (statCard, insightCard, ...) so a case-sensitive [class*="card"] would MISS them.
+ * The i-flag lets one rule cover statCard, StatCard, formCard, insightCard, etc. */
+[data-theme="dark"] [class*="section" i],
+[data-theme="dark"] [class*="card" i],
+[data-theme="dark"] [class*="panel" i],
+[data-theme="dark"] [class*="tile" i],
+/* CSS-module-only patterns. The `__` prefix guarantees we only match generated
+ * module class names (format: `<file>-module__<hash>__<name>`) and never hit
+ * Tailwind utilities (which use hyphens, not double-underscores). This catches
+ * surface elements whose author names don't include "card/section/panel/tile"
+ * — e.g. `.row`, `.tableHeader`, `.emptyState`, `.timeline`, `.container`. */
+[data-theme="dark"] [class*="__row" i],
+[data-theme="dark"] [class*="__tr" i],
+[data-theme="dark"] [class*="__table" i],
+[data-theme="dark"] [class*="__list" i],
+[data-theme="dark"] [class*="__form" i],
+[data-theme="dark"] [class*="__empty" i],
+[data-theme="dark"] [class*="Container" i],
+[data-theme="dark"] [class*="Wrapper" i],
+[data-theme="dark"] [class*="__timeline" i],
+[data-theme="dark"] [class*="__box" i],
+[data-theme="dark"] [class*="__item" i],
+[data-theme="dark"] [class*="__block" i],
+[data-theme="dark"] [class*="__group" i] {
   background: var(--color-card-bg) !important;
   border-color: var(--color-card-border) !important;
   color: var(--foreground);
 }
 
-[data-theme="dark"] [class*="sectionTitle"],
-[data-theme="dark"] [class*="title"]:not([class*="brandName"]):not([class*="brandTagline"]) {
+[data-theme="dark"] [class*="sectionTitle" i],
+[data-theme="dark"] [class*="title" i]:not([class*="brandName" i]):not([class*="brandTagline" i]) {
   color: #f2effc;
 }
 
@@ -68,4 +86,42 @@
 [data-theme="dark"] [class*="navTab"]:not([class*="Active"]):hover {
   background: rgba(255, 255, 255, 0.07);
   color: #f2effc;
+}
+
+/* ── Dark mode: hardcoded Tailwind utility overrides ──
+ * Pages using raw Tailwind utilities (bg-white, text-neutral-900, ...) instead of
+ * CSS variables need remapping in dark mode. Rather than sprinkle `dark:` variants
+ * across dozens of components, remap the utilities themselves under `.dark`. This
+ * mirrors what a semantic color system does automatically — `bg-white` becomes
+ * "the surface color" regardless of theme. */
+.dark .bg-white {
+  background-color: var(--color-card-bg) !important;
+}
+/* Preserve `peer-checked:` accent colors — the .dark .bg-white rule above uses
+ * !important and would otherwise defeat checked-state greens/blues on custom
+ * checkboxes/toggles that start with bg-white in their unchecked state. */
+.dark .peer:checked ~ .bg-white.peer-checked\:bg-success-500 {
+  background-color: rgb(34 197 94) !important;
+  border-color: rgb(34 197 94) !important;
+}
+.dark .peer:checked ~ .bg-white.peer-checked\:bg-primary-500 {
+  background-color: var(--color-primary-500) !important;
+  border-color: var(--color-primary-500) !important;
+}
+.dark .text-neutral-900 {
+  color: #f2effc !important;
+}
+.dark .text-neutral-700 {
+  color: #d4d4d8 !important;
+}
+.dark .text-neutral-500 {
+  color: #9592b8 !important;
+}
+.dark .text-neutral-400 {
+  color: #6b6b8a !important;
+}
+.dark .border-neutral-100,
+.dark .border-neutral-200,
+.dark .border-neutral-300 {
+  border-color: var(--color-card-border) !important;
 }

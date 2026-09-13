@@ -15,6 +15,22 @@
       ]
     },
     {
+      "title": "Workflows",
+      "items": [
+        { "title": "Onboarding & consent", "slug": "onboarding" },
+        { "title": "Auth & session", "slug": "auth-flow" },
+        { "title": "Finance workflows", "slug": "finance-workflows" },
+        { "title": "AI report generation", "slug": "ai-report" }
+      ]
+    },
+    {
+      "title": "Administration",
+      "items": [
+        { "title": "Admin & user management", "slug": "admin-management" },
+        { "title": "CMS policy rules", "slug": "cms-policy-rules" }
+      ]
+    },
+    {
       "title": "Compliance",
       "items": [
         { "title": "GDPR / DSGVO", "slug": "gdpr-compliance" },

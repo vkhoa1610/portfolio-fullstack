@@ -15,6 +15,70 @@ export default function WikiContent({ html, toc, title }: Props) {
   const contentRef = useRef<HTMLDivElement>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
 
+  // Render Mermaid diagrams. rehype-highlight leaves ```mermaid blocks as
+  // <pre><code class="language-mermaid">...</code></pre>. We swap each for a
+  // <div class="mermaid"> and call mermaid.run() to render inline SVGs.
+  //
+  // Uses a MutationObserver so if the DOM is re-hydrated (Next.js HMR, React
+  // strict-mode remount) the diagram is re-rendered instead of reverting to
+  // the raw <pre> text.
+  useEffect(() => {
+    if (!contentRef.current) return;
+    const root = contentRef.current;
+    let cancelled = false;
+    let mermaidLib: typeof import("mermaid").default | null = null;
+
+    const renderPending = async () => {
+      const pres = root.querySelectorAll<HTMLPreElement>("pre:has(code.language-mermaid)");
+      if (pres.length === 0) return;
+
+      if (!mermaidLib) {
+        const isDark =
+          document.documentElement.getAttribute("data-theme") === "dark" ||
+          document.documentElement.classList.contains("dark");
+        mermaidLib = (await import("mermaid")).default;
+        mermaidLib.initialize({
+          startOnLoad: false,
+          theme: isDark ? "dark" : "default",
+          securityLevel: "loose",
+          fontFamily: "var(--font-sans, Inter, sans-serif)",
+        });
+        if (cancelled) return;
+      }
+
+      const targets: HTMLElement[] = [];
+      pres.forEach((pre) => {
+        const code = pre.querySelector<HTMLElement>("code.language-mermaid");
+        if (!code) return;
+        const div = document.createElement("div");
+        div.className = "mermaid wiki-mermaid";
+        div.textContent = code.innerText;
+        pre.replaceWith(div);
+        targets.push(div);
+      });
+
+      if (targets.length > 0) {
+        try {
+          await mermaidLib.run({ nodes: targets });
+        } catch (err) {
+          console.error("[wiki] mermaid render failed", err);
+        }
+      }
+    };
+
+    // Initial render.
+    void renderPending();
+
+    // Re-render if new mermaid pres appear (HMR / re-hydration).
+    const observer = new MutationObserver(() => void renderPending());
+    observer.observe(root, { childList: true, subtree: true });
+
+    return () => {
+      cancelled = true;
+      observer.disconnect();
+    };
+  }, [html]);
+
   // Attach copy buttons to every <pre><code> block after render.
   useEffect(() => {
     if (!contentRef.current) return;
@@ -24,6 +88,9 @@ export default function WikiContent({ html, toc, title }: Props) {
     pres.forEach((pre) => {
       // Skip if we've already wrapped this one (React re-renders).
       if (pre.dataset.copyAttached === "true") return;
+      // Skip mermaid pres — they're about to be replaced with an SVG div;
+      // attaching a Copy button here would race with the replacement.
+      if (pre.querySelector("code.language-mermaid")) return;
       pre.dataset.copyAttached = "true";
       pre.style.position = "relative";
 

@@ -205,6 +205,16 @@ INSERT INTO user_roles (user_sub, role_id) VALUES
 INSERT INTO user_profiles (user_sub, first_name, last_name, phone_number, language_code) VALUES
 ('auth0|69db9135b65ad959bd52d81e', 'Anna', 'Müller', '+49 151 1234 5601', 'de-DE');
 
+-- EMPLOYEE (fresh — no profile row, triggers onboarding flow on first login)
+INSERT INTO users (cognito_sub, username, email, status) VALUES
+('auth0|6aa6a3ab8f4c5973799d168c', 'new.employee', 'new-employee@portfolio.app', 'active');
+
+INSERT INTO user_roles (user_sub, role_id) VALUES
+('auth0|6aa6a3ab8f4c5973799d168c', 1); -- EMPLOYEE
+-- Intentionally NO INSERT into user_profiles or user_consents:
+--   UserProfileService infers onboardingStatus from user_profiles existence,
+--   so the absence of a row here forces the /onboarding redirect on login.
+
 -- MANAGER: Thomas Weber
 INSERT INTO users (cognito_sub, username, email, status) VALUES
 ('auth0|69db914919afd97398d23e56', 'thomas.weber', 'manager@portfolio.app', 'active');
@@ -762,6 +772,22 @@ INSERT INTO user_consents (user_sub, policy_id, ip_address, user_agent, consent_
 ('auth0|69db9135b65ad959bd52d81e', 1, '203.0.113.42', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/605.1.15', 'explicit_checkbox', '2025-11-15 09:23:00'),
 ('auth0|69db9135b65ad959bd52d81e', 2, '203.0.113.42', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/605.1.15', 'explicit_checkbox', '2025-11-15 09:23:00'),
 ('auth0|69db9135b65ad959bd52d81e', 3, '203.0.113.42', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/605.1.15', 'explicit_checkbox', '2025-12-02 14:11:00');
+
+-- Seeded demo accounts (Thomas / Sarah / David) never went through the real
+-- onboarding checkbox flow, but the app assumes every active user has valid
+-- consent on file (Privacy Center, GDPR export, AI OCR gating all depend on it).
+-- Mark these rows with consent_method='demo_login' so audits can distinguish
+-- portfolio-seeded consent from real user-provided consent.
+INSERT INTO user_consents (user_sub, policy_id, ip_address, user_agent, consent_method, created_at) VALUES
+-- Thomas Weber (MANAGER)
+('auth0|69db914919afd97398d23e56', 1, '127.0.0.1', 'demo-seed', 'demo_login', '2025-11-01 09:00:00'),
+('auth0|69db914919afd97398d23e56', 2, '127.0.0.1', 'demo-seed', 'demo_login', '2025-11-01 09:00:00'),
+-- Sarah Chen (FINANCE)
+('auth0|69db915cb65ad959bd52d82d', 1, '127.0.0.1', 'demo-seed', 'demo_login', '2025-11-01 09:00:00'),
+('auth0|69db915cb65ad959bd52d82d', 2, '127.0.0.1', 'demo-seed', 'demo_login', '2025-11-01 09:00:00'),
+-- David Kim (ADMIN)
+('auth0|69db916e19afd97398d23e73', 1, '127.0.0.1', 'demo-seed', 'demo_login', '2025-11-01 09:00:00'),
+('auth0|69db916e19afd97398d23e73', 2, '127.0.0.1', 'demo-seed', 'demo_login', '2025-11-01 09:00:00');
 
 -- ============================================
 -- Phase 4 demo seeds: PAID expenses (for retention badge) + one
