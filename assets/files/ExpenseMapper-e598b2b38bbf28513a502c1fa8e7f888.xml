@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.my_java_app.mapper.ExpenseMapper">
+
+    <resultMap id="ExpenseResultMap" type="com.example.my_java_app.entity.ExpenseEntity">
+        <id     property="id"               column="id" />
+        <result property="userSub"          column="user_sub" />
+        <result property="type"             column="type" />
+        <result property="title"            column="title" />
+        <result property="amount"           column="amount" />
+        <result property="currency"         column="currency" />
+        <result property="status"           column="status" />
+        <result property="vendorName"       column="vendor_name" />
+        <result property="receiptDate"      column="receipt_date" />
+        <result property="vatAmount"        column="vat_amount" />
+        <result property="receiptFileUrl"   column="receipt_file_url" />
+        <result property="aiExtractedData"  column="ai_extracted_data" />
+        <result property="aiFlags"          column="ai_flags" />
+        <result property="tripFrom"         column="trip_from" />
+        <result property="tripTo"           column="trip_to" />
+        <result property="countryCode"      column="country_code" />
+        <result property="perDiemRate"      column="per_diem_rate" />
+        <result property="perDiemDays"      column="per_diem_days" />
+        <result property="distanceKm"       column="distance_km" />
+        <result property="ratePerKm"        column="rate_per_km" />
+        <result property="submittedAt"        column="submitted_at" />
+        <result property="reviewedAt"         column="reviewed_at" />
+        <result property="reviewedBy"         column="reviewed_by" />
+        <result property="rejectionReason"    column="rejection_reason" />
+        <result property="paidAt"             column="paid_at" />
+        <result property="retentionExpiresAt" column="retention_expires_at" />
+        <result property="createdAt"          column="created_at" />
+        <result property="createdBy"          column="created_by" />
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO expenses (
+            user_sub, type, title, amount, currency, status,
+            vendor_name, receipt_date, vat_amount, receipt_file_url,
+            ai_extracted_data, ai_flags,
+            trip_from, trip_to, country_code, per_diem_rate, per_diem_days,
+            distance_km, rate_per_km,
+            created_by
+        ) VALUES (
+            #{userSub}, #{type}, #{title}, #{amount}, #{currency}, 'DRAFT',
+            #{vendorName}, #{receiptDate}, #{vatAmount}, #{receiptFileUrl},
+            #{aiExtractedData}, #{aiFlags},
+            #{tripFrom}, #{tripTo}, #{countryCode}, #{perDiemRate}, #{perDiemDays},
+            #{distanceKm}, #{ratePerKm},
+            #{userSub}
+        )
+    </insert>
+
+    <select id="findByUserSub" resultMap="ExpenseResultMap">
+        SELECT * FROM expenses
+        WHERE user_sub = #{userSub}
+          AND is_deleted = 0
+        ORDER BY created_at DESC
+    </select>
+
+    <select id="findById" resultMap="ExpenseResultMap">
+        SELECT * FROM expenses
+        WHERE id = #{id}
+          AND is_deleted = 0
+    </select>
+
+    <update id="updateStatus">
+        UPDATE expenses
+        SET status       = #{status},
+            submitted_at = #{submittedAt},
+            updated_at   = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateReview">
+        UPDATE expenses
+        SET status           = #{status},
+            reviewed_by      = #{reviewedBy},
+            reviewed_at      = #{reviewedAt},
+            rejection_reason = #{rejectionReason},
+            updated_at       = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+    </update>
+
+    <select id="findPendingForManager" resultMap="ExpenseResultMap">
+        SELECT * FROM expenses
+        WHERE status = 'PENDING_REVIEW'
+          AND is_deleted = 0
+        ORDER BY submitted_at ASC
+    </select>
+
+    <select id="findAllApprovedAndPaid" resultMap="ExpenseResultMap">
+        SELECT * FROM expenses
+        WHERE status IN ('APPROVED', 'PAID')
+          AND is_deleted = 0
+        ORDER BY reviewed_at DESC
+    </select>
+
+    <select id="findAllApproved" resultMap="ExpenseResultMap">
+        SELECT * FROM expenses
+        WHERE status = 'APPROVED'
+          AND is_deleted = 0
+        ORDER BY reviewed_at ASC
+    </select>
+
+    <!-- NOW() is evaluated once per statement in MySQL, so all rows in a batch get the same paid_at. -->
+    <!-- retention_expires_at = paid_date + 10 years (GoBD §14). Computed in SQL to avoid clock drift. -->
+    <update id="markPaid">
+        UPDATE expenses
+        SET status               = 'PAID',
+            paid_at              = NOW(),
+            retention_expires_at = DATE_ADD(CURDATE(), INTERVAL 10 YEAR)
+        WHERE id = #{id}
+          AND status = 'APPROVED'
+    </update>
+
+    <update id="markBatchPaid">
+        UPDATE expenses
+        SET status               = 'PAID',
+            paid_at              = NOW(),
+            retention_expires_at = DATE_ADD(CURDATE(), INTERVAL 10 YEAR)
+        WHERE id IN
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+          AND status = 'APPROVED'
+    </update>
+
+    <select id="findApprovedByPeriod" resultMap="ExpenseResultMap">
+        SELECT * FROM expenses
+        WHERE status IN ('APPROVED', 'REJECTED')
+          AND YEAR(created_at)  = #{year}
+          AND MONTH(created_at) = #{month}
+          AND is_deleted = 0
+        ORDER BY amount DESC
+    </select>
+
+</mapper>

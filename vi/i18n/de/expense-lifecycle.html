@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="vi" dir="ltr" class="docs-wrapper plugin-docs plugin-id-default docs-version-current docs-doc-page docs-doc-id-i18n/de/expense-lifecycle" data-has-hydrated="false">
+<head>
+<meta charset="UTF-8">
+<meta name="generator" content="Docusaurus v3.10.2">
+<title data-rh="true">Expense Lifecycle | FintechSaaS Expense Platform</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://vkhoa1610.github.io/portfolio-fullstack/vi/i18n/de/expense-lifecycle"><meta data-rh="true" property="og:locale" content="vi"><meta data-rh="true" property="og:locale:alternate" content="en"><meta data-rh="true" property="og:locale:alternate" content="de"><meta data-rh="true" name="docusaurus_locale" content="vi"><meta data-rh="true" name="docsearch:language" content="vi"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Expense Lifecycle | FintechSaaS Expense Platform"><meta data-rh="true" name="description" content="Detailed business flow of expense creation, approval, and payment in the FintechSaaS platform."><meta data-rh="true" property="og:description" content="Detailed business flow of expense creation, approval, and payment in the FintechSaaS platform."><link data-rh="true" rel="icon" href="/portfolio-fullstack/vi/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://vkhoa1610.github.io/portfolio-fullstack/vi/i18n/de/expense-lifecycle"><link data-rh="true" rel="alternate" href="https://vkhoa1610.github.io/portfolio-fullstack/i18n/de/expense-lifecycle" hreflang="en"><link data-rh="true" rel="alternate" href="https://vkhoa1610.github.io/portfolio-fullstack/de/i18n/de/expense-lifecycle" hreflang="de"><link data-rh="true" rel="alternate" href="https://vkhoa1610.github.io/portfolio-fullstack/vi/i18n/de/expense-lifecycle" hreflang="vi"><link data-rh="true" rel="alternate" href="https://vkhoa1610.github.io/portfolio-fullstack/i18n/de/expense-lifecycle" hreflang="x-default"><link rel="stylesheet" href="/portfolio-fullstack/vi/assets/css/styles.4e611bab.css">
+<script src="/portfolio-fullstack/vi/assets/js/runtime~main.f78ba7cc.js" defer="defer"></script>
+<script src="/portfolio-fullstack/vi/assets/js/main.fa62e450.js" defer="defer"></script>
+</head>
+<body>
+<svg style="display: none;"><defs>
+<symbol id="theme-svg-external-link" viewBox="0 0 24 24"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"/></symbol>
+</defs></svg>
+<script>!function(){var t=function(){try{return new URLSearchParams(window.location.search).get("docusaurus-theme")}catch(t){}}()||function(){try{return window.localStorage.getItem("theme")}catch(t){}}();document.documentElement.setAttribute("data-theme",t||"light"),document.documentElement.setAttribute("data-theme-choice",t||"light")}(),function(){try{const c=new URLSearchParams(window.location.search).entries();for(var[t,e]of c)if(t.startsWith("docusaurus-data-")){var a=t.replace("docusaurus-data-","data-");document.documentElement.setAttribute(a,e)}}catch(t){}}()</script><div id="__docusaurus"><div role="region" aria-label="Chuyển tới nội dung chính"><a class="skipToContent_fXgn" href="#__docusaurus_skipToContent_fallback">Chuyển tới nội dung chính</a></div><nav aria-label="Thanh điều hướng" class="theme-layout-navbar navbar navbar--fixed-top"><div class="navbar__inner"><div class="theme-layout-navbar-left navbar__items"><button aria-label="Đóng - mở thanh điều hướng" aria-expanded="false" class="navbar__toggle clean-btn" type="button"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path></svg></button><a class="navbar__brand" href="/portfolio-fullstack/vi/"><b class="navbar__title text--truncate">FintechSaaS Docs</b></a><a class="navbar__item navbar__link" href="/portfolio-fullstack/vi/home">Documentation</a></div><div class="theme-layout-navbar-right navbar__items navbar__items--right"><div class="navbar__item dropdown dropdown--hoverable dropdown--right"><a href="#" aria-haspopup="true" aria-expanded="false" role="button" class="navbar__link"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" class="iconLanguage_nlXk"><path fill="currentColor" d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v1.99h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"></path></svg>Tiếng Việt</a><ul class="dropdown__menu"><li><a href="/portfolio-fullstack/i18n/de/expense-lifecycle" target="_self" rel="noopener noreferrer" class="dropdown__link" lang="en">English</a></li><li><a href="/portfolio-fullstack/de/i18n/de/expense-lifecycle" target="_self" rel="noopener noreferrer" class="dropdown__link" lang="de">Deutsch</a></li><li><a href="/portfolio-fullstack/vi/i18n/de/expense-lifecycle" target="_self" rel="noopener noreferrer" class="dropdown__link dropdown__link--active" lang="vi">Tiếng Việt</a></li></ul></div><a href="https://github.com/vkhoa1610/portfolio-fullstack" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a><div class="toggle_vylO colorModeToggle_DEke"><button class="clean-btn toggleButton_gllP toggleButtonDisabled_aARS" type="button" disabled="" title="system mode" aria-label="Chuyển đổi chế độ sáng và tối (hiện tại là system mode)"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP lightToggleIcon_pyhR"><path fill="currentColor" d="M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3S10.35,9,12,9 M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5 S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0 c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41 L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41 s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06 c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP darkToggleIcon_wfgR"><path fill="currentColor" d="M9.37,5.51C9.19,6.15,9.1,6.82,9.1,7.5c0,4.08,3.32,7.4,7.4,7.4c0.68,0,1.35-0.09,1.99-0.27C17.45,17.19,14.93,19,12,19 c-3.86,0-7-3.14-7-7C5,9.07,6.81,6.55,9.37,5.51z M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36 c-0.98,1.37-2.58,2.26-4.4,2.26c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP systemToggleIcon_QzmC"><path fill="currentColor" d="m12 21c4.971 0 9-4.029 9-9s-4.029-9-9-9-9 4.029-9 9 4.029 9 9 9zm4.95-13.95c1.313 1.313 2.05 3.093 2.05 4.95s-0.738 3.637-2.05 4.95c-1.313 1.313-3.093 2.05-4.95 2.05v-14c1.857 0 3.637 0.737 4.95 2.05z"></path></svg></button></div><div class="navbarSearchContainer_Bca1"><div class="navbar__search searchBarContainer_NW3z" dir="ltr"><svg aria-hidden="true" class="searchIcon_T3tP" focusable="false" viewBox="0 0 16 16"><path fill="currentColor" d="M6.02945 10.20327a4.17382 4.17382 0 1 1 4.17382-4.17382 4.15609 4.15609 0 0 1-4.17382 4.17382Zm9.69195 4.2199-4.8225-4.82338A5.88021 5.88021 0 0 0 12.058 6.02856 6.00467 6.00467 0 1 0 9.59979 10.8989l4.82338 4.82338a.89729.89729 0 0 0 1.29912 0 .89749.89749 0 0 0-.00087-1.29909Z"></path></svg><input placeholder="Tìm kiếm..." aria-label="Search" class="navbar__search-input searchInput_YFbd" value=""><div class="loadingRing_RJI3 searchBarLoadingRing_YnHq"><div></div><div></div><div></div><div></div></div></div></div></div></div><div role="presentation" class="navbar-sidebar__backdrop"></div></nav><div id="__docusaurus_skipToContent_fallback" class="theme-layout-main main-wrapper mainWrapper_z2l0"><div class="docsWrapper_hBAB"><button aria-label="Trở lại đầu trang" class="clean-btn theme-back-to-top-button backToTopButton_sjWU" type="button"></button><div class="docRoot_UBD9"><main class="docMainContainer_TBSr docMainContainerEnhanced_lQrH"><div class="container padding-top--md padding-bottom--lg"><div class="row"><div class="col docItemCol_VOVn"><div class="docItemContainer_Djhp"><article><div class="tocCollapsible_ETCw theme-doc-toc-mobile tocMobile_ITEo"><button type="button" class="clean-btn tocCollapsibleButton_TO0P">Trên trang này</button></div><div class="theme-doc-markdown markdown"><header><h1>Expense Lifecycle</h1></header>
+<p>Detailed business flow of expense creation, approval, and payment in the FintechSaaS platform.
+All field names, endpoints, SQL fragments, and constants documented below are quoted from the codebase as-is.</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="1-state-machine">1. State Machine<a href="#1-state-machine" class="hash-link" aria-label="Đường dẫn trực tiếp đến 1. State Machine" title="Đường dẫn trực tiếp đến 1. State Machine" translate="no">​</a></h2>
+<p>The <code>expenses</code> table uses a 5-state ENUM defined in <a class="" href="/portfolio-fullstack/vi/i18n/db_fix.sql">db_fix.sql</a>:</p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><div class="token-line" style="color:#bfc7d5"><span class="token plain">DRAFT  →  PENDING_REVIEW  →  APPROVED  →  PAID</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">                          ↘  REJECTED</span><br></div></code></pre></div></div>
+<p>Each transition updates a specific set of columns via <a class="" href="/portfolio-fullstack/vi/i18n/backend/src/main/resources/mapper/ExpenseMapper.xml">ExpenseMapper.xml</a>.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="transition-table">Transition table<a href="#transition-table" class="hash-link" aria-label="Đường dẫn trực tiếp đến Transition table" title="Đường dẫn trực tiếp đến Transition table" translate="no">​</a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>From</th><th>To</th><th>Trigger</th><th>Mapper statement</th><th>Columns SET</th></tr></thead><tbody><tr><td>—</td><td><code>DRAFT</code></td><td>Employee creates expense</td><td><code>insert</code></td><td><code>user_sub</code>, <code>type</code>, <code>title</code>, <code>amount</code>, <code>currency</code>, <code>status=&#x27;DRAFT&#x27;</code>, type-specific fields, <code>created_by</code></td></tr><tr><td><code>DRAFT</code></td><td><code>PENDING_REVIEW</code></td><td>Employee submits</td><td><code>updateStatus</code></td><td><code>status</code>, <code>submitted_at</code>, <code>updated_at = CURRENT_TIMESTAMP</code></td></tr><tr><td><code>PENDING_REVIEW</code></td><td><code>APPROVED</code></td><td>Manager approves</td><td><code>updateReview</code></td><td><code>status=&#x27;APPROVED&#x27;</code>, <code>reviewed_by</code>, <code>reviewed_at</code>, <code>rejection_reason = NULL</code>, <code>updated_at</code></td></tr><tr><td><code>PENDING_REVIEW</code></td><td><code>REJECTED</code></td><td>Manager rejects</td><td><code>updateReview</code></td><td><code>status=&#x27;REJECTED&#x27;</code>, <code>reviewed_by</code>, <code>reviewed_at</code>, <code>rejection_reason</code>, <code>updated_at</code></td></tr><tr><td><code>APPROVED</code></td><td><code>PAID</code></td><td>Finance marks paid</td><td><code>markPaid</code> / <code>markBatchPaid</code></td><td><code>status=&#x27;PAID&#x27;</code>, <code>paid_at = NOW()</code>, <code>retention_expires_at = DATE_ADD(CURDATE(), INTERVAL 10 YEAR)</code></td></tr></tbody></table>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="retention-deadline">Retention deadline<a href="#retention-deadline" class="hash-link" aria-label="Đường dẫn trực tiếp đến Retention deadline" title="Đường dẫn trực tiếp đến Retention deadline" translate="no">​</a></h3>
+<p><code>retention_expires_at</code> is <strong>populated atomically together with <code>paid_at</code></strong> in the same SQL statement — no separate Java clock, no backfill needed. The 10-year window enforces <strong>GoBD §14</strong> (German accounting record retention obligation for Buchungsbelege).</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="status-guard">Status guard<a href="#status-guard" class="hash-link" aria-label="Đường dẫn trực tiếp đến Status guard" title="Đường dẫn trực tiếp đến Status guard" translate="no">​</a></h3>
+<p>Both <code>markPaid</code> and <code>markBatchPaid</code> include <code>AND status = &#x27;APPROVED&#x27;</code> in the WHERE clause — accidental double-payment or paying non-approved rows is impossible at the SQL layer.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="schema-reference">Schema reference<a href="#schema-reference" class="hash-link" aria-label="Đường dẫn trực tiếp đến Schema reference" title="Đường dẫn trực tiếp đến Schema reference" translate="no">​</a></h3>
+<p>Defined in <a class="" href="/portfolio-fullstack/vi/i18n/db_fix.sql">db_fix.sql</a>:</p>
+<div class="language-sql codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-sql codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><div class="token-line" style="color:#bfc7d5"><span class="token keyword" style="font-style:italic">status</span><span class="token plain"> </span><span class="token keyword" style="font-style:italic">ENUM</span><span class="token punctuation" style="color:rgb(199, 146, 234)">(</span><span class="token string" style="color:rgb(195, 232, 141)">&#x27;DRAFT&#x27;</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain"> </span><span class="token string" style="color:rgb(195, 232, 141)">&#x27;PENDING_REVIEW&#x27;</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain"> </span><span class="token string" style="color:rgb(195, 232, 141)">&#x27;APPROVED&#x27;</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain"> </span><span class="token string" style="color:rgb(195, 232, 141)">&#x27;REJECTED&#x27;</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain"> </span><span class="token string" style="color:rgb(195, 232, 141)">&#x27;PAID&#x27;</span><span class="token punctuation" style="color:rgb(199, 146, 234)">)</span><span class="token plain"> </span><span class="token keyword" style="font-style:italic">DEFAULT</span><span class="token plain"> </span><span class="token string" style="color:rgb(195, 232, 141)">&#x27;DRAFT&#x27;</span><span class="token plain"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain" style="display:inline-block"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">submitted_at </span><span class="token keyword" style="font-style:italic">TIMESTAMP</span><span class="token plain"> </span><span class="token boolean" style="color:rgb(255, 88, 116)">NULL</span><span class="token plain"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">reviewed_at  </span><span class="token keyword" style="font-style:italic">TIMESTAMP</span><span class="token plain"> </span><span class="token boolean" style="color:rgb(255, 88, 116)">NULL</span><span class="token plain"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">reviewed_by  </span><span class="token keyword" style="font-style:italic">VARCHAR</span><span class="token punctuation" style="color:rgb(199, 146, 234)">(</span><span class="token number" style="color:rgb(247, 140, 108)">36</span><span class="token punctuation" style="color:rgb(199, 146, 234)">)</span><span class="token plain"> </span><span class="token boolean" style="color:rgb(255, 88, 116)">NULL</span><span class="token plain"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">rejection_reason </span><span class="token keyword" style="font-style:italic">TEXT</span><span class="token plain"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">paid_at      </span><span class="token keyword" style="font-style:italic">TIMESTAMP</span><span class="token plain"> </span><span class="token boolean" style="color:rgb(255, 88, 116)">NULL</span><span class="token plain"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">retention_expires_at </span><span class="token keyword" style="font-style:italic">DATE</span><span class="token plain"> </span><span class="token boolean" style="color:rgb(255, 88, 116)">NULL</span><span class="token plain"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain" style="display:inline-block"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain"></span><span class="token keyword" style="font-style:italic">INDEX</span><span class="token plain"> idx_exp_user_status </span><span class="token punctuation" style="color:rgb(199, 146, 234)">(</span><span class="token plain">user_sub</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain"> </span><span class="token keyword" style="font-style:italic">status</span><span class="token punctuation" style="color:rgb(199, 146, 234)">)</span><span class="token plain"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain"></span><span class="token keyword" style="font-style:italic">INDEX</span><span class="token plain"> idx_exp_retention </span><span class="token punctuation" style="color:rgb(199, 146, 234)">(</span><span class="token plain">retention_expires_at</span><span class="token punctuation" style="color:rgb(199, 146, 234)">)</span><br></div></code></pre></div></div>
+<p><code>user_sub</code> is <code>VARCHAR(80)</code> and has <strong>no FK to <code>users</code></strong> — this is intentional, to allow GDPR pseudonymization (<code>user_sub → &#x27;DELETED-&lt;sha256&gt;&#x27;</code>) while preserving the row for GoBD retention. See <a class="" href="/portfolio-fullstack/vi/i18n/document/wiki/GDPR-Compliance.md">GDPR-Compliance.md</a>.</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="2-receipt-upload-flow-receipt-type-only">2. Receipt Upload Flow (RECEIPT type only)<a href="#2-receipt-upload-flow-receipt-type-only" class="hash-link" aria-label="Đường dẫn trực tiếp đến 2. Receipt Upload Flow (RECEIPT type only)" title="Đường dẫn trực tiếp đến 2. Receipt Upload Flow (RECEIPT type only)" translate="no">​</a></h2>
+<p>Receipt images never pass through the backend server. The browser uploads directly to MinIO using a short-lived presigned PUT URL.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="step-by-step">Step-by-step<a href="#step-by-step" class="hash-link" aria-label="Đường dẫn trực tiếp đến Step-by-step" title="Đường dẫn trực tiếp đến Step-by-step" translate="no">​</a></h3>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><div class="token-line" style="color:#bfc7d5"><span class="token plain">[Browser]                  [BFF]                  [Java API]                [MinIO]</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">   |                         |                       |                        |</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">   | GET /emp-001            |                       |                        |</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">   | ?filename=receipt.jpg   |                       |                        |</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">   |────────────────────────▶|                       |                        |</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">   |                         | GET /api/v1/expenses  |                        |</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">   |                         |   /upload-url         |                        |</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">   |                         |──────────────────────▶|                        |</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">   |                         |                       | generateUploadUrl()    |</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">   |                         |                       |───────────────────────▶|</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">   |                         |                       |  presigned PUT URL     |</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">   |                         |                       |◀───────────────────────|</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">   |                         | { uploadUrl, fileUrl }|                        |</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">   |                         |◀──────────────────────|                        |</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">   | { uploadUrl, fileUrl }  |                       |                        |</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">   |◀────────────────────────|                       |                        |</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">   |                                                                          |</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">   | PUT &lt;uploadUrl&gt;  (binary image bytes — direct to MinIO, bypassing server)|</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">   |─────────────────────────────────────────────────────────────────────────▶|</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">   |                                                                  201 OK  |</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">   |◀─────────────────────────────────────────────────────────────────────────|</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">   |                                                                          |</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">   | POST /emp-002           |                       |                        |</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">   | { fileUrl }             |                       |                        |</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">   |────────────────────────▶|                       |                        |</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">   |                         | POST /api/v1/expenses |                        |</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">   |                         |   /scan { fileUrl }   |                        |</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">   |                         |──────────────────────▶|                        |</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">   |                         |                       | generateViewUrl()      |</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">   |                         |                       |   (1-hour presigned GET|</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">   |                         |                       |   for Groq to fetch)   |</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">   |                         |                       | groqClient             |</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">   |                         |                       |   .chatWithVision(...) |</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">   |                         |                       |◀── OCR result          |</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">   |                         | ScanResponseDto       |                        |</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">   |                         |◀──────────────────────|                        |</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">   | OCR result for review   |                       |                        |</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">   |◀────────────────────────|                       |                        |</span><br></div></code></pre></div></div>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="endpoint-reference">Endpoint reference<a href="#endpoint-reference" class="hash-link" aria-label="Đường dẫn trực tiếp đến Endpoint reference" title="Đường dẫn trực tiếp đến Endpoint reference" translate="no">​</a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Layer</th><th>Path</th><th>Method</th><th>Purpose</th></tr></thead><tbody><tr><td>BFF</td><td><code>/emp-001?filename=&lt;name&gt;</code></td><td>GET</td><td>Obtain presigned PUT URL + final file URL</td></tr><tr><td>BFF</td><td><code>/emp-002</code></td><td>POST</td><td>Trigger OCR scan, body <code>{ fileUrl }</code></td></tr><tr><td>BFF</td><td><code>/emp-007?fileUrl=&lt;url&gt;</code></td><td>GET</td><td>Obtain presigned GET URL for viewing</td></tr><tr><td>Java</td><td><code>/api/v1/expenses/upload-url?filename=&lt;name&gt;</code></td><td>GET</td><td>StorageService presigns PUT</td></tr><tr><td>Java</td><td><code>/api/v1/expenses/scan</code></td><td>POST</td><td>ExpenseService.scan() — calls Groq Vision</td></tr><tr><td>Java</td><td><code>/api/v1/expenses/view-url?fileUrl=&lt;url&gt;</code></td><td>GET</td><td>StorageService presigns GET (1h TTL)</td></tr></tbody></table>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="storageservice-behavior">StorageService behavior<a href="#storageservice-behavior" class="hash-link" aria-label="Đường dẫn trực tiếp đến StorageService behavior" title="Đường dẫn trực tiếp đến StorageService behavior" translate="no">​</a></h3>
+<p><a class="" href="/portfolio-fullstack/vi/i18n/backend/src/main/java/com/example/my_java_app/service/StorageService.java">StorageService.java</a>:</p>
+<ul>
+<li class=""><strong><code>generateUploadUrl(filename)</code></strong> — returns <code>{ uploadUrl, fileUrl }</code>. Key format: <code>UUID + originalExtension</code>. Presigned PUT duration: <strong>15 minutes</strong>.</li>
+<li class=""><strong><code>generateViewUrl(fileUrl)</code></strong> — returns presigned GET URL. Duration: <strong>1 hour</strong>. Extracts key from stored fileUrl.</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="storage-of-receipt_file_url">Storage of <code>receipt_file_url</code><a href="#storage-of-receipt_file_url" class="hash-link" aria-label="Đường dẫn trực tiếp đến storage-of-receipt_file_url" title="Đường dẫn trực tiếp đến storage-of-receipt_file_url" translate="no">​</a></h3>
+<p>After successful PUT, the browser keeps <code>fileUrl</code> locally and submits it as part of the <code>CreateExpenseRequestDto</code> when the user finalizes the expense. It is then persisted into the <code>receipt_file_url</code> column (<code>VARCHAR(500)</code>) via the standard <code>insert</code> statement.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="ocr--groq-vision">OCR — Groq Vision<a href="#ocr--groq-vision" class="hash-link" aria-label="Đường dẫn trực tiếp đến OCR — Groq Vision" title="Đường dẫn trực tiếp đến OCR — Groq Vision" translate="no">​</a></h3>
+<p><a class="" href="/portfolio-fullstack/vi/i18n/backend/src/main/java/com/example/my_java_app/service/ExpenseService.java">ExpenseService.scan()</a> constructs this prompt:</p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><div class="token-line" style="color:#bfc7d5"><span class="token plain">You are a receipt OCR assistant. Extract the following fields from the receipt image.</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">Respond ONLY with a single valid JSON object — no markdown, no explanation, no extra text.</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain" style="display:inline-block"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">{</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">  &quot;vendor&quot;: &quot;&lt;store or merchant name&gt;&quot;,</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">  &quot;date&quot;: &quot;&lt;date in YYYY-MM-DD format, use today if not visible&gt;&quot;,</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">  &quot;amount&quot;: &lt;total amount as decimal number&gt;,</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">  &quot;vatAmount&quot;: &lt;VAT amount as decimal number, 0 if not shown&gt;,</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">  &quot;vatRate&quot;: &quot;&lt;VAT rate string e.g. &#x27;19%&#x27;, &#x27;N/A&#x27; if unknown&gt;&quot;,</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">  &quot;flags&quot;: [&quot;&lt;optional warnings like high amount, suspicious vendor, etc&gt;&quot;]</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">}</span><br></div></code></pre></div></div>
+<p>The 1-hour presigned GET URL from <code>generateViewUrl()</code> is what the Groq API actually fetches (Groq cannot read MinIO objects directly without a public URL).</p>
+<p><strong>Returned to frontend</strong> (<code>ScanResponseDto</code>):</p>
+<ul>
+<li class=""><code>vendor</code> — String</li>
+<li class=""><code>date</code> — String (YYYY-MM-DD, defaults to today if not extractable)</li>
+<li class=""><code>amount</code> — <code>BigDecimal</code></li>
+<li class=""><code>vatAmount</code> — <code>BigDecimal</code> (0 if missing)</li>
+<li class=""><code>vatRate</code> — String (<code>&quot;19%&quot;</code>, <code>&quot;7%&quot;</code>, or <code>&quot;N/A&quot;</code>)</li>
+<li class=""><code>flags</code> — <code>List&lt;String&gt;</code> (e.g. <code>[&quot;high_amount&quot;]</code>)</li>
+</ul>
+<p><strong>Fallback</strong> — if Groq is unreachable or returns invalid JSON, <code>mockScan()</code> returns:</p>
+<div class="language-java codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-java codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><div class="token-line" style="color:#bfc7d5"><span class="token keyword" style="font-style:italic">new</span><span class="token plain"> </span><span class="token class-name" style="color:rgb(255, 203, 107)">ScanResponseDto</span><span class="token punctuation" style="color:rgb(199, 146, 234)">(</span><span class="token string" style="color:rgb(195, 232, 141)">&quot;REWE GmbH&quot;</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain"> today</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain"> </span><span class="token number" style="color:rgb(247, 140, 108)">47.80</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain"> </span><span class="token number" style="color:rgb(247, 140, 108)">7.63</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain"> </span><span class="token string" style="color:rgb(195, 232, 141)">&quot;19%&quot;</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain"> </span><span class="token class-name" style="color:rgb(255, 203, 107)">List</span><span class="token punctuation" style="color:rgb(199, 146, 234)">.</span><span class="token function" style="color:rgb(130, 170, 255)">of</span><span class="token punctuation" style="color:rgb(199, 146, 234)">(</span><span class="token punctuation" style="color:rgb(199, 146, 234)">)</span><span class="token punctuation" style="color:rgb(199, 146, 234)">)</span><br></div></code></pre></div></div>
+<p>The frontend cannot distinguish between real OCR and the fallback; this is intentional so demos work offline.</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="3-expense-creation--three-types">3. Expense Creation — three types<a href="#3-expense-creation--three-types" class="hash-link" aria-label="Đường dẫn trực tiếp đến 3. Expense Creation — three types" title="Đường dẫn trực tiếp đến 3. Expense Creation — three types" translate="no">​</a></h2>
+<p>All three types share the same <code>CreateExpenseRequestDto</code> flow but use different form fields, validation, and amount calculation. The <code>type</code> field discriminates which fields are read.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="31-receipt">3.1 RECEIPT<a href="#31-receipt" class="hash-link" aria-label="Đường dẫn trực tiếp đến 3.1 RECEIPT" title="Đường dẫn trực tiếp đến 3.1 RECEIPT" translate="no">​</a></h3>
+<p>Form view: <a class="" href="/portfolio-fullstack/vi/i18n/frontend/components/expenses/scan-view.tsx">scan-view.tsx</a></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Field</th><th>Source</th></tr></thead><tbody><tr><td><code>vendorName</code></td><td>OCR <code>vendor</code> (editable)</td></tr><tr><td><code>receiptDate</code></td><td>OCR <code>date</code> (editable, falls back to today)</td></tr><tr><td><code>amount</code></td><td>OCR <code>amount</code> (editable)</td></tr><tr><td><code>vatAmount</code></td><td>OCR <code>vatAmount</code> (editable)</td></tr><tr><td><code>category</code></td><td>Dropdown from hardcoded <code>CATEGORIES</code> array</td></tr><tr><td><code>receiptFileUrl</code></td><td>URL returned by <code>/emp-001</code> after MinIO PUT</td></tr><tr><td><code>aiExtractedData</code></td><td>Full OCR JSON, serialized</td></tr><tr><td><code>aiFlags</code></td><td>OCR <code>flags</code> array, serialized</td></tr></tbody></table>
+<p><strong>No client-side total calculation</strong> — the OCR-extracted <code>amount</code> is the total. <code>vatAmount</code> is the VAT <em>component</em> of that total (not added on top). This matches how German receipts itemize VAT.</p>
+<p><strong>German VAT context:</strong></p>
+<ul>
+<li class="">Standard rate: 19% (most goods/services)</li>
+<li class="">Reduced rate: 7% (food, books, accommodation)</li>
+<li class="">The OCR prompt explicitly asks for the rate as a string so the frontend can display &quot;19%&quot; rather than re-derive it from amount/vatAmount division (which is fragile for rounded receipts).</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="32-per_diem">3.2 PER_DIEM<a href="#32-per_diem" class="hash-link" aria-label="Đường dẫn trực tiếp đến 3.2 PER_DIEM" title="Đường dẫn trực tiếp đến 3.2 PER_DIEM" translate="no">​</a></h3>
+<p>Form view: <a class="" href="/portfolio-fullstack/vi/i18n/frontend/components/expenses/per-diem-view.tsx">per-diem-view.tsx</a></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Field</th><th>Source</th></tr></thead><tbody><tr><td><code>title</code></td><td>Optional, free text</td></tr><tr><td><code>tripFrom</code></td><td>Date picker</td></tr><tr><td><code>tripTo</code></td><td>Date picker</td></tr><tr><td><code>countryCode</code></td><td>Dropdown — keys of the <code>PER_DIEM_RATES</code> map</td></tr><tr><td><code>perDiemRate</code></td><td>Looked up from <code>PER_DIEM_RATES[countryCode].rate</code></td></tr><tr><td><code>perDiemDays</code></td><td>Computed: <code>Math.round((tripTo - tripFrom) / 86_400_000) + 1</code> (inclusive both endpoints)</td></tr><tr><td><code>amount</code></td><td><code>perDiemRate × perDiemDays</code></td></tr></tbody></table>
+<p><strong>Rate table (frontend constant):</strong></p>
+<div class="language-typescript codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-typescript codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><div class="token-line" style="color:#bfc7d5"><span class="token keyword" style="font-style:italic">const</span><span class="token plain"> </span><span class="token constant" style="color:rgb(130, 170, 255)">PER_DIEM_RATES</span><span class="token plain"> </span><span class="token operator" style="color:rgb(137, 221, 255)">=</span><span class="token plain"> </span><span class="token punctuation" style="color:rgb(199, 146, 234)">{</span><span class="token plain"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">  </span><span class="token constant" style="color:rgb(130, 170, 255)">DE</span><span class="token operator" style="color:rgb(137, 221, 255)">:</span><span class="token plain">    </span><span class="token punctuation" style="color:rgb(199, 146, 234)">{</span><span class="token plain"> rate</span><span class="token operator" style="color:rgb(137, 221, 255)">:</span><span class="token plain"> </span><span class="token number" style="color:rgb(247, 140, 108)">28</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain">   currencySymbol</span><span class="token operator" style="color:rgb(137, 221, 255)">:</span><span class="token plain"> </span><span class="token string" style="color:rgb(195, 232, 141)">&quot;€&quot;</span><span class="token plain"> </span><span class="token punctuation" style="color:rgb(199, 146, 234)">}</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">  </span><span class="token constant" style="color:rgb(130, 170, 255)">AT</span><span class="token operator" style="color:rgb(137, 221, 255)">:</span><span class="token plain">    </span><span class="token punctuation" style="color:rgb(199, 146, 234)">{</span><span class="token plain"> rate</span><span class="token operator" style="color:rgb(137, 221, 255)">:</span><span class="token plain"> </span><span class="token number" style="color:rgb(247, 140, 108)">26.4</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain"> currencySymbol</span><span class="token operator" style="color:rgb(137, 221, 255)">:</span><span class="token plain"> </span><span class="token string" style="color:rgb(195, 232, 141)">&quot;€&quot;</span><span class="token plain"> </span><span class="token punctuation" style="color:rgb(199, 146, 234)">}</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">  </span><span class="token constant" style="color:rgb(130, 170, 255)">CH</span><span class="token operator" style="color:rgb(137, 221, 255)">:</span><span class="token plain">    </span><span class="token punctuation" style="color:rgb(199, 146, 234)">{</span><span class="token plain"> rate</span><span class="token operator" style="color:rgb(137, 221, 255)">:</span><span class="token plain"> </span><span class="token number" style="color:rgb(247, 140, 108)">65</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain">   currencySymbol</span><span class="token operator" style="color:rgb(137, 221, 255)">:</span><span class="token plain"> </span><span class="token string" style="color:rgb(195, 232, 141)">&quot;CHF&quot;</span><span class="token plain"> </span><span class="token punctuation" style="color:rgb(199, 146, 234)">}</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">  </span><span class="token constant" style="color:rgb(130, 170, 255)">GB</span><span class="token operator" style="color:rgb(137, 221, 255)">:</span><span class="token plain">    </span><span class="token punctuation" style="color:rgb(199, 146, 234)">{</span><span class="token plain"> rate</span><span class="token operator" style="color:rgb(137, 221, 255)">:</span><span class="token plain"> </span><span class="token number" style="color:rgb(247, 140, 108)">45</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain">   currencySymbol</span><span class="token operator" style="color:rgb(137, 221, 255)">:</span><span class="token plain"> </span><span class="token string" style="color:rgb(195, 232, 141)">&quot;£&quot;</span><span class="token plain"> </span><span class="token punctuation" style="color:rgb(199, 146, 234)">}</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">  </span><span class="token constant" style="color:rgb(130, 170, 255)">US</span><span class="token operator" style="color:rgb(137, 221, 255)">:</span><span class="token plain">    </span><span class="token punctuation" style="color:rgb(199, 146, 234)">{</span><span class="token plain"> rate</span><span class="token operator" style="color:rgb(137, 221, 255)">:</span><span class="token plain"> </span><span class="token number" style="color:rgb(247, 140, 108)">55</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain">   currencySymbol</span><span class="token operator" style="color:rgb(137, 221, 255)">:</span><span class="token plain"> </span><span class="token string" style="color:rgb(195, 232, 141)">&quot;$&quot;</span><span class="token plain"> </span><span class="token punctuation" style="color:rgb(199, 146, 234)">}</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">  </span><span class="token constant" style="color:rgb(130, 170, 255)">OTHER</span><span class="token operator" style="color:rgb(137, 221, 255)">:</span><span class="token plain"> </span><span class="token punctuation" style="color:rgb(199, 146, 234)">{</span><span class="token plain"> rate</span><span class="token operator" style="color:rgb(137, 221, 255)">:</span><span class="token plain"> </span><span class="token number" style="color:rgb(247, 140, 108)">48</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain">   currencySymbol</span><span class="token operator" style="color:rgb(137, 221, 255)">:</span><span class="token plain"> </span><span class="token string" style="color:rgb(195, 232, 141)">&quot;$&quot;</span><span class="token plain"> </span><span class="token punctuation" style="color:rgb(199, 146, 234)">}</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain"></span><span class="token punctuation" style="color:rgb(199, 146, 234)">}</span><span class="token punctuation" style="color:rgb(199, 146, 234)">;</span><br></div></code></pre></div></div>
+<p><strong>German compliance context:</strong> Per diem (Verpflegungsmehraufwand) rates are governed by <strong>§9 Abs. 4a EStG</strong> for travel within Germany and by the <strong>Bundesministerium der Finanzen Reisekostentabelle</strong> for international travel. The codebase rates approximate the BMF table (e.g. DE = 28 € matches the German full-day rate at the time of authoring).</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="33-mileage">3.3 MILEAGE<a href="#33-mileage" class="hash-link" aria-label="Đường dẫn trực tiếp đến 3.3 MILEAGE" title="Đường dẫn trực tiếp đến 3.3 MILEAGE" translate="no">​</a></h3>
+<p>Form view: <a class="" href="/portfolio-fullstack/vi/i18n/frontend/components/expenses/mileage-view.tsx">mileage-view.tsx</a></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Field</th><th>Source</th></tr></thead><tbody><tr><td><code>title</code></td><td>Optional, free text</td></tr><tr><td><code>from</code>, <code>to</code></td><td>City names (text inputs, not stored in DB — used for AI insight context only)</td></tr><tr><td><code>receiptDate</code></td><td>Date picker (re-used <code>receipt_date</code> column for trip date)</td></tr><tr><td><code>distanceKm</code></td><td>Numeric input</td></tr><tr><td><code>ratePerKm</code></td><td>Constant <code>RATE_PER_KM = 0.3</code></td></tr><tr><td><code>amount</code></td><td><code>distanceKm × 0.3</code></td></tr></tbody></table>
+<p><strong>Frontend constants:</strong></p>
+<div class="language-typescript codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-typescript codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><div class="token-line" style="color:#bfc7d5"><span class="token keyword" style="font-style:italic">const</span><span class="token plain"> </span><span class="token constant" style="color:rgb(130, 170, 255)">RATE_PER_KM</span><span class="token plain">            </span><span class="token operator" style="color:rgb(137, 221, 255)">=</span><span class="token plain"> </span><span class="token number" style="color:rgb(247, 140, 108)">0.3</span><span class="token punctuation" style="color:rgb(199, 146, 234)">;</span><span class="token plain">   </span><span class="token comment" style="color:rgb(105, 112, 152);font-style:italic">// €/km</span><span class="token plain"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain"></span><span class="token keyword" style="font-style:italic">const</span><span class="token plain"> </span><span class="token constant" style="color:rgb(130, 170, 255)">DAILY_LIMIT_KM</span><span class="token plain">         </span><span class="token operator" style="color:rgb(137, 221, 255)">=</span><span class="token plain"> </span><span class="token number" style="color:rgb(247, 140, 108)">200</span><span class="token punctuation" style="color:rgb(199, 146, 234)">;</span><span class="token plain">   </span><span class="token comment" style="color:rgb(105, 112, 152);font-style:italic">// blocks save if exceeded</span><span class="token plain"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain"></span><span class="token keyword" style="font-style:italic">const</span><span class="token plain"> </span><span class="token constant" style="color:rgb(130, 170, 255)">EFFICIENCY_THRESHOLD_KM</span><span class="token plain"> </span><span class="token operator" style="color:rgb(137, 221, 255)">=</span><span class="token plain"> </span><span class="token number" style="color:rgb(247, 140, 108)">150</span><span class="token punctuation" style="color:rgb(199, 146, 234)">;</span><span class="token plain"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain"></span><span class="token keyword" style="font-style:italic">const</span><span class="token plain"> </span><span class="token constant" style="color:rgb(130, 170, 255)">COMMUTE_THRESHOLD_KM</span><span class="token plain">    </span><span class="token operator" style="color:rgb(137, 221, 255)">=</span><span class="token plain"> </span><span class="token number" style="color:rgb(247, 140, 108)">30</span><span class="token punctuation" style="color:rgb(199, 146, 234)">;</span><br></div></code></pre></div></div>
+<p><strong>German compliance context:</strong> €0.30/km is the <strong>Kilometerpauschale</strong> for car travel set by <strong>§9 Abs. 1 Nr. 4a EStG</strong>. The 200 km daily limit is a project-internal policy rule (not legal) used by the compliance evaluation. Trips under 30 km are flagged as <em>possible_commute</em> (commute is not reimbursable under EStG).</p>
+<p>The <code>from</code> and <code>to</code> city fields are intentionally not persisted to the <code>expenses</code> table — they are only sent as context for the AI policy insight call. Trip detail is summarized in the auto-generated <code>title</code> when one isn&#x27;t provided: <code>&quot;Mileage &lt;from&gt; → &lt;to&gt;&quot;</code>.</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="4-policy-compliance-evaluation">4. Policy Compliance Evaluation<a href="#4-policy-compliance-evaluation" class="hash-link" aria-label="Đường dẫn trực tiếp đến 4. Policy Compliance Evaluation" title="Đường dẫn trực tiếp đến 4. Policy Compliance Evaluation" translate="no">​</a></h2>
+<p>At create time, the form evaluates a set of CMS-driven rules and saves an <strong>immutable snapshot</strong> of the result alongside the expense. The snapshot is what the detail view reads back later — not the live rules.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="cms-source">CMS source<a href="#cms-source" class="hash-link" aria-label="Đường dẫn trực tiếp đến CMS source" title="Đường dẫn trực tiếp đến CMS source" translate="no">​</a></h3>
+<p>Rules live in the <code>screen_configs</code> table, keyed by <code>screen_key</code>:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>screen_key</th><th>Used by</th></tr></thead><tbody><tr><td><code>expense.create.receipt</code></td><td>scan-view</td></tr><tr><td><code>expense.create.per_diem</code></td><td>per-diem-view</td></tr><tr><td><code>expense.create.mileage</code></td><td>mileage-view</td></tr><tr><td><code>manager.approvals.detail</code></td><td>manager approval detail view</td></tr></tbody></table>
+<p>Each row contains a JSON <code>compliance</code> array. Each item has:</p>
+<div class="language-json codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-json codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><div class="token-line" style="color:#bfc7d5"><span class="token punctuation" style="color:rgb(199, 146, 234)">{</span><span class="token plain"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">  </span><span class="token property">&quot;id&quot;</span><span class="token operator" style="color:rgb(137, 221, 255)">:</span><span class="token plain"> </span><span class="token string" style="color:rgb(195, 232, 141)">&quot;currency_mismatch&quot;</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">  </span><span class="token property">&quot;icon&quot;</span><span class="token operator" style="color:rgb(137, 221, 255)">:</span><span class="token plain"> </span><span class="token string" style="color:rgb(195, 232, 141)">&quot;currency_exchange&quot;</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">  </span><span class="token property">&quot;title_key&quot;</span><span class="token operator" style="color:rgb(137, 221, 255)">:</span><span class="token plain"> </span><span class="token string" style="color:rgb(195, 232, 141)">&quot;expense.policy.receipt.currency_mismatch.title&quot;</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">  </span><span class="token property">&quot;pending_desc_key&quot;</span><span class="token operator" style="color:rgb(137, 221, 255)">:</span><span class="token plain">   </span><span class="token string" style="color:rgb(195, 232, 141)">&quot;expense.policy.receipt.currency_mismatch.pending&quot;</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">  </span><span class="token property">&quot;ok_desc_key&quot;</span><span class="token operator" style="color:rgb(137, 221, 255)">:</span><span class="token plain">        </span><span class="token string" style="color:rgb(195, 232, 141)">&quot;expense.policy.receipt.currency_mismatch.ok&quot;</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">  </span><span class="token property">&quot;triggered_desc_key&quot;</span><span class="token operator" style="color:rgb(137, 221, 255)">:</span><span class="token plain"> </span><span class="token string" style="color:rgb(195, 232, 141)">&quot;expense.policy.receipt.currency_mismatch.triggered&quot;</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">  </span><span class="token property">&quot;severity&quot;</span><span class="token operator" style="color:rgb(137, 221, 255)">:</span><span class="token plain"> </span><span class="token string" style="color:rgb(195, 232, 141)">&quot;error&quot;</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">  </span><span class="token property">&quot;blocks_save&quot;</span><span class="token operator" style="color:rgb(137, 221, 255)">:</span><span class="token plain"> </span><span class="token boolean" style="color:rgb(255, 88, 116)">true</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">  </span><span class="token property">&quot;condition&quot;</span><span class="token operator" style="color:rgb(137, 221, 255)">:</span><span class="token plain"> </span><span class="token string" style="color:rgb(195, 232, 141)">&quot;currency_mismatch&quot;</span><span class="token plain"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain"></span><span class="token punctuation" style="color:rgb(199, 146, 234)">}</span><br></div></code></pre></div></div>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="severity--behavior">Severity → behavior<a href="#severity--behavior" class="hash-link" aria-label="Đường dẫn trực tiếp đến Severity → behavior" title="Đường dẫn trực tiếp đến Severity → behavior" translate="no">​</a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Severity</th><th>Save blocked?</th><th>Visual</th></tr></thead><tbody><tr><td><code>error</code></td><td>yes (if <code>blocks_save: true</code>)</td><td>red icon, blocks Submit button</td></tr><tr><td><code>warning</code></td><td>no</td><td>amber icon</td></tr><tr><td><code>info</code></td><td>no</td><td>blue icon</td></tr><tr><td><code>success</code></td><td>no</td><td>green icon</td></tr></tbody></table>
+<p>Severity and <code>blocks_save</code> are independent — an <code>error</code>-severity rule with <code>blocks_save: false</code> is just a strong visual warning that still allows saving.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="snapshot-persistence">Snapshot persistence<a href="#snapshot-persistence" class="hash-link" aria-label="Đường dẫn trực tiếp đến Snapshot persistence" title="Đường dẫn trực tiếp đến Snapshot persistence" translate="no">​</a></h3>
+<p><a class="" href="/portfolio-fullstack/vi/i18n/backend/src/main/java/com/example/my_java_app/service/ExpenseService.java">ExpenseService.savePolicySnapshotIfPresent()</a> writes one row to <code>policy_evaluation_history</code> per expense create:</p>
+<div class="language-sql codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-sql codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><div class="token-line" style="color:#bfc7d5"><span class="token keyword" style="font-style:italic">INSERT</span><span class="token plain"> </span><span class="token keyword" style="font-style:italic">INTO</span><span class="token plain"> policy_evaluation_history </span><span class="token punctuation" style="color:rgb(199, 146, 234)">(</span><span class="token plain"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">  domain</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain">        </span><span class="token comment" style="color:rgb(105, 112, 152);font-style:italic">-- &#x27;EXPENSE&#x27;</span><span class="token plain"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">  entity_type</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain">   </span><span class="token comment" style="color:rgb(105, 112, 152);font-style:italic">-- &#x27;EXPENSE&#x27;</span><span class="token plain"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">  entity_id</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain">     </span><span class="token comment" style="color:rgb(105, 112, 152);font-style:italic">-- expense.id</span><span class="token plain"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">  event_type</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain">    </span><span class="token comment" style="color:rgb(105, 112, 152);font-style:italic">-- &#x27;CREATE&#x27;</span><span class="token plain"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">  screen_key</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain">    </span><span class="token comment" style="color:rgb(105, 112, 152);font-style:italic">-- &#x27;expense.create.receipt&#x27; | &#x27;...per_diem&#x27; | &#x27;...mileage&#x27;</span><span class="token plain"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">  screen_version</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token comment" style="color:rgb(105, 112, 152);font-style:italic">-- active version from screen_configs (nullable)</span><span class="token plain"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">  result_json</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain">   </span><span class="token comment" style="color:rgb(105, 112, 152);font-style:italic">-- JSON array of PolicyEvaluationItemDto (severity, state, resolvedTitle, resolvedDesc, ...)</span><span class="token plain"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">  input_json</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain">    </span><span class="token comment" style="color:rgb(105, 112, 152);font-style:italic">-- form snapshot (vendor, amount, dates, etc.) — used to reproduce evaluation context</span><span class="token plain"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">  created_by     </span><span class="token comment" style="color:rgb(105, 112, 152);font-style:italic">-- employee&#x27;s cognito_sub</span><span class="token plain"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain"></span><span class="token punctuation" style="color:rgb(199, 146, 234)">)</span><span class="token punctuation" style="color:rgb(199, 146, 234)">;</span><br></div></code></pre></div></div>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="why-immutable">Why immutable<a href="#why-immutable" class="hash-link" aria-label="Đường dẫn trực tiếp đến Why immutable" title="Đường dẫn trực tiếp đến Why immutable" translate="no">​</a></h3>
+<p>The snapshot is <strong>never updated</strong> after the <code>CREATE</code> event. The detail view (<a class="" href="/portfolio-fullstack/vi/i18n/frontend/components/expenses/expense-detail-view.tsx">expense-detail-view.tsx</a>) reads via <code>findCreatePolicySnapshot()</code> which selects the latest row for a given <code>entity_id</code> and <code>event_type=&#x27;CREATE&#x27;</code>.</p>
+<p>This matters because:</p>
+<ol>
+<li class=""><strong>Resolved i18n text is stored alongside the keys.</strong> If a translation file changes or a rule&#x27;s <code>triggered_desc_key</code> is renamed in CMS, the detail view of a <em>historical</em> expense still shows the exact text the employee saw at create time.</li>
+<li class=""><strong>Screen version is captured.</strong> When <code>screen_configs</code> is updated (new severity threshold, new rule), older expenses keep displaying their original evaluation — no retroactive re-classification.</li>
+<li class=""><strong>Compliance evidence.</strong> Auditors can trace what rules were active and what they evaluated to, on the day a specific expense was approved.</li>
+</ol>
+<p>If serialization fails the failure is logged as a warning and the expense itself still saves — the snapshot is best-effort, not part of the expense transaction&#x27;s success criterion. The same <code>policy_evaluation_history.created_by</code> is set to NULL during GDPR erasure (see <a class="" href="/portfolio-fullstack/vi/i18n/document/wiki/GDPR-Compliance.md">GDPR-Compliance.md §3.2</a>).</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="5-manager-approval-flow">5. Manager Approval Flow<a href="#5-manager-approval-flow" class="hash-link" aria-label="Đường dẫn trực tiếp đến 5. Manager Approval Flow" title="Đường dẫn trực tiếp đến 5. Manager Approval Flow" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="queue-retrieval">Queue retrieval<a href="#queue-retrieval" class="hash-link" aria-label="Đường dẫn trực tiếp đến Queue retrieval" title="Đường dẫn trực tiếp đến Queue retrieval" translate="no">​</a></h3>
+<p><strong>Frontend</strong>: <a class="" href="/portfolio-fullstack/vi/i18n/frontend/components/manager/approvals-view.tsx">approvals-view.tsx</a> calls <code>useGetManagerQueueQuery()</code>.</p>
+<p><strong>BFF → Java</strong>: <code>GET /api/v1/manager/expenses</code> → <a class="" href="/portfolio-fullstack/vi/i18n/backend/src/main/java/com/example/my_java_app/controller/ManagerController.java">ManagerController.getPending()</a> → <code>managerService.getPending()</code> → <code>expenseRepository.findPendingForManager()</code>.</p>
+<p><strong>SQL</strong> (from <a class="" href="/portfolio-fullstack/vi/i18n/backend/src/main/resources/mapper/ExpenseMapper.xml">ExpenseMapper.xml</a>):</p>
+<div class="language-sql codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-sql codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><div class="token-line" style="color:#bfc7d5"><span class="token keyword" style="font-style:italic">SELECT</span><span class="token plain"> </span><span class="token operator" style="color:rgb(137, 221, 255)">*</span><span class="token plain"> </span><span class="token keyword" style="font-style:italic">FROM</span><span class="token plain"> expenses</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain"></span><span class="token keyword" style="font-style:italic">WHERE</span><span class="token plain"> </span><span class="token keyword" style="font-style:italic">status</span><span class="token plain"> </span><span class="token operator" style="color:rgb(137, 221, 255)">=</span><span class="token plain"> </span><span class="token string" style="color:rgb(195, 232, 141)">&#x27;PENDING_REVIEW&#x27;</span><span class="token plain"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">  </span><span class="token operator" style="color:rgb(137, 221, 255)">AND</span><span class="token plain"> is_deleted </span><span class="token operator" style="color:rgb(137, 221, 255)">=</span><span class="token plain"> </span><span class="token number" style="color:rgb(247, 140, 108)">0</span><span class="token plain"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain"></span><span class="token keyword" style="font-style:italic">ORDER</span><span class="token plain"> </span><span class="token keyword" style="font-style:italic">BY</span><span class="token plain"> submitted_at </span><span class="token keyword" style="font-style:italic">ASC</span><br></div></code></pre></div></div>
+<p>The queue is <strong>global</strong> (not filtered by manager team membership). Permissions are enforced at the action level, not the read level — any user with <code>EXPENSE_APPROVE</code> or <code>EXPENSE_REJECT</code> permission can see the queue.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="approve-action">Approve action<a href="#approve-action" class="hash-link" aria-label="Đường dẫn trực tiếp đến Approve action" title="Đường dẫn trực tiếp đến Approve action" translate="no">​</a></h3>
+<p><strong>Endpoint</strong>: <code>PUT /api/v1/manager/expenses/{id}/approve</code></p>
+<p><a class="" href="/portfolio-fullstack/vi/i18n/backend/src/main/java/com/example/my_java_app/controller/ManagerController.java">ManagerController.approve()</a>:</p>
+<div class="language-java codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-java codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><div class="token-line" style="color:#bfc7d5"><span class="token class-name" style="color:rgb(255, 203, 107)">String</span><span class="token plain"> managerSub </span><span class="token operator" style="color:rgb(137, 221, 255)">=</span><span class="token plain"> </span><span class="token punctuation" style="color:rgb(199, 146, 234)">(</span><span class="token class-name" style="color:rgb(255, 203, 107)">String</span><span class="token punctuation" style="color:rgb(199, 146, 234)">)</span><span class="token plain"> request</span><span class="token punctuation" style="color:rgb(199, 146, 234)">.</span><span class="token function" style="color:rgb(130, 170, 255)">getAttribute</span><span class="token punctuation" style="color:rgb(199, 146, 234)">(</span><span class="token string" style="color:rgb(195, 232, 141)">&quot;cognitoSub&quot;</span><span class="token punctuation" style="color:rgb(199, 146, 234)">)</span><span class="token punctuation" style="color:rgb(199, 146, 234)">;</span><span class="token plain"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain"></span><span class="token keyword" style="font-style:italic">if</span><span class="token plain"> </span><span class="token punctuation" style="color:rgb(199, 146, 234)">(</span><span class="token operator" style="color:rgb(137, 221, 255)">!</span><span class="token plain">permissionService</span><span class="token punctuation" style="color:rgb(199, 146, 234)">.</span><span class="token function" style="color:rgb(130, 170, 255)">hasPermission</span><span class="token punctuation" style="color:rgb(199, 146, 234)">(</span><span class="token plain">managerSub</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain"> </span><span class="token string" style="color:rgb(195, 232, 141)">&quot;EXPENSE_APPROVE&quot;</span><span class="token punctuation" style="color:rgb(199, 146, 234)">)</span><span class="token punctuation" style="color:rgb(199, 146, 234)">)</span><span class="token plain"> </span><span class="token punctuation" style="color:rgb(199, 146, 234)">{</span><span class="token plain"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">  </span><span class="token keyword" style="font-style:italic">throw</span><span class="token plain"> </span><span class="token keyword" style="font-style:italic">new</span><span class="token plain"> </span><span class="token class-name" style="color:rgb(255, 203, 107)">ForbiddenException</span><span class="token punctuation" style="color:rgb(199, 146, 234)">(</span><span class="token string" style="color:rgb(195, 232, 141)">&quot;Missing permission: EXPENSE_APPROVE&quot;</span><span class="token punctuation" style="color:rgb(199, 146, 234)">)</span><span class="token punctuation" style="color:rgb(199, 146, 234)">;</span><span class="token plain"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain"></span><span class="token punctuation" style="color:rgb(199, 146, 234)">}</span><span class="token plain"></span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">managerService</span><span class="token punctuation" style="color:rgb(199, 146, 234)">.</span><span class="token function" style="color:rgb(130, 170, 255)">approve</span><span class="token punctuation" style="color:rgb(199, 146, 234)">(</span><span class="token plain">id</span><span class="token punctuation" style="color:rgb(199, 146, 234)">,</span><span class="token plain"> managerSub</span><span class="token punctuation" style="color:rgb(199, 146, 234)">)</span><span class="token punctuation" style="color:rgb(199, 146, 234)">;</span><br></div></code></pre></div></div>
+<p><a class="" href="/portfolio-fullstack/vi/i18n/backend/src/main/java/com/example/my_java_app/service/ManagerService.java">ManagerService.approve()</a> calls <code>expenseRepository.updateReview(id, &quot;APPROVED&quot;, managerSub, now, null)</code> which runs the <code>updateReview</code> SQL.</p>
+<p><strong>Columns set on approve:</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Column</th><th>Value</th></tr></thead><tbody><tr><td><code>status</code></td><td><code>&#x27;APPROVED&#x27;</code></td></tr><tr><td><code>reviewed_by</code></td><td>manager&#x27;s cognito_sub</td></tr><tr><td><code>reviewed_at</code></td><td><code>LocalDateTime.now()</code> formatted as <code>yyyy-MM-dd&#x27;T&#x27;HH:mm:ss</code></td></tr><tr><td><code>rejection_reason</code></td><td><code>NULL</code> (explicitly cleared)</td></tr><tr><td><code>updated_at</code></td><td><code>CURRENT_TIMESTAMP</code> (auto)</td></tr></tbody></table>
+<p><strong>AI insight on approve</strong> — no AI generation is triggered server-side when approving. The only AI surface in the approval flow is:</p>
+<ul>
+<li class="">The pre-existing <code>ai_flags</code> (set at create time by Groq Vision OCR) is rendered as a static warning chip in <a class="" href="/portfolio-fullstack/vi/i18n/frontend/components/manager/approval-detail-view.tsx">approval-detail-view.tsx</a>.</li>
+<li class="">The policy_evaluation_history snapshot from create time is replayed as the &quot;Editorial Insight&quot; section.</li>
+</ul>
+<p>No <code>groqClient</code> calls happen during approval.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="reject-action">Reject action<a href="#reject-action" class="hash-link" aria-label="Đường dẫn trực tiếp đến Reject action" title="Đường dẫn trực tiếp đến Reject action" translate="no">​</a></h3>
+<p><strong>Endpoint</strong>: <code>PUT /api/v1/manager/expenses/{id}/reject</code>
+<strong>Body</strong>: <code>{ &quot;rejectionReason&quot;: &quot;&lt;text&gt;&quot; }</code> (<code>ReviewExpenseRequestDto</code>)</p>
+<p>The reason is required — the frontend reject modal validates <code>reason.trim()</code> before enabling the submit button. A blank or whitespace-only reason cannot be submitted through the UI.</p>
+<p><strong>Columns set on reject:</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Column</th><th>Value</th></tr></thead><tbody><tr><td><code>status</code></td><td><code>&#x27;REJECTED&#x27;</code></td></tr><tr><td><code>reviewed_by</code></td><td>manager&#x27;s cognito_sub</td></tr><tr><td><code>reviewed_at</code></td><td>timestamp</td></tr><tr><td><code>rejection_reason</code></td><td>the text from the modal</td></tr><tr><td><code>updated_at</code></td><td><code>CURRENT_TIMESTAMP</code> (auto)</td></tr></tbody></table>
+<p>After a reject, the expense is terminal — there is no transition back to <code>DRAFT</code>. If the employee wants to fix and resubmit, they create a new expense. This is by design (audit trail clarity), not a limitation.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="permission-model">Permission model<a href="#permission-model" class="hash-link" aria-label="Đường dẫn trực tiếp đến Permission model" title="Đường dẫn trực tiếp đến Permission model" translate="no">​</a></h3>
+<p><code>EXPENSE_APPROVE</code> and <code>EXPENSE_REJECT</code> are <strong>separate granular permissions</strong> (<code>user_permissions</code> table). They are not bundled with the MANAGER role automatically — they are granted explicitly. This allows splitting duties (e.g. a senior employee can approve but not reject).</p>
+<p>Both permissions check happens server-side via <code>permissionService.hasPermission(sub, code)</code>. Client-side <code>hasPermission()</code> checks in the frontend are UX gating only — the backend remains the source of truth.</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="cross-references">Cross-references<a href="#cross-references" class="hash-link" aria-label="Đường dẫn trực tiếp đến Cross-references" title="Đường dẫn trực tiếp đến Cross-references" translate="no">​</a></h2>
+<ul>
+<li class="">Finance batch payment (APPROVED → PAID transition): <a class="" href="/portfolio-fullstack/vi/i18n/document/BUSINESS.md">BUSINESS.md §4.3.4</a></li>
+<li class="">GDPR pseudonymization affecting <code>user_sub</code> and <code>policy_evaluation_history.created_by</code>: <a class="" href="/portfolio-fullstack/vi/i18n/document/wiki/GDPR-Compliance.md">GDPR-Compliance.md</a></li>
+<li class="">DATEV / SEPA / XRechnung export format: <a class="" href="/portfolio-fullstack/vi/i18n/document/BUSINESS.md">BUSINESS.md §4.3.5</a></li>
+</ul></div><footer class="theme-doc-footer docusaurus-mt-lg"><div class="row margin-top--sm theme-doc-footer-edit-meta-row"><div class="col noPrint_WFHX"><a href="https://github.com/vkhoa1610/portfolio-fullstack/edit/main/../docs/i18n/de/expense-lifecycle.md" target="_blank" rel="noopener noreferrer" class="theme-edit-this-page"><svg fill="currentColor" height="20" width="20" viewBox="0 0 40 40" class="iconEdit_Z9Sw" aria-hidden="true"><g><path d="m34.5 11.7l-3 3.1-6.3-6.3 3.1-3q0.5-0.5 1.2-0.5t1.1 0.5l3.9 3.9q0.5 0.4 0.5 1.1t-0.5 1.2z m-29.5 17.1l18.4-18.5 6.3 6.3-18.4 18.4h-6.3v-6.2z"></path></g></svg>Sửa trang này</a></div><div class="col lastUpdated_JAkA"></div></div></footer></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Trang tài liệu"></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#1-state-machine" class="table-of-contents__link toc-highlight">1. State Machine</a><ul><li><a href="#transition-table" class="table-of-contents__link toc-highlight">Transition table</a></li><li><a href="#retention-deadline" class="table-of-contents__link toc-highlight">Retention deadline</a></li><li><a href="#status-guard" class="table-of-contents__link toc-highlight">Status guard</a></li><li><a href="#schema-reference" class="table-of-contents__link toc-highlight">Schema reference</a></li></ul></li><li><a href="#2-receipt-upload-flow-receipt-type-only" class="table-of-contents__link toc-highlight">2. Receipt Upload Flow (RECEIPT type only)</a><ul><li><a href="#step-by-step" class="table-of-contents__link toc-highlight">Step-by-step</a></li><li><a href="#endpoint-reference" class="table-of-contents__link toc-highlight">Endpoint reference</a></li><li><a href="#storageservice-behavior" class="table-of-contents__link toc-highlight">StorageService behavior</a></li><li><a href="#storage-of-receipt_file_url" class="table-of-contents__link toc-highlight">Storage of <code>receipt_file_url</code></a></li><li><a href="#ocr--groq-vision" class="table-of-contents__link toc-highlight">OCR — Groq Vision</a></li></ul></li><li><a href="#3-expense-creation--three-types" class="table-of-contents__link toc-highlight">3. Expense Creation — three types</a><ul><li><a href="#31-receipt" class="table-of-contents__link toc-highlight">3.1 RECEIPT</a></li><li><a href="#32-per_diem" class="table-of-contents__link toc-highlight">3.2 PER_DIEM</a></li><li><a href="#33-mileage" class="table-of-contents__link toc-highlight">3.3 MILEAGE</a></li></ul></li><li><a href="#4-policy-compliance-evaluation" class="table-of-contents__link toc-highlight">4. Policy Compliance Evaluation</a><ul><li><a href="#cms-source" class="table-of-contents__link toc-highlight">CMS source</a></li><li><a href="#severity--behavior" class="table-of-contents__link toc-highlight">Severity → behavior</a></li><li><a href="#snapshot-persistence" class="table-of-contents__link toc-highlight">Snapshot persistence</a></li><li><a href="#why-immutable" class="table-of-contents__link toc-highlight">Why immutable</a></li></ul></li><li><a href="#5-manager-approval-flow" class="table-of-contents__link toc-highlight">5. Manager Approval Flow</a><ul><li><a href="#queue-retrieval" class="table-of-contents__link toc-highlight">Queue retrieval</a></li><li><a href="#approve-action" class="table-of-contents__link toc-highlight">Approve action</a></li><li><a href="#reject-action" class="table-of-contents__link toc-highlight">Reject action</a></li><li><a href="#permission-model" class="table-of-contents__link toc-highlight">Permission model</a></li></ul></li><li><a href="#cross-references" class="table-of-contents__link toc-highlight">Cross-references</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="footer__bottom text--center"><div class="footer__copyright">FintechSaaS Expense Platform — Portfolio project. Built with Docusaurus.</div></div></div></footer></div>
+</body>
+</html>

@@ -1,0 +1,1 @@
+"use strict";(globalThis.webpackChunkwiki||=[]).push([[4583],{6866(e,r,t){t.r(r),t.d(r,{default:()=>o});var c=t(612),u=t(6025),a=t(4586),n=t(4848);function o(){const{i18n:e}=(0,a.A)(),r=e.currentLocale===e.defaultLocale?"":`/${e.currentLocale}`;return(0,n.jsx)(c.rd,{to:(0,u.Ay)(`${r}/home`)})}}}]);
