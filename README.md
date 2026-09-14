@@ -1,10 +1,25 @@
 # FintechSaaS — Corporate Expense Management Platform
 
-> Production-grade full-stack expense reimbursement built for the German Mittelstand.
-> Real **GoBD** 10-year retention, **DSGVO/GDPR** data rights, and **DATEV / SEPA / XRechnung** exports.
+> Full-stack expense platform for the German Mittelstand.
+> 37 backend/frontend files · 4-phase GDPR rollout · DATEV / SEPA / XRechnung · GoBD 10-year retention.
 > Every design decision is documented — this repo is my relocation application to German fintech.
 
-**📚 Live technical docs** → [**vkhoa1610.github.io/portfolio-fullstack**](https://vkhoa1610.github.io/portfolio-fullstack/) — 14 wiki pages (EN / DE / VI), architecture C4, GDPR erasure workflow, API reference, tax export formats.
+---
+
+## 📚 Documentation — [vkhoa1610.github.io/portfolio-fullstack](https://vkhoa1610.github.io/portfolio-fullstack/)
+
+> **If you're reviewing this for a role: the wiki is where the depth is.**
+> README is the map — docs are the territory.
+
+| What you'll find | Link |
+|---|---|
+| Architecture — C4 context + container + sequence diagrams | [→ Architecture](https://vkhoa1610.github.io/portfolio-fullstack/architecture) |
+| GDPR 4-phase rollout — pseudonymization, audit trail, Vier-Augen | [→ GDPR / DSGVO](https://vkhoa1610.github.io/portfolio-fullstack/gdpr-compliance) |
+| German tax compliance — DATEV, XRechnung, SEPA, EStG | [→ Tax export](https://vkhoa1610.github.io/portfolio-fullstack/tax-export) |
+| Expense lifecycle — state machine, OCR flow, policy snapshot | [→ Expense lifecycle](https://vkhoa1610.github.io/portfolio-fullstack/expense-lifecycle) |
+| Run the demo — one-click login per role, test scenarios | [→ Demo guide](https://vkhoa1610.github.io/portfolio-fullstack/demo-guide) |
+
+14 pages · EN / DE / VI · auto-deployed via GitHub Actions
 
 ---
 
@@ -126,8 +141,11 @@ Interview-relevant choices:
 **Prereqs**: Docker Desktop. Optional: Node 20+ (hot reload), Java 21 (backend dev).
 
 ```bash
+git clone https://github.com/vkhoa1610/portfolio-fullstack.git
+cd portfolio-fullstack
+cp .env.example .env        # no secrets needed — demo uses seeded data
 npm run docker:up
-# Frontend at http://localhost:8080 — click any demo-login button
+# → http://localhost:8080 — click any demo-login button, no sign-up needed
 npm run docker:down
 ```
 
@@ -147,9 +165,9 @@ npm run db:wipe        # remove mysql container + volume
 Wiki (Docusaurus):
 ```bash
 npm run wiki:dev              # EN dev server
-npm run wiki:dev:de            # DE dev server
-npm run wiki:dev:vi            # VI dev server
-npm run wiki:build && wiki:serve  # multi-locale production preview
+npm run wiki:dev:de           # DE dev server
+npm run wiki:dev:vi           # VI dev server
+npm run wiki:build && npm run wiki:serve  # multi-locale production preview
 ```
 
 ---
@@ -186,13 +204,13 @@ Translations are synced into Docusaurus at build time via [`scripts/wiki-sync.js
 
 Honest scope list:
 
-- [ ] **Tests** — currently manual flow testing. Need RTK Query MSW handlers + JUnit + Cypress for the GDPR happy path.
-- [ ] **CSV bulk import** — endpoint exists; per-row error reporting is minimal.
-- [ ] **DE / VI translations** — infrastructure ready, only `home.md` fully translated. Rest is EN placeholder, translate on demand.
-- [ ] **Manager team scoping** — approval queue is global; needs `team_id` on users + join in `findPendingForManager`.
-- [ ] **Observability** — structured logging in place, OpenTelemetry / Prometheus not yet wired.
 - [ ] **ZUGFeRD hybrid PDF + Leitweg-ID** — XRechnung is the simplified variant; production B2G needs full EN16931.
+- [ ] **Manager team scoping** — approval queue is global; needs `team_id` on users + join in `findPendingForManager`.
+- [ ] **DE / VI translations** — infrastructure ready, only `home.md` fully translated. Rest is EN placeholder, translate on demand.
+- [ ] **Observability** — structured logging in place, OpenTelemetry / Prometheus not yet wired.
+- [ ] **CSV bulk import** — endpoint exists; per-row error reporting is minimal.
 - [ ] **Real Cognito** — currently Auth0; production switch is config-only.
+- [ ] **Tests** — currently manual flow testing. Unit + integration coverage (RTK Query MSW handlers, JUnit, Cypress for GDPR happy path) is the next engineering priority.
 
 ---
 
@@ -232,5 +250,7 @@ GitHub Actions in [`.github/workflows/`](.github/workflows/):
 
 ## Contact
 
-Open to roles in **German fintech / regulated SaaS** (Berlin / Munich / remote-EU).
+Open to **backend or full-stack roles in German fintech / regulated SaaS** (Berlin / Munich / remote-EU).
+Specifically interested in positions where compliance domain knowledge — DSGVO, GoBD, DATEV — is a differentiator, not an afterthought.
+
 Reach out via GitHub Issues or the email in my profile.
