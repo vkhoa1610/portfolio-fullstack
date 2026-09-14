@@ -19,6 +19,12 @@
     "docker:rebuild:bff": "docker-compose up --build -d bff",
     "docker:rebuild:be": "docker-compose up --build -d backend",
     "install:all": "cd frontend && npm install && cd ../bff && npm install",
+    "wiki:sync":    "node scripts/wiki-sync.js",
+    "wiki:dev":     "npm run wiki:sync && cd wiki && npm run start",
+    "wiki:dev:de":  "npm run wiki:sync && cd wiki && npm run start -- --locale de",
+    "wiki:dev:vi":  "npm run wiki:sync && cd wiki && npm run start -- --locale vi",
+    "wiki:build":   "npm run wiki:sync && cd wiki && npm run build",
+    "wiki:serve":   "cd wiki && npm run serve",
     "prepare": "husky"
   },
   "lint-staged": {

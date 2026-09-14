@@ -1,0 +1,35 @@
+name: Deploy Wiki to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'wiki/**'
+      - 'scripts/wiki-sync.js'
+      - '.github/workflows/wiki-deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    name: Build and deploy Docusaurus
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: wiki/package-lock.json
+      - run: cd wiki && npm ci
+      - name: Sync i18n translations (docs/i18n → wiki/i18n)
+        run: node scripts/wiki-sync.js
+      - run: cd wiki && npm run build
+      - uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./wiki/build
+          keep_files: false
