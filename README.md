@@ -1,41 +1,40 @@
 # FintechSaaS — Corporate Expense Management Platform
 
-> A production-grade full-stack expense reimbursement system built for the German Mittelstand,
-> implementing real GoBD retention, DSGVO/GDPR data rights, and DATEV/SEPA/XRechnung export.
->
-> Architecture, compliance choices, and trade-offs
-> documented to support a relocation application to German fintech roles.
+> Production-grade full-stack expense reimbursement built for the German Mittelstand.
+> Real **GoBD** 10-year retention, **DSGVO/GDPR** data rights, and **DATEV / SEPA / XRechnung** exports.
+> Every design decision is documented — this repo is my relocation application to German fintech.
+
+**📚 Live technical docs** → [**vkhoa1610.github.io/portfolio-fullstack**](https://vkhoa1610.github.io/portfolio-fullstack/) — 14 wiki pages (EN / DE / VI), architecture C4, GDPR erasure workflow, API reference, tax export formats.
 
 ---
 
-## What problem this solves
+## Why this project
 
-In German companies, expense reimbursement sits at the intersection of three regulatory regimes that pull in opposite directions:
+German expense reimbursement sits at the intersection of three regulatory regimes that pull in **opposite directions**:
 
-- **DSGVO Art. 17 — Right to erasure.** Employees can demand their personal data be deleted.
-- **GoBD §14 (Grundsätze ordnungsmäßiger Buchführung).** Financial records must be retained for **10 years**.
-- **§9 / §4 EStG.** Travel reimbursement rates (Kilometerpauschale, per-diem Verpflegungsmehraufwand) follow statutory tables that change yearly.
+- **DSGVO Art. 17** — employees can demand their personal data be deleted.
+- **GoBD §14** — financial records must be retained for **10 years**.
+- **§9 / §4 EStG** — travel reimbursement rates (Kilometerpauschale, Verpflegungsmehraufwand) follow statutory tables.
 
-Most off-the-shelf SaaS treats compliance as a checkbox. This project treats it as **a state machine**:
-expenses are pseudonymized (not deleted) when an employee invokes their right to erasure, so the financial record
-survives the audit window while their personal identity is severed cryptographically.
+Off-the-shelf SaaS treats compliance as a checkbox. This project treats it as a **state machine**: expenses are *pseudonymized* (not deleted) when an employee invokes erasure — the financial record survives the audit window, the personal identity is cryptographically severed.
 
-That tension — and how the system resolves it — is the most interesting part of the codebase.
+That tension, and how the system resolves it, is the most interesting part of the codebase.
 
 ---
 
 ## Tech stack
 
-| Layer | Technology | Why |
+| Layer | Tech | Why |
 |---|---|---|
-| Frontend | Next.js 15 (App Router) · RTK Query · TypeScript | App-router server components + typed cache invalidation |
-| BFF | Express + TypeScript | Auth cookie handling, AI orchestration, request shaping |
-| Backend | Spring Boot 3 · MyBatis · Java 21 | Mature transactional model, MyBatis for explicit SQL |
-| Database | MySQL 8.0 | JSON columns for CMS rules + audit snapshots |
-| Auth | Auth0 / Cognito (sub-based, HttpOnly cookies) | Frontend never sees tokens |
-| Storage | MinIO (S3-compatible) | Presigned PUT/GET — browser uploads bypass the server |
-| AI | Groq API (LLaMA 3.2 Vision + Chat) | Receipt OCR + editorial policy insights |
-| Infra | Docker Compose + Nginx | Single-command spin-up of the full system |
+| Frontend | Next.js 15 · RTK Query · TS · CSS Modules | Server components + typed cache invalidation |
+| BFF | Express + TS | Auth cookie handling, AI orchestration, request shaping |
+| Backend | Spring Boot 3 · MyBatis · Java 21 | Explicit SQL — reviewable pseudonymization queries |
+| DB | MySQL 8.0 | JSON columns for CMS rules + audit snapshots |
+| Auth | Auth0 (sub-based, HttpOnly cookies) | Frontend never sees tokens |
+| Storage | MinIO S3-compatible | Presigned PUT/GET — direct browser upload |
+| AI | Groq (LLaMA 3.2 Vision + Chat) | Receipt OCR + policy insight + report generation |
+| Infra | Docker Compose + Nginx | Single-command spin-up |
+| Docs | Docusaurus + Mermaid + i18n | Static site auto-deployed to GitHub Pages |
 
 ---
 
@@ -47,132 +46,139 @@ That tension — and how the system resolves it — is the most interesting part
 │   :3000    │     │   :4000    │     │  Java API    │     │  :3306  │
 └────────────┘     └────────────┘     │    :8080     │     └─────────┘
                           │           └──────┬───────┘
-                          │                  │
                           ▼                  ▼
                    ┌────────────┐     ┌────────────┐
                    │  Groq AI   │     │   MinIO    │
-                   │ (LLM+Vis)  │     │ S3-storage │
                    └────────────┘     └────────────┘
 ```
 
-- **No tokens in the browser.** JWTs live in HttpOnly cookies; the BFF extracts `cognito_sub` and proxies authenticated calls.
-- **Direct-to-storage uploads.** The frontend asks the BFF for a presigned PUT URL (15 min TTL), then uploads receipts straight to MinIO — the Java server never touches binary payloads.
-- **Granular permissions, not just roles.** `user_permissions` table holds codes like `EXPENSE_APPROVE`, `FINANCE_EXPORT`. The role is a default; the permission is the truth.
+- **No tokens in the browser** — JWTs in HttpOnly cookies; BFF extracts `cognito_sub` and proxies.
+- **Direct-to-storage uploads** — frontend gets a presigned PUT (15 min), uploads straight to MinIO. Java never touches binary payloads.
+- **Permissions, not just roles** — `user_permissions` table holds granular codes (`EXPENSE_APPROVE`, `FINANCE_EXPORT`). Role is a default; permission is truth.
+
+Full C4 model → [wiki / Architecture](https://vkhoa1610.github.io/portfolio-fullstack/architecture).
 
 ---
 
 ## What's implemented
 
-### 1. Expense lifecycle (5-state machine)
+### Expense lifecycle
+5-state machine (`DRAFT → PENDING_REVIEW → APPROVED → PAID`, `→ REJECTED`) across three types:
 
-```
-DRAFT → PENDING_REVIEW → APPROVED → PAID
-                       ↘ REJECTED
-```
+- **RECEIPT** — Groq Vision OCR (vendor, date, amount, VAT). Silent fallback if Groq unreachable.
+- **PER_DIEM** — country rate table (DE €28 / AT €26.40 / CH 65 CHF / GB £45 / US $55) × inclusive days.
+- **MILEAGE** — €0.30/km per §9 Abs. 1 Nr. 4a EStG, 200 km daily soft limit, commute deduction under 30 km.
 
-Three expense types with type-specific calculation:
+### CMS-driven compliance rules
+Rules live in `screen_configs` (JSON), 4 severity levels, `blocks_save` decoupled from severity. On submit, an **immutable snapshot** (with resolved i18n text) is written to `policy_evaluation_history` — historical expenses render exactly what the employee saw, even after CMS edits.
 
-- **RECEIPT** — Groq Vision OCR extracts vendor, date, amount, VAT amount/rate, AI flags. Browser uploads directly to MinIO via presigned PUT (15 min TTL); Groq fetches via presigned GET (1 hour TTL). Fallback mock data when Groq is unreachable.
-- **PER_DIEM** — country-coded rate table (DE €28, AT €26.40, CH 65 CHF, GB £45, US $55) × inclusive day count. Approximates the BMF Reisekostentabelle.
-- **MILEAGE** — €0.30/km Kilometerpauschale per §9 Abs. 1 Nr. 4a EStG, with daily 200 km soft limit and commute deduction threshold under 30 km.
-
-### 2. CMS-driven compliance rules
-
-Compliance rules live in `screen_configs` (JSON), not in code. Each rule has:
-- 4 severity levels: `error` (blocks save) / `warning` / `info` / `success`
-- i18n keys for title and per-state descriptions
-- Boolean `blocks_save` independent of severity
-
-At create time, the form evaluates rules against the live input and writes an **immutable snapshot** to `policy_evaluation_history`. The detail view replays the snapshot — not the live rules — so audited expenses keep their original evaluation even after CMS edits.
-
-### 3. GDPR / DSGVO compliance (full 4-phase rollout)
-
-| Phase | Surface | Implementation |
+### GDPR / DSGVO — 4-phase rollout
+| Phase | Surface | Highlight |
 |---|---|---|
-| 1 — Foundation | DB + service | Append-only `gdpr_audit_log` keyed by SHA-256 `subject_token` (survives hard delete); `pseudonymizeFinancialData()` and `hardDeletePersonalData()` |
-| 2 — Admin tooling | `/admin/users/[sub]` | "Privacy & GDPR" tab with erasure queue, 30-day Art. 12 countdown, data-map accordion, 4-item confirmation modal |
-| 3 — Employee self-service | `/profile/privacy` | Data inventory, consent history, ZIP export (Art. 20), erasure request form with explicit acknowledgement |
-| 4 — Finance sign-off | `/finance/check` | Retention badge (Under retention / Expired), GoBD post-hoc confirmation flow — separation of duties between Admin (initiates) and Finance (confirms accounting integrity) |
+| 1 — Foundation | DB + service | Append-only `gdpr_audit_log` keyed by SHA-256 `subject_token` (survives hard delete) |
+| 2 — Admin | `/admin/users/[sub]` | Erasure queue with 30-day Art. 12 countdown, data-map, 4-item confirmation modal |
+| 3 — Employee | `/profile/privacy` | Data inventory, consent history, ZIP export (Art. 20), erasure request |
+| 4 — Finance | `/finance/check` | Retention badge, GoBD post-hoc confirmation — separation of duties |
 
-`user_sub` in `expenses` is `VARCHAR(80)` with **no FK** — intentional, so pseudonymization can replace it with `DELETED-<sha256>` while the row stays for GoBD's 10-year retention window. `paid_at` and `retention_expires_at` are populated atomically in the same SQL statement: `retention_expires_at = DATE_ADD(CURDATE(), INTERVAL 10 YEAR)`.
+`expenses.user_sub` is `VARCHAR(80)` **no FK** — intentional, so pseudonymize can replace with `DELETED-<sha256>` while the row survives 10 years. `retention_expires_at = DATE_ADD(CURDATE(), INTERVAL 10 YEAR)` — computed in SQL, not Java, to eliminate clock drift.
 
-### 4. AI integration (Groq)
+Full flow → [wiki / GDPR compliance](https://vkhoa1610.github.io/portfolio-fullstack/gdpr-compliance).
 
-Three distinct use cases, each with explicit "AI-assisted" badging:
+### AI (Groq)
+- **Receipt OCR** — strict prompt against hallucination, silent mock fallback.
+- **Editorial policy insight** — debounced LLM per expense, shimmer skeleton during load.
+- **Manager AI report** — async job, monthly spend analysis + anomaly detection, markdown output.
 
-- **Receipt OCR** — LLaMA Vision returns structured JSON. Strict prompt to avoid hallucination. Silent fallback to mock if Groq is unreachable.
-- **Editorial policy insight** — debounced LLM call generating per-expense advice. Shimmer skeleton during loading.
-- **Manager AI report** — async job analyzes monthly spend, surfaces anomalies, produces a markdown report.
+Gated by active `AI_DATA_PROCESSING` consent — no personal data leaves the BFF without it.
 
-No personal data leaves the BFF without an active `AI_DATA_PROCESSING` consent.
+### Finance exports
+- **DATEV CSV** — Reisekostenabrechnung, Konto 6300/6310/6320, Gegenkonto 1600, Steuercode VST, Kostenstelle.
+- **SEPA XML** — `pain.001.001.03`.
+- **XRechnung** — simplified EN16931 (19% VAT).
+- Scheduled batch-pay — 15th + last day of month, 08:00 UTC.
 
-### 5. Finance & accounting exports
-
-- **DATEV CSV** — Reisekostenabrechnung format with correct Konto mapping (6300 / 6310 / 6320), Gegenkonto 1600, Steuercode VST, Kostenstelle.
-- **SEPA XML** — `pain.001.001.03` for bank file import.
-- **XRechnung** — simplified EN16931 with 19% VAT category.
-- Scheduled batch-pay job (15th and last day of month, 08:00 UTC).
-
-### 6. Role-based portfolio demo
-
-One-click demo login as four seeded users:
-
+### Role-based demo
 | Role | Name | Demonstrates |
 |---|---|---|
-| EMPLOYEE | Anna Müller | Receipt OCR, per-diem calculator, mileage, privacy center, ZIP export |
-| MANAGER | Thomas Weber | Approval queue, reject-with-reason flow, AI report |
-| FINANCE | Sarah Chen | Overview dashboard, batch payment, tax export, GoBD sign-off |
-| ADMIN | David Kim | User management, permission grants, GDPR erasure processing |
+| EMPLOYEE | Anna Müller | Receipt OCR, per-diem, mileage, privacy center, ZIP export |
+| EMPLOYEE (new) | fresh account | Onboarding flow — DSGVO consent capture, profile setup |
+| MANAGER | Thomas Weber | Approval queue, reject-with-reason, AI report |
+| FINANCE | Sarah Chen | Overview dashboard, batch pay, tax export, GoBD sign-off |
+| ADMIN | David Kim | User management, permissions, GDPR erasure processing |
 
 ---
 
 ## Notable engineering decisions
 
-These are the choices that recruiters tend to ask about in interviews:
+Interview-relevant choices:
 
-- **MyBatis over JPA.** Explicit SQL keeps the GDPR pseudonymization queries reviewable. JPA's cascade behavior was a liability for a `user_sub` column that intentionally has no FK.
-- **Direct-to-storage upload via presigned URL.** The Java service never streams binary data. Lower memory pressure, no proxy bottleneck.
-- **Subject token, not subject sub, links GDPR events.** SHA-256 of the original `cognito_sub`. After hard delete, the subject sub is null but the token still ties the erasure chain together (REQUESTED → PSEUDONYMIZED → PII_DELETED → COMPLETED → FINANCE_GOBD_CONFIRMED).
-- **Compliance snapshot stored *with* resolved i18n text.** If a translation file or rule changes, historical expenses still render exactly what the employee saw at submission time. Critical for audit defensibility.
-- **`retention_expires_at` populated in SQL, not Java.** `DATE_ADD(CURDATE(), INTERVAL 10 YEAR)` in the same UPDATE that sets `paid_at`. Eliminates Java/DB clock drift and removes the need for a backfill migration.
-- **Idempotency guards at the SQL level.** `markPaid` includes `AND status = 'APPROVED'` in the WHERE clause; accidental double-pay is impossible at the data layer.
-- **Severity and `blocks_save` decoupled.** An `error`-severity rule can be advisory (`blocks_save: false`) — useful for soft-launching new policies.
+- **MyBatis over JPA** — pseudonymization SQL stays reviewable; no cascade surprises on the FK-less `user_sub`.
+- **Direct-to-storage presigned PUT** — Java never streams binary. Lower memory, no proxy bottleneck.
+- **Subject token as GDPR event key** — SHA-256 of `cognito_sub`. After hard delete the subject sub is null, but the token still ties the erasure chain together end-to-end.
+- **Compliance snapshot stores resolved i18n text** — historical expenses render as-shown at submit time. Audit defensibility.
+- **`retention_expires_at` computed in SQL** — same UPDATE as `paid_at`, no clock drift, no backfill migration.
+- **Idempotency at the SQL layer** — `markPaid` includes `AND status = 'APPROVED'` in WHERE. Double-pay impossible at data layer.
 
 ---
 
 ## Run it
 
-### Prerequisites
-
-- Docker Desktop
-- Node.js 20+ (optional — for local dev with hot reload)
-- Java 21 (optional — for local backend dev)
-
-### One-command start
+**Prereqs**: Docker Desktop. Optional: Node 20+ (hot reload), Java 21 (backend dev).
 
 ```bash
 npm run docker:up
-# Frontend at http://localhost:8080
-# Click any of the demo-login buttons on the login screen.
-
+# Frontend at http://localhost:8080 — click any demo-login button
 npm run docker:down
 ```
 
-### Individual services (hot reload)
-
+Hot reload for one service:
 ```bash
-npm run dev:frontend   # Next.js on :3000
-npm run dev:bff        # Express on :4000
-npm run dev:backend    # Spring Boot on :8080
+npm run dev:frontend   # Next.js :3000
+npm run dev:bff        # Express :4000
+npm run dev:backend    # Spring Boot :8080
 ```
 
-### Database seed
-
+Database:
 ```bash
-docker exec -i mysql mysql -uroot -p12345678 mydb < db_fix.sql
+npm run db:reseed      # DROP + CREATE + apply db_fix.sql
+npm run db:wipe        # remove mysql container + volume
 ```
 
-Includes 4 demo users, expense seed data (DRAFT / APPROVED / PAID across categories), policy CMS rules, and the GDPR audit chain needed to demo the Finance GoBD sign-off.
+Wiki (Docusaurus):
+```bash
+npm run wiki:dev              # EN dev server
+npm run wiki:dev:de            # DE dev server
+npm run wiki:dev:vi            # VI dev server
+npm run wiki:build && wiki:serve  # multi-locale production preview
+```
+
+---
+
+## Documentation
+
+All technical docs live in [`docs/`](docs/) — served as a static Docusaurus site at [**vkhoa1610.github.io/portfolio-fullstack**](https://vkhoa1610.github.io/portfolio-fullstack/). Auto-deployed via GitHub Actions on every push to `main`.
+
+Structure:
+```
+docs/
+├── home.md                 → Landing + demo user table
+├── demo-guide.md           → Test scenarios per role
+├── architecture.md         → C4 model (Context → Container → Component)
+├── expense-lifecycle.md    → State machine, sequence diagrams
+├── onboarding.md           → DSGVO consent capture flow
+├── auth-flow.md            → Auth0 BFF pattern, MFA branch
+├── finance-workflows.md    → Check → Payment → Export
+├── ai-report.md            → CompletableFuture async pattern
+├── admin-management.md     → Users, permissions, functions
+├── cms-policy-rules.md     → screen_configs versioning
+├── gdpr-compliance.md      → 4-phase rollout, pseudonymization
+├── gobd-notes.md           → 10-year retention, MinIO WORM
+├── api-reference.md        → All endpoints by role
+├── tax-export.md           → DATEV / SEPA / XRechnung
+└── i18n/{de,vi}/           → Translations (source of truth)
+```
+
+Translations are synced into Docusaurus at build time via [`scripts/wiki-sync.js`](scripts/wiki-sync.js).
 
 ---
 
@@ -180,13 +186,13 @@ Includes 4 demo users, expense seed data (DRAFT / APPROVED / PAID across categor
 
 Honest scope list:
 
-- [ ] **Tests** — currently relying on manual flow testing. Need RTK Query MSW handlers + JUnit + Cypress for the GDPR happy-path.
-- [ ] **CSV bulk import** — endpoint exists, but error reporting on row-level failures is minimal.
-- [ ] **i18n coverage** — EN/DE/VI exist, but DE translations of the GDPR-specific strings need a native-speaker review.
-- [ ] **Manager team scoping** — approval queue is currently global. A real deployment needs `team_id` on users and a join in `findPendingForManager`.
-- [ ] **Observability** — structured logging is in place; OpenTelemetry / Prometheus exporters not yet wired.
-- [ ] **ZUGFeRD hybrid PDF + Leitweg-ID** — XRechnung export is the simplified variant; production B2G needs the full EN16931 with attached PDF.
-- [ ] **Real Cognito** — currently runs against LocalStack Cognito for offline demos. The production switch is config-only.
+- [ ] **Tests** — currently manual flow testing. Need RTK Query MSW handlers + JUnit + Cypress for the GDPR happy path.
+- [ ] **CSV bulk import** — endpoint exists; per-row error reporting is minimal.
+- [ ] **DE / VI translations** — infrastructure ready, only `home.md` fully translated. Rest is EN placeholder, translate on demand.
+- [ ] **Manager team scoping** — approval queue is global; needs `team_id` on users + join in `findPendingForManager`.
+- [ ] **Observability** — structured logging in place, OpenTelemetry / Prometheus not yet wired.
+- [ ] **ZUGFeRD hybrid PDF + Leitweg-ID** — XRechnung is the simplified variant; production B2G needs full EN16931.
+- [ ] **Real Cognito** — currently Auth0; production switch is config-only.
 
 ---
 
@@ -194,27 +200,27 @@ Honest scope list:
 
 ```
 .
-├── frontend/          Next.js 15 — App Router, RTK Query, CSS Modules
-├── bff/               Express + TS — auth proxy, AI orchestration, route catalog (adm-*, emp-*, fin-*, mgr-*)
-├── backend/           Spring Boot 3 + MyBatis + Java 21 — domain logic, MyBatis XMLs in src/main/resources/mapper
-├── docs/              Public technical docs (expense lifecycle, etc.)
-├── db_fix.sql         Destroy + recreate dev schema + seed data
-├── docker-compose.yml Full stack
-└── .github/workflows/ CI per service
+├── frontend/                Next.js 15 — App Router, RTK Query, CSS Modules
+├── bff/                     Express + TS — auth proxy, AI orchestration, route catalog
+├── backend/                 Spring Boot 3 + MyBatis + Java 21 — domain logic
+├── docs/                    Public technical docs (Docusaurus source)
+│   └── i18n/{de,vi}/        Translations
+├── wiki/                    Docusaurus site config (auto-deploys to gh-pages)
+├── scripts/wiki-sync.js     docs/i18n → wiki/i18n build-time sync
+├── db_fix.sql               Full destroy + recreate schema + seed
+├── docker-compose.yml       All services
+└── .github/workflows/
+    └── wiki-deploy.yml      Auto-build Docusaurus + deploy to Pages
 ```
-
-Public docs:
-- [docs/expense-lifecycle.md](docs/expense-lifecycle.md) — 5-state machine, receipt upload flow, three expense types, policy snapshot, manager approval
 
 ---
 
 ## CI/CD
 
-GitHub Actions per service in [.github/workflows/](.github/workflows/):
+GitHub Actions in [`.github/workflows/`](.github/workflows/):
 
-- **Frontend** — lint + type-check on PR; Docker build + push to GHCR on `main`.
-- **Backend** — Maven build + Spring tests on PR to `backend/**`.
-- **BFF** — TypeScript build on PR to `bff/**`.
+- **wiki-deploy.yml** — auto-syncs `docs/i18n/` → `wiki/i18n/` → builds Docusaurus (3 locales) → deploys to `gh-pages` on push to `main` (paths: `docs/**`, `wiki/**`, `scripts/wiki-sync.js`).
+- **frontend / backend / bff** — lint, type-check, build per service.
 
 ---
 
@@ -226,5 +232,5 @@ GitHub Actions per service in [.github/workflows/](.github/workflows/):
 
 ## Contact
 
-Open to roles in German fintech / regulated SaaS. Reach out via GitHub Issues
-or the email in my GitHub profile.
+Open to roles in **German fintech / regulated SaaS** (Berlin / Munich / remote-EU).
+Reach out via GitHub Issues or the email in my profile.
