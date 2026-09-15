@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="generator" content="Docusaurus v3.10.2">
 <title data-rh="true">System Architecture | FintechSaaS Expense Platform</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://vkhoa1610.github.io/portfolio-fullstack/i18n/de/architecture"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" property="og:locale:alternate" content="de"><meta data-rh="true" property="og:locale:alternate" content="vi"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="System Architecture | FintechSaaS Expense Platform"><meta data-rh="true" name="description" content="Three-layer split (Frontend / BFF / Backend) with intentional token isolation, MyBatis-explicit SQL, and CMS-driven UI rules. Documented as a light C4 model: Context → Container → Component."><meta data-rh="true" property="og:description" content="Three-layer split (Frontend / BFF / Backend) with intentional token isolation, MyBatis-explicit SQL, and CMS-driven UI rules. Documented as a light C4 model: Context → Container → Component."><link data-rh="true" rel="icon" href="/portfolio-fullstack/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://vkhoa1610.github.io/portfolio-fullstack/i18n/de/architecture"><link data-rh="true" rel="alternate" href="https://vkhoa1610.github.io/portfolio-fullstack/i18n/de/architecture" hreflang="en"><link data-rh="true" rel="alternate" href="https://vkhoa1610.github.io/portfolio-fullstack/de/i18n/de/architecture" hreflang="de"><link data-rh="true" rel="alternate" href="https://vkhoa1610.github.io/portfolio-fullstack/vi/i18n/de/architecture" hreflang="vi"><link data-rh="true" rel="alternate" href="https://vkhoa1610.github.io/portfolio-fullstack/i18n/de/architecture" hreflang="x-default"><link rel="stylesheet" href="/portfolio-fullstack/assets/css/styles.4e611bab.css">
-<script src="/portfolio-fullstack/assets/js/runtime~main.fdd8e2ad.js" defer="defer"></script>
+<script src="/portfolio-fullstack/assets/js/runtime~main.922c4058.js" defer="defer"></script>
 <script src="/portfolio-fullstack/assets/js/main.afab5d07.js" defer="defer"></script>
 </head>
 <body>
@@ -125,11 +125,57 @@
 <table><thead><tr><th>Package</th><th>Purpose</th><th>Notable classes</th></tr></thead><tbody><tr><td><code>controller/</code></td><td>HTTP endpoints, one file per feature area</td><td><code>AdminController</code>, <code>ExpenseController</code>, <code>GdprController</code>, <code>FinanceGdprController</code>, <code>UserPrivacyController</code></td></tr><tr><td><code>service/</code></td><td>Business logic, transactional boundaries (<code>@Transactional</code>)</td><td><code>ExpenseService</code>, <code>GdprService</code>, <code>DataExportService</code>, <code>ExpenseReportService</code>, <code>CsvImportService</code></td></tr><tr><td><code>repository/</code></td><td>Thin wrapper over MyBatis mappers — clean method names</td><td><code>ExpenseRepository.findByUserSub</code>, <code>GdprAuditLogRepository.hasLaterEvent</code></td></tr><tr><td><code>mapper/</code></td><td>MyBatis interfaces + <code>resources/mapper/*.xml</code> with explicit SQL</td><td><code>ExpenseMapper.xml</code>, <code>GdprMapper.xml</code>, <code>PolicyEvaluationHistoryMapper.xml</code></td></tr><tr><td><code>entity/</code></td><td>Lombok <code>@Data</code> POJOs, 1:1 with DB tables</td><td><code>ExpenseEntity</code>, <code>GdprAuditLogEntity</code>, <code>ScreenConfigEntity</code></td></tr><tr><td><code>dto/</code></td><td>Request + response shapes exposed via HTTP</td><td><code>CreateExpenseRequestDto</code>, <code>GdprErasureRequestDto</code>, <code>ScanResponseDto</code></td></tr><tr><td><code>config/</code></td><td>Filters, MVC config, Spring beans</td><td><code>JwtAuthFilter</code> (extract <code>cognitoSub</code>), <code>WebConfig</code></td></tr><tr><td><code>exception/</code></td><td>Domain exceptions + <code>@ControllerAdvice</code> global handler</td><td><code>ForbiddenException</code> → 403, <code>NotFoundException</code> → 404, generic → 500</td></tr><tr><td><code>client/</code></td><td>External API clients</td><td><code>GroqClient</code> (OCR + Chat)</td></tr></tbody></table>
 <h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="cross-cutting-concerns-present-in-code">Cross-cutting concerns present in code<a href="#cross-cutting-concerns-present-in-code" class="hash-link" aria-label="Direct link to Cross-cutting concerns present in code" title="Direct link to Cross-cutting concerns present in code" translate="no">​</a></h3>
 <ul>
-<li class=""><strong><a class="" href="/portfolio-fullstack/wiki/auth-flow">JwtAuthFilter</a></strong> — decodes JWT, injects <code>cognitoSub</code> into request attributes for <code>/api/v1/**</code> routes only.</li>
-<li class=""><strong>GlobalExceptionHandler</strong> — <code>@ControllerAdvice</code> mapping domain exceptions to HTTP status codes.</li>
-<li class=""><strong>SLF4J logging</strong> — active in most services (<code>private static final Logger log = ...</code>).</li>
-<li class=""><strong><code>@Transactional</code></strong> — all mutating operations (<code>ExpenseService.create</code>, <code>GdprService.hardDeletePersonalData</code>, <code>FinanceService.batchPay</code>) are wrapped.</li>
-<li class=""><strong>CORS</strong> — not enforced by Spring; handled at Nginx via header forwarding since the frontend is same-origin behind the gateway.</li>
+<li class="">
+<p><strong><a class="" href="/portfolio-fullstack/wiki/auth-flow">JwtAuthFilter</a></strong> — decodes JWT, injects <code>cognitoSub</code> into request attributes for <code>/api/v1/**</code> routes only.</p>
+<blockquote>
+<p><strong>Note on <code>cognitoSub</code> naming:</strong> Auth0 issues a <code>sub</code> claim (<code>auth0|&lt;hex24&gt;</code>). The codebase stores and references this as <code>cognitoSub</code> — a legacy name from the initial AWS Cognito design. Same concept, different name.</p>
+</blockquote>
+</li>
+<li class="">
+<p><strong><code>DataSourceAspect</code></strong> — <code>@Around</code> interceptor wrapping all <code>service..*</code> methods.
+Uses stack-walk + reflection to determine routing intent, then manages transaction
+lifecycle manually for write paths. Default is <strong>WRITE</strong> (safe for financial system).</p>
+<p><strong>Routing precedence (per stack frame, scanning outward):</strong></p>
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#bfc7d5;--prism-background-color:#292d3e"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#bfc7d5;background-color:#292d3e"><code class="codeBlockLines_e6Vv"><div class="token-line" style="color:#bfc7d5"><span class="token plain">@Write on method                  →  WRITE  (explicit, highest precedence)</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">@Transactional(readOnly = true)   →  READ   (explicit opt-out)</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">neither found on this frame       →  keep scanning outward</span><br></div><div class="token-line" style="color:#bfc7d5"><span class="token plain">nothing found anywhere in stack   →  WRITE  (safe default)</span><br></div></code></pre></div></div>
+<blockquote>
+<p><em>&quot;A write silently routed to the READ replica is a correctness bug (data loss /
+replication lag), whereas a read routed to the WRITE pool is only a missed
+optimization.&quot;</em> — Default WRITE is intentional for this financial system.</p>
+</blockquote>
+<p><strong>Why default WRITE matters in practice:</strong> 7 write methods (<code>saveConsent</code>, <code>submit</code>,
+<code>approve</code>, <code>reject</code>, <code>updateProfile</code>, <code>saveProfile</code>, <code>applyPatch</code>) had no annotation —
+silently routing to READ. Changing the default fixed all 7 without touching those files.</p>
+<p><strong>Read-only opt-in:</strong> 15 methods across 10 files explicitly marked
+<code>@Transactional(readOnly = true)</code> after agent audit (pure-SELECT only):
+<code>ExpenseService.listByUser/getById</code>, <code>FinanceService.listAll</code>, <code>ManagerService.getPending</code>,
+<code>PermissionService.getPermissionsForUser/hasPermission</code>, <code>ScreenConfigService.getActiveConfig</code>,
+<code>UserProfileService.getMyProfile/getMyProfileDetail</code>, <code>UserService.getAll/getById</code>, and others.
+Methods with no DB call (S3 presign, Groq HTTP) deliberately NOT marked — misleading otherwise.</p>
+<p><strong>Known limitation:</strong> Stack-walk cannot distinguish overloaded methods (same name,
+different parameters) — <code>StackTraceElement</code> carries no parameter type info. If two
+methods share a name and one has <code>@Write</code>, both frames match. Acceptable in current
+codebase (no write/read overload pairs exist).</p>
+<blockquote>
+<p><strong>Migration history:</strong> Original default was READ. Root bug: <code>GdprService</code> (5 methods)</p>
+<ul>
+<li class=""><code>ExpenseService</code> (1 method) had <code>@Transactional</code> but no <code>@Write</code> → GDPR erasure
+silently routed to READ. No data loss locally (&quot;lucky&quot; — both datasources same MySQL),
+but would corrupt audit trail on a real replica. Fixed by: <code>@Write</code> on those 6 methods</li>
+<li class="">default changed to WRITE (covers 7 unannotated write methods without touching them).</li>
+</ul>
+</blockquote>
+<blockquote>
+<p><strong><code>SettlementService.handleCreateSettlement</code></strong> has <code>@Write</code> but agent audit found no
+write DB calls — only <code>findById</code> + in-memory logic. May be mid-refactor or missing
+persist. Flagged, not yet fixed.</p>
+</blockquote>
+</li>
+<li class="">
+<p><strong><code>@Transactional</code></strong> — declarative annotation on mutating service methods. Now serves dual purpose: Spring transaction management AND datasource routing signal for <code>DataSourceAspect</code>. <code>readOnly = true</code> on read-only service methods makes routing explicit and enables query optimizations on the replica.</p>
+</li>
+<li class="">
+<p><strong>CORS</strong> — not enforced by Spring; handled at Nginx via header forwarding since the frontend is same-origin behind the gateway.</p>
+</li>
 </ul>
 <hr>
 <h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="key-architectural-decisions">Key architectural decisions<a href="#key-architectural-decisions" class="hash-link" aria-label="Direct link to Key architectural decisions" title="Direct link to Key architectural decisions" translate="no">​</a></h2>
@@ -141,6 +187,14 @@
 <li class=""><strong>CMS-driven compliance rules</strong> — evaluation logic lives in <code>screen_configs</code> JSON, not Java. Snapshot captured at expense create time is immutable (see <a class="" href="/portfolio-fullstack/wiki/cms-policy-rules">CMS policy rules</a>).</li>
 <li class=""><strong>Async AI jobs</strong> — <code>CompletableFuture.runAsync()</code> for reports; polling from frontend at 2s intervals. No queue infrastructure needed at demo scale (see <a class="" href="/portfolio-fullstack/wiki/ai-report">AI report</a>).</li>
 <li class=""><strong><code>retention_expires_at</code> in SQL, not Java</strong> — computed via <code>DATE_ADD(CURDATE(), INTERVAL 10 YEAR)</code> in the same UPDATE that sets <code>paid_at</code>. Eliminates clock drift; no backfill migration ever needed.</li>
+<li class=""><strong>AOP-driven read/write routing via <code>@Transactional(readOnly)</code></strong> — <code>DataSourceAspect</code>
+intercepts all service calls and routes to write or read datasource by reading
+<code>@Transactional(readOnly)</code> directly from the joinpoint — no custom annotation needed.
+<code>@Order(Ordered.HIGHEST_PRECEDENCE)</code> ensures the aspect sets the datasource key
+<strong>before</strong> Spring&#x27;s <code>@Transactional</code> proxy opens the connection. Aspect owns only
+datasource routing; Spring owns transaction lifecycle. Clean separation of concerns.
+<code>DataSourceConfig</code> wires two HikariCP pools behind <code>AbstractRoutingDataSource</code>;
+<code>DataSourceContextHolder</code> (ThreadLocal) carries the routing key per request.</li>
 </ol>
 <hr>
 <h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="related">Related<a href="#related" class="hash-link" aria-label="Direct link to Related" title="Direct link to Related" translate="no">​</a></h2>
