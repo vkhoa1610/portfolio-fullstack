@@ -173,9 +173,53 @@ flowchart LR
 ### Cross-cutting concerns present in code
 
 - **[JwtAuthFilter](/wiki/auth-flow)** — decodes JWT, injects `cognitoSub` into request attributes for `/api/v1/**` routes only.
-- **GlobalExceptionHandler** — `@ControllerAdvice` mapping domain exceptions to HTTP status codes.
-- **SLF4J logging** — active in most services (`private static final Logger log = ...`).
-- **`@Transactional`** — all mutating operations (`ExpenseService.create`, `GdprService.hardDeletePersonalData`, `FinanceService.batchPay`) are wrapped.
+
+  > **Note on `cognitoSub` naming:** Auth0 issues a `sub` claim (`auth0|<hex24>`). The codebase stores and references this as `cognitoSub` — a legacy name from the initial AWS Cognito design. Same concept, different name.
+
+- **`DataSourceAspect`** — `@Around` interceptor wrapping all `service..*` methods.
+  Uses stack-walk + reflection to determine routing intent, then manages transaction
+  lifecycle manually for write paths. Default is **WRITE** (safe for financial system).
+
+  **Routing precedence (per stack frame, scanning outward):**
+  ```
+  @Write on method                  →  WRITE  (explicit, highest precedence)
+  @Transactional(readOnly = true)   →  READ   (explicit opt-out)
+  neither found on this frame       →  keep scanning outward
+  nothing found anywhere in stack   →  WRITE  (safe default)
+  ```
+
+  > *"A write silently routed to the READ replica is a correctness bug (data loss /
+  > replication lag), whereas a read routed to the WRITE pool is only a missed
+  > optimization."* — Default WRITE is intentional for this financial system.
+
+  **Why default WRITE matters in practice:** 7 write methods (`saveConsent`, `submit`,
+  `approve`, `reject`, `updateProfile`, `saveProfile`, `applyPatch`) had no annotation —
+  silently routing to READ. Changing the default fixed all 7 without touching those files.
+
+  **Read-only opt-in:** 15 methods across 10 files explicitly marked
+  `@Transactional(readOnly = true)` after agent audit (pure-SELECT only):
+  `ExpenseService.listByUser/getById`, `FinanceService.listAll`, `ManagerService.getPending`,
+  `PermissionService.getPermissionsForUser/hasPermission`, `ScreenConfigService.getActiveConfig`,
+  `UserProfileService.getMyProfile/getMyProfileDetail`, `UserService.getAll/getById`, and others.
+  Methods with no DB call (S3 presign, Groq HTTP) deliberately NOT marked — misleading otherwise.
+
+  **Known limitation:** Stack-walk cannot distinguish overloaded methods (same name,
+  different parameters) — `StackTraceElement` carries no parameter type info. If two
+  methods share a name and one has `@Write`, both frames match. Acceptable in current
+  codebase (no write/read overload pairs exist).
+
+  > **Migration history:** Original default was READ. Root bug: `GdprService` (5 methods)
+  > + `ExpenseService` (1 method) had `@Transactional` but no `@Write` → GDPR erasure
+  > silently routed to READ. No data loss locally ("lucky" — both datasources same MySQL),
+  > but would corrupt audit trail on a real replica. Fixed by: `@Write` on those 6 methods
+  > + default changed to WRITE (covers 7 unannotated write methods without touching them).
+
+  > **`SettlementService.handleCreateSettlement`** has `@Write` but agent audit found no
+  > write DB calls — only `findById` + in-memory logic. May be mid-refactor or missing
+  > persist. Flagged, not yet fixed.
+
+- **`@Transactional`** — declarative annotation on mutating service methods. Now serves dual purpose: Spring transaction management AND datasource routing signal for `DataSourceAspect`. `readOnly = true` on read-only service methods makes routing explicit and enables query optimizations on the replica.
+
 - **CORS** — not enforced by Spring; handled at Nginx via header forwarding since the frontend is same-origin behind the gateway.
 
 ---
@@ -190,6 +234,14 @@ Each of these is a design choice worth defending in interview:
 4. **CMS-driven compliance rules** — evaluation logic lives in `screen_configs` JSON, not Java. Snapshot captured at expense create time is immutable (see [CMS policy rules](/wiki/cms-policy-rules)).
 5. **Async AI jobs** — `CompletableFuture.runAsync()` for reports; polling from frontend at 2s intervals. No queue infrastructure needed at demo scale (see [AI report](/wiki/ai-report)).
 6. **`retention_expires_at` in SQL, not Java** — computed via `DATE_ADD(CURDATE(), INTERVAL 10 YEAR)` in the same UPDATE that sets `paid_at`. Eliminates clock drift; no backfill migration ever needed.
+7. **AOP-driven read/write routing via `@Transactional(readOnly)`** — `DataSourceAspect`
+   intercepts all service calls and routes to write or read datasource by reading
+   `@Transactional(readOnly)` directly from the joinpoint — no custom annotation needed.
+   `@Order(Ordered.HIGHEST_PRECEDENCE)` ensures the aspect sets the datasource key
+   **before** Spring's `@Transactional` proxy opens the connection. Aspect owns only
+   datasource routing; Spring owns transaction lifecycle. Clean separation of concerns.
+   `DataSourceConfig` wires two HikariCP pools behind `AbstractRoutingDataSource`;
+   `DataSourceContextHolder` (ThreadLocal) carries the routing key per request.
 
 ---
 
