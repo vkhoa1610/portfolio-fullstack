@@ -7,6 +7,7 @@ import com.example.my_java_app.exception.ApiException;
 import com.example.my_java_app.exception.NotFoundException;
 import com.example.my_java_app.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,6 +21,7 @@ public class UserService {
     }
 
     // Lấy toàn bộ user
+    @Transactional(readOnly = true)
     public List<UserResponseDto> getAll() {
         List<UserEntity> users = repository.findAll();
 
@@ -33,6 +35,7 @@ public class UserService {
     }
 
     // Lấy user theo id
+    @Transactional(readOnly = true)
     public UserResponseDto getById(String id) {
         if (id == null || id.isEmpty()) {
             throw new ApiException("User ID cannot be null or empty");

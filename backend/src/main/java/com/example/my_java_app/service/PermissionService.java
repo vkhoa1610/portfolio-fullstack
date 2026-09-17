@@ -5,6 +5,7 @@ import com.example.my_java_app.exception.ForbiddenException;
 import com.example.my_java_app.repository.PermissionRepository;
 import com.example.my_java_app.repository.SystemAdminRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -20,10 +21,12 @@ public class PermissionService {
         this.systemAdminRepository = systemAdminRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<String> getPermissionsForUser(String cognitoSub) {
         return permissionRepository.findPermissionCodesByUserSub(cognitoSub);
     }
 
+    @Transactional(readOnly = true)
     public boolean hasPermission(String cognitoSub, String permissionCode) {
         List<String> permissions = permissionRepository.findPermissionCodesByUserSub(cognitoSub);
         return permissions.contains(permissionCode);

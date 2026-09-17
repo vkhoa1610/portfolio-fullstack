@@ -1,5 +1,6 @@
 package com.example.my_java_app.service;
 
+import com.example.my_java_app.annotation.Write;
 import com.example.my_java_app.entity.GdprAuditLogEntity;
 import com.example.my_java_app.mapper.GdprMapper;
 import com.example.my_java_app.repository.GdprAuditLogRepository;
@@ -7,7 +8,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -49,7 +49,7 @@ public class GdprService {
      * Record that an employee has requested erasure. Does not perform any deletion.
      * Used to seed the admin's processing queue and start the 30-day Art. 12 clock.
      */
-    @Transactional
+    @Write
     public void recordErasureRequest(String subjectSub, String reason) {
         Map<String, Object> details = new LinkedHashMap<>();
         details.put("reason", reason == null ? "" : reason);
@@ -64,7 +64,7 @@ public class GdprService {
      *
      * Idempotent: running twice is a no-op on the second call (rows already anonymized).
      */
-    @Transactional
+    @Write
     public PseudonymizationResult pseudonymizeFinancialData(String subjectSub, String actorSub, String actorRole) {
         String anonymized = anonymizedTokenFor(subjectSub);
 
@@ -93,7 +93,7 @@ public class GdprService {
      * Caller responsibility: also delete avatar / receipt files from object storage
      * (handled by Phase 2 admin tooling, not in this service).
      */
-    @Transactional
+    @Write
     public void hardDeletePersonalData(String subjectSub, String actorSub, String actorRole) {
         int profilesDeleted = gdprMapper.deleteUserProfile(subjectSub);
         int rolesDeleted    = gdprMapper.deleteUserRoles(subjectSub);
@@ -122,7 +122,7 @@ public class GdprService {
      *
      * @param pseudoEventId  ID of the {@code ERASURE_FINANCIAL_PSEUDONYMIZED} audit row being confirmed.
      */
-    @Transactional
+    @Write
     public void confirmFinanceGobd(String subjectSub, String subjectToken, Long pseudoEventId,
                                    String actorSub, String actorRole) {
         Map<String, Object> details = new LinkedHashMap<>();
@@ -149,7 +149,7 @@ public class GdprService {
     /**
      * Record that a data export ZIP was generated for the subject (GDPR Art. 20).
      */
-    @Transactional
+    @Write
     public void recordDataExport(String subjectSub, String actorSub, String actorRole, int recordCount) {
         Map<String, Object> details = new LinkedHashMap<>();
         details.put("record_count", recordCount);

@@ -5,6 +5,7 @@ import com.example.my_java_app.dto.response.FinanceReportResponseDto;
 import com.example.my_java_app.entity.FinanceReportEntity;
 import com.example.my_java_app.repository.FinanceReportRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -47,6 +48,7 @@ public class FinanceReportService {
         return toDto(entity);
     }
 
+    @Transactional(readOnly = true)
     public List<FinanceReportResponseDto> listAll() {
         return repository.findAll().stream().map(this::toDto).collect(Collectors.toList());
     }

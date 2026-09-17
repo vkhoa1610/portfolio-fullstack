@@ -1,5 +1,6 @@
 package com.example.my_java_app.service;
 
+import com.example.my_java_app.annotation.Write;
 import com.example.my_java_app.client.GroqClient;
 import com.example.my_java_app.dto.common.PolicyEvaluationItemDto;
 import com.example.my_java_app.dto.common.PolicyEvaluationSnapshotDto;
@@ -57,7 +58,7 @@ public class ExpenseService {
         this.objectMapper = objectMapper;
     }
 
-    @Transactional
+    @Write
     public ExpenseResponseDto create(String cognitoSub, CreateExpenseRequestDto dto) {
         ExpenseEntity entity = new ExpenseEntity();
         entity.setUserSub(cognitoSub);
@@ -90,6 +91,7 @@ public class ExpenseService {
         return toDto(entity, dto.getPolicyEvaluationSnapshot());
     }
 
+    @Transactional(readOnly = true)
     public List<ExpenseResponseDto> listByUser(String cognitoSub) {
         return expenseRepository.findByUserSub(cognitoSub)
                 .stream()
@@ -97,6 +99,7 @@ public class ExpenseService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public ExpenseResponseDto getById(Long id) {
         ExpenseEntity entity = expenseRepository.findById(id);
         if (entity == null) throw new NotFoundException("Expense not found: " + id);

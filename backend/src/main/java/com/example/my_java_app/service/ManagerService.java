@@ -5,6 +5,7 @@ import com.example.my_java_app.entity.ExpenseEntity;
 import com.example.my_java_app.exception.NotFoundException;
 import com.example.my_java_app.repository.ExpenseRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -20,6 +21,7 @@ public class ManagerService {
         this.expenseRepository = expenseRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<ExpenseResponseDto> getPending() {
         return expenseRepository.findPendingForManager()
                 .stream()

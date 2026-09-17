@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import java.lang.reflect.Method;
@@ -27,8 +28,19 @@ public class DataSourceAspect {
     }
 
     // --------------------------------------------------------
-    // CHECK IF CALL STACK CONTAINS @Write
+    // CHECK IF CALL STACK IS A WRITE CALL
     // --------------------------------------------------------
+    // Per-frame precedence, scanning outward from the innermost com.example frame:
+    //   1. @Write on the method                    → WRITE (explicit, existing behavior)
+    //   2. @Transactional(readOnly = true)          → READ (explicit opt-out)
+    //   3. Neither found on this frame              → keep scanning outward
+    //   4. Nothing found anywhere in the stack      → WRITE (safe default)
+    //
+    // Defaulting to WRITE (rather than READ) is intentional for a financial system:
+    // a write silently routed to the READ replica is a correctness bug (data loss /
+    // replication lag), whereas a read routed to the WRITE pool is only a missed
+    // optimization. Methods that are genuinely read-only must opt in explicitly via
+    // @Transactional(readOnly = true).
     private boolean isWriteCall() {
         StackTraceElement[] stack = Thread.currentThread().getStackTrace();
 
@@ -40,15 +52,21 @@ public class DataSourceAspect {
                 Class<?> clazz = Class.forName(cls);
 
                 for (Method m : clazz.getDeclaredMethods()) {
-                    if (m.getName().equals(element.getMethodName())
-                        && m.isAnnotationPresent(Write.class)) {
+                    if (!m.getName().equals(element.getMethodName())) continue;
+
+                    if (m.isAnnotationPresent(Write.class)) {
                         return true;
+                    }
+
+                    Transactional tx = m.getAnnotation(Transactional.class);
+                    if (tx != null && tx.readOnly()) {
+                        return false;
                     }
                 }
             }
         } catch (Exception ignored) {}
 
-        return false;
+        return true;
     }
 
     // --------------------------------------------------------

@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -47,10 +48,12 @@ public class ExpenseReportService {
         return entity.getId();
     }
 
+    @Transactional(readOnly = true)
     public ExpenseReportEntity findById(Long id) {
         return reportRepository.findById(id);
     }
 
+    @Transactional(readOnly = true)
     public ExpenseReportEntity findLatestDone() {
         return reportRepository.findLatestDone();
     }

@@ -5,6 +5,7 @@ import com.example.my_java_app.exception.ForbiddenException;
 import com.example.my_java_app.repository.FunctionRepository;
 import com.example.my_java_app.repository.SystemAdminRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -21,6 +22,7 @@ public class FunctionService {
     }
 
     /** Returns all function IDs granted to the user (for UI rendering). */
+    @Transactional(readOnly = true)
     public List<Integer> getFunctionIdsForUser(String cognitoSub) {
         return functionRepository.findFunctionIdsByUserSub(cognitoSub);
     }

@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -32,6 +33,7 @@ public class ScreenConfigService {
     }
 
     /** Returns the active config JSON string for a screen. */
+    @Transactional(readOnly = true)
     public String getActiveConfig(String screenKey) {
         Optional<ScreenConfigEntity> opt = screenConfigRepository.findActive(screenKey);
         if (opt.isEmpty()) {

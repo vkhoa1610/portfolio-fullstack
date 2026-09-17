@@ -9,6 +9,7 @@ import com.example.my_java_app.exception.NotFoundException;
 import com.example.my_java_app.repository.RoleRepository;
 import com.example.my_java_app.repository.UserProfileRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -32,6 +33,7 @@ public class UserProfileService {
         this.roleRepository = roleRepository;
     }
 
+    @Transactional(readOnly = true)
     public UserProfileResponseDto getMyProfile(String cognitoSub) {
         if (cognitoSub == null || cognitoSub.isBlank()) {
             throw new NotFoundException("User not found: missing cognito_sub");
@@ -56,6 +58,7 @@ public class UserProfileService {
         return new UserProfileResponseDto(role, 0, onboardingStatus);
     }
 
+    @Transactional(readOnly = true)
     public UserDetailResponseDto getMyProfileDetail(String cognitoSub) {
         if (cognitoSub == null || cognitoSub.isBlank()) {
             throw new NotFoundException("User not found");

@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,6 +26,7 @@ public class FinanceService {
     }
 
     /** Finance overview — returns all APPROVED + PAID expenses */
+    @Transactional(readOnly = true)
     public List<ExpenseResponseDto> listAll() {
         return expenseMapper.findAllApprovedAndPaid()
                 .stream().map(this::toDto).collect(Collectors.toList());
