@@ -1,13 +1,13 @@
 spring:
   datasource:
     write:
-      url: jdbc:mysql://localhost:3306/mydb?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh
+      url: jdbc:mysql://localhost:3306/mydb?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&useUnicode=true&characterEncoding=UTF-8
       username: root
       password: 12345678
       driver-class-name: com.mysql.cj.jdbc.Driver
 
     read:
-      url: jdbc:mysql://localhost:3306/mydb?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh
+      url: jdbc:mysql://localhost:3306/mydb?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&useUnicode=true&characterEncoding=UTF-8
       username: root
       password: 12345678
       driver-class-name: com.mysql.cj.jdbc.Driver
@@ -47,8 +47,8 @@ eureka:
 
 groq:
   base-url: https://api.groq.com/openai
-  model: ${GROQ_MODEL:llama-3.3-70b-versatile}
-  vision-model: ${GROQ_VISION_MODEL:meta-llama/llama-4-scout-17b-16e-instruct}
+  model: ${GROQ_MODEL:qwen/qwen3.8-27b}
+  vision-model: ${GROQ_VISION_MODEL:qwen/qwen3.8-27b}
   api-key: ${GROQ_API_KEY:}
 
 logging:

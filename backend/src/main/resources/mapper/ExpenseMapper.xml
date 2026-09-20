@@ -34,6 +34,10 @@
         <result property="retentionExpiresAt" column="retention_expires_at" />
         <result property="createdAt"          column="created_at" />
         <result property="createdBy"          column="created_by" />
+        <result property="submitterName"      column="submitter_name" />
+        <result property="duplicateOfId"      column="duplicate_of_id" />
+        <result property="duplicateOfStatus"  column="duplicate_of_status" />
+        <result property="reviewerName"       column="reviewer_name" />
     </resultMap>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
@@ -75,6 +79,11 @@
         WHERE id = #{id}
     </update>
 
+    <!-- AND status = 'PENDING_REVIEW' guard mirrors markPaid's pattern below —
+         it's the race-safe source of truth: two concurrent approve/reject
+         calls on the same expense can't both succeed, since only the first
+         actually matches a row. The service-layer pre-check exists only to
+         fail fast/friendly; this is what actually prevents the double-review. -->
     <update id="updateReview">
         UPDATE expenses
         SET status           = #{status},
@@ -83,13 +92,69 @@
             rejection_reason = #{rejectionReason},
             updated_at       = CURRENT_TIMESTAMP
         WHERE id = #{id}
+          AND status = 'PENDING_REVIEW'
     </update>
 
-    <select id="findPendingForManager" resultMap="ExpenseResultMap">
-        SELECT * FROM expenses
-        WHERE status = 'PENDING_REVIEW'
-          AND is_deleted = 0
-        ORDER BY submitted_at ASC
+    <!-- Manager approval queue + history, filtered by one or more statuses
+         (the controller passes ["PENDING_REVIEW"] for the live queue, or any
+         combination for the Approved/Rejected/All history tabs).
+
+         LEFT JOIN (not INNER) so an expense whose submitter/reviewer has
+         since been GDPR-erased still shows up — submitter_name/reviewer_name
+         resolve to NULL, which the frontend renders as "[Deleted user]"
+         rather than silently dropping the row. reviewer_name uses the same
+         join pattern against reviewed_by, which is just as GDPR-erasable as
+         user_sub.
+
+         duplicate_of_id/duplicate_of_status: flag a RECEIPT as a possible
+         duplicate of an EARLIER one from the same submitter with the same
+         vendor + amount + receipt date. Matching is by user_sub directly —
+         this still works correctly after GDPR erasure pseudonymizes user_sub
+         to `[DELETED-<hash>]`, since both rows share the same pseudonymized
+         value; no join to user_profiles is needed for this check. Only rows
+         still PENDING_REVIEW/APPROVED/PAID count as "the original" (a
+         REJECTED or abandoned DRAFT doesn't make a later resubmission a
+         duplicate), and only the later submission (dup.duplicate_of_id) is
+         flagged — the original itself never points at anything. The CASE
+         gate below only ever surfaces this for still-pending rows: once an
+         expense has been decided, a duplicate flag is no longer actionable
+         and would just be confusing clutter in the history tabs.
+
+         Sort: pending rows first (they need action), oldest submitted first;
+         already-decided rows after, most recently reviewed first. -->
+    <select id="findForManagerByStatus" resultMap="ExpenseResultMap">
+        SELECT e.*,
+               TRIM(CONCAT(COALESCE(up.first_name, ''), ' ', COALESCE(up.last_name, ''))) AS submitter_name,
+               TRIM(CONCAT(COALESCE(rp.first_name, ''), ' ', COALESCE(rp.last_name, ''))) AS reviewer_name,
+               CASE WHEN e.status = 'PENDING_REVIEW' THEN dup.duplicate_of_id ELSE NULL END AS duplicate_of_id,
+               CASE WHEN e.status = 'PENDING_REVIEW' THEN dup_e.status ELSE NULL END AS duplicate_of_status
+        FROM expenses e
+        LEFT JOIN user_profiles up ON up.user_sub = e.user_sub
+        LEFT JOIN user_profiles rp ON rp.user_sub = e.reviewed_by
+        LEFT JOIN (
+            SELECT e1.id AS expense_id, MIN(e2.id) AS duplicate_of_id
+            FROM expenses e1
+            JOIN expenses e2
+              ON e2.user_sub = e1.user_sub
+             AND e2.type = 'RECEIPT'
+             AND LOWER(TRIM(e2.vendor_name)) = LOWER(TRIM(e1.vendor_name))
+             AND e2.amount = e1.amount
+             AND e2.receipt_date = e1.receipt_date
+             AND e2.status IN ('PENDING_REVIEW', 'APPROVED', 'PAID')
+             AND e2.id &lt; e1.id
+            WHERE e1.type = 'RECEIPT'
+            GROUP BY e1.id
+        ) dup ON dup.expense_id = e.id
+        LEFT JOIN expenses dup_e ON dup_e.id = dup.duplicate_of_id
+        WHERE e.status IN
+        <foreach item="s" collection="statuses" open="(" separator="," close=")">
+            #{s}
+        </foreach>
+          AND e.is_deleted = 0
+        ORDER BY
+            (e.status = 'PENDING_REVIEW') DESC,
+            CASE WHEN e.status = 'PENDING_REVIEW' THEN e.submitted_at END ASC,
+            CASE WHEN e.status != 'PENDING_REVIEW' THEN e.reviewed_at END DESC
     </select>
 
     <select id="findAllApprovedAndPaid" resultMap="ExpenseResultMap">

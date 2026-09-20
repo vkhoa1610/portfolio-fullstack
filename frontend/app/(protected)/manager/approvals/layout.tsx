@@ -1,18 +1,13 @@
 import React from "react";
 
+// This layout intentionally renders no header of its own — both child routes
+// (the approvals list and the approval detail page) already own their own
+// header (PageHeader hero on the list, a custom header on the detail view).
+// A previous version of this file hardcoded a duplicate flat header here
+// (mixed German/Vietnamese title text, a fake "Team Budget: 85%" badge not
+// backed by any real data) that rendered ABOVE whatever the page itself
+// showed — leaving two headers stacked on the list page once it got its own
+// PageHeader hero.
 export default function ManagerLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Genehmigungen (Approvals)</h2>
-          <p className="text-sm text-gray-500">Xem xét và phê duyệt yêu cầu từ nhân viên.</p>
-        </div>
-        <div className="flex gap-2">
-           <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700">Team Budget: 85%</span>
-        </div>
-      </div>
-      {children}
-    </div>
-  );
+  return <>{children}</>;
 }

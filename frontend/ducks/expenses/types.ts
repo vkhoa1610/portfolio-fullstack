@@ -67,6 +67,24 @@ export interface Expense {
 
   createdAt?: string;
   policyEvaluationSnapshot?: PolicyEvaluationSnapshot;
+
+  /** Set only on the manager approval queue response (backend joins
+   *  user_profiles). Empty string or undefined if the submitter's profile
+   *  no longer exists (e.g. GDPR-erased) — render as "[Deleted user]". */
+  submitterName?: string;
+
+  /** Set only on the manager approval queue response (backend-computed
+   *  duplicate detection). duplicateOfId is the id of the earlier matching
+   *  RECEIPT this one duplicates; duplicateOfStatus is that row's status
+   *  ('PENDING_REVIEW' | 'APPROVED' | 'PAID'). Both undefined/null when this
+   *  expense is not a duplicate of anything. */
+  duplicateOfId?: number | null;
+  duplicateOfStatus?: ExpenseStatus | null;
+
+  /** Set only on the manager approval-history response (backend joins
+   *  user_profiles on reviewed_by). Empty/undefined if the reviewer's
+   *  profile no longer exists (GDPR-erased), or if never reviewed. */
+  reviewerName?: string;
 }
 
 export interface CreateExpenseRequest {

@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Cpu, Send, RotateCcw, Clock, AlertCircle, ChevronLeft } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { Cpu, Send, RotateCcw, Clock, AlertCircle } from "lucide-react";
 import { useAiPlaygroundChatMutation } from "@/ducks/admin/adminApi";
 import MarkdownRenderer from "@/common/markdown-renderer/MarkdownRenderer";
+import PageHeader from "@/components/layout/PageHeader";
 
 const DEFAULT_SYSTEM_PROMPT =
   `You are a financial analyst assistant. Analyze the following expense report data and write a concise financial summary in Markdown format.\n\nUse these sections:\n## Executive Summary\n## Breakdown by Category\n## Anomalies Detected\n## Recommendations\n\nUse **bold** for key numbers. Use bullet lists where appropriate. Write in English. Be concise and professional.`;
@@ -13,7 +13,6 @@ const DEFAULT_USER_PROMPT =
   `Expense data (JSON):\n{\n  "period": "2026-03",\n  "summary": { "totalAmount": 3794.5, "expenseCount": 12, "avgAmount": 316.21 },\n  "byCategory": { "RECEIPT": { "count": 7, "amount": 2969.5 }, "PER_DIEM": { "count": 3, "amount": 760 }, "MILEAGE": { "count": 2, "amount": 165 } },\n  "anomalies": [{ "id": 5, "title": "Software License", "amount": 1500 }]\n}`;
 
 export default function AiPlaygroundView() {
-  const router = useRouter();
   const [systemPrompt, setSystemPrompt] = useState(DEFAULT_SYSTEM_PROMPT);
   const [userPrompt, setUserPrompt] = useState(DEFAULT_USER_PROMPT);
 
@@ -37,30 +36,24 @@ export default function AiPlaygroundView() {
   };
 
   return (
-    <div className="flex flex-col gap-4" style={{ height: "calc(100vh - 120px)" }}>
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <button
-          onClick={() => router.push('/admin')}
-          className="rounded-full p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700"
-        >
-          <ChevronLeft className="h-5 w-5" />
-        </button>
-        <Cpu className="h-6 w-6 text-primary-500" />
-        <div>
-          <h2 className="text-2xl font-bold text-neutral-900">AI Playground</h2>
-          <p className="text-sm text-neutral-500">
-            Test the AI model with custom prompts — calls backend → Ollama
-          </p>
-        </div>
-        <button
-          onClick={handleReset}
-          className="ml-auto flex items-center gap-1.5 rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-xs text-neutral-600 hover:bg-neutral-50"
-        >
-          <RotateCcw className="h-3.5 w-3.5" />
-          Reset
-        </button>
-      </div>
+    <div>
+      <PageHeader
+        title="AI Playground"
+        subtitle="Test the AI model with custom prompts — calls backend → Ollama"
+        backHref="/manager"
+        backLabel="Back"
+        actions={
+          <button
+            onClick={handleReset}
+            className="flex items-center gap-1.5 rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-xs text-neutral-600 hover:bg-neutral-50"
+          >
+            <RotateCcw className="h-3.5 w-3.5" />
+            Reset
+          </button>
+        }
+      />
+
+      <div className="flex flex-col gap-4 p-6" style={{ height: "calc(100vh - 200px)" }}>
 
       {/* Split panel */}
       <div className="flex gap-4 flex-1 min-h-0">
@@ -181,6 +174,7 @@ export default function AiPlaygroundView() {
             )}
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

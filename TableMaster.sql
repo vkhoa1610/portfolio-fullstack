@@ -169,7 +169,11 @@ CREATE TABLE expenses (
     is_deleted TINYINT(1) DEFAULT 0,
 
     INDEX idx_exp_user_status (user_sub, status),
-    INDEX idx_exp_retention (retention_expires_at)
+    INDEX idx_exp_retention (retention_expires_at),
+    -- Speeds up the manager approval queue's duplicate-detection subquery,
+    -- which matches on (user_sub, receipt_date, amount) before comparing
+    -- vendor_name.
+    INDEX idx_exp_dup_lookup (user_sub, receipt_date, amount)
 );
 
 

@@ -5,9 +5,8 @@ import styles from "./layout.module.css";
 
 export default function ProtectedDashboardLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative flex h-screen w-full overflow-hidden bg-surface-ground">
-      {/* Background decoration */}
-      <div className="pointer-events-none absolute inset-0 z-0">
+    <div className="relative flex h-screen w-full overflow-clip bg-surface-ground">
+      <div className="pointer-events-none absolute inset-0 z-0 overflow-clip">
         <div className={styles.bgBlob1}></div>
         <div className={styles.bgBlob2}></div>
       </div>

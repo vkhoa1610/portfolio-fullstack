@@ -311,7 +311,8 @@
     "btn": {
       "accept": "Genehmigen",
       "reject": "Ablehnen",
-      "confirm_reject": "Ablehnung bestätigen"
+      "confirm_reject": "Ablehnung bestätigen",
+      "dismiss": "Schließen"
     },
     "rejection_reason": "Ablehnungsgrund",
     "approvals": {
@@ -319,6 +320,10 @@
       "subtitle": "Ausstehende Ausgabengenehmigungen Ihres Teams",
       "pending_count": "{{count}} ausstehend",
       "empty": "Keine ausstehenden Genehmigungen.",
+      "empty_approved": "Noch keine genehmigten Ausgaben.",
+      "empty_rejected": "Noch keine abgelehnten Ausgaben.",
+      "empty_all": "Keine Ausgaben vorhanden.",
+      "duplicate_tooltip": "Möglicherweise Duplikat von #{{id}} ({{status}})",
       "btn_approve": "Genehmigen",
       "btn_reject": "Ablehnen",
       "detail_title": "Ausgabe prüfen",
@@ -330,7 +335,26 @@
       "approving": "Wird genehmigt…",
       "rejecting": "Wird abgelehnt…",
       "not_found": "Ausgabe nicht gefunden.",
-      "field_submitted": "Eingereicht"
+      "field_submitted": "Eingereicht",
+      "tab_pending": "Ausstehend",
+      "tab_approved": "Genehmigt",
+      "tab_rejected": "Abgelehnt",
+      "tab_all": "Alle",
+      "th_employee": "Mitarbeiter",
+      "th_description": "Beschreibung",
+      "th_type": "Typ",
+      "th_expense_date": "Belegdatum",
+      "th_submitted": "Eingereicht",
+      "th_reviewed": "Geprüft",
+      "th_flags": "Hinweise",
+      "th_amount": "Betrag",
+      "toast_approved": "Ausgabe #{{id}} genehmigt.",
+      "toast_rejected": "Ausgabe #{{id}} abgelehnt.",
+      "view_in_approved": "In „Genehmigt“ anzeigen",
+      "view_in_rejected": "In „Abgelehnt“ anzeigen",
+      "approved_by": "Genehmigt von {{name}} · {{date}}",
+      "rejected_by": "Abgelehnt von {{name}} · {{date}}",
+      "paid_on": "Bezahlt am {{date}}"
     }
   },
   "finance": {

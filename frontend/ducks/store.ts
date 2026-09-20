@@ -32,3 +32,26 @@ export const store = configureStore({
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
+
+/**
+ * Wipes every RTK Query slice's cache. Each slice caches by endpoint+args,
+ * not by user — with no user id in the cache key, switching identity
+ * (logout, or demo-login into a different role without an explicit logout)
+ * would otherwise keep serving the PREVIOUS user's cached profile/expenses/
+ * etc. straight from the store.
+ *
+ * Lives here (not in AuthContext, the only current caller) because this is
+ * the one place that already knows about every api slice registered in the
+ * store — adding a new slice means updating the reducer/middleware lists
+ * above anyway, so this stays in sync for free. AuthContext just dispatches
+ * it; it doesn't need to know how many slices exist.
+ */
+export const resetAllApiCaches = () => (dispatch: AppDispatch) => {
+  dispatch(apiSlice.util.resetApiState());
+  dispatch(authApi.util.resetApiState());
+  dispatch(expenseApi.util.resetApiState());
+  dispatch(cmsApi.util.resetApiState());
+  dispatch(adminApi.util.resetApiState());
+  dispatch(privacyApi.util.resetApiState());
+  dispatch(financeGdprApi.util.resetApiState());
+};

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Sparkles, RefreshCw, AlertCircle, ChevronLeft, ChevronDown, ChevronUp, FileDown } from "lucide-react";
+import { Sparkles, RefreshCw, AlertCircle, ChevronDown, ChevronUp, FileDown } from "lucide-react";
 import { useAuth } from "@/common/context/AuthContext";
 import {
   useGenerateReportMutation,
@@ -11,6 +11,7 @@ import {
   useGetReportTemplatesQuery,
 } from "@/ducks/admin/adminApi";
 import MarkdownRenderer from "@/common/markdown-renderer/MarkdownRenderer";
+import PageHeader from "@/components/layout/PageHeader";
 import type { ExpenseReport } from "@/ducks/admin/types";
 
 // ─── Period selector helpers ─────────────────────────────────────────────────
@@ -135,23 +136,15 @@ export default function AiReportView() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <button
-          onClick={() => router.push("/admin")}
-          className="rounded-full p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700"
-        >
-          <ChevronLeft className="h-5 w-5" />
-        </button>
-        <div>
-          <h2 className="text-2xl font-bold text-neutral-900">AI Report Generator</h2>
-          <p className="text-sm text-neutral-500">
-            Aggregate expense data and generate an AI-powered financial summary
-          </p>
-        </div>
-      </div>
+    <div>
+      <PageHeader
+        title="AI Report Generator"
+        subtitle="Aggregate expense data and generate an AI-powered financial summary"
+        backHref="/manager"
+        backLabel="Back"
+      />
 
+      <div className="space-y-6 p-6">
       {/* Toolbar */}
       <div className="flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-3 py-2 shadow-sm">
         {/* Period tab pills */}
@@ -264,6 +257,7 @@ export default function AiReportView() {
           </div>
         )
       )}
+      </div>
     </div>
   );
 }

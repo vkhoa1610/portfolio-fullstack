@@ -3,25 +3,21 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
-import { Plus, Camera, Calendar, Car, Sparkles, TrendingDown, TrendingUp, ListFilter, ArrowUpDown } from "lucide-react";
+import { Plus, Camera, Sparkles, TrendingDown, TrendingUp, ListFilter, ArrowUpDown } from "lucide-react";
 import { useGetExpensesQuery } from "@/ducks/expenses";
 import type { Expense, ExpenseStatus } from "@/ducks/expenses";
 import { useGetPolicyInsightMutation } from "@/ducks/cms/cmsApi";
 import styles from "./expense-list-view.module.css";
+import rowStyles from "./shared/ExpenseListRow.module.css";
 import PageHeader from "@/components/layout/PageHeader";
+import ExpenseListRow from "./shared/ExpenseListRow";
 
 const STATUS_CLASS: Record<ExpenseStatus, string> = {
-  DRAFT: styles.statusDraft,
-  PENDING_REVIEW: styles.statusPendingReview,
-  APPROVED: styles.statusApproved,
-  REJECTED: styles.statusRejected,
-  PAID: styles.statusPaid,
-};
-
-const TYPE_ICON = {
-  RECEIPT: Camera,
-  PER_DIEM: Calendar,
-  MILEAGE: Car,
+  DRAFT: rowStyles.statusDraft,
+  PENDING_REVIEW: rowStyles.statusPendingReview,
+  APPROVED: rowStyles.statusApproved,
+  REJECTED: rowStyles.statusRejected,
+  PAID: rowStyles.statusPaid,
 };
 
 function computeStats(expenses: Expense[]) {
@@ -267,19 +263,20 @@ export default function ExpenseListView() {
       ) : (
         <>
           {/* Table header */}
-          <div className={styles.tableHeader}>
-            <div className={styles.thCell}>Description</div>
-            <div className={`${styles.thCell} ${styles.thCenter}`}>Status</div>
-            <div className={`${styles.thCell} ${styles.thCenter}`}>Date</div>
-            <div className={`${styles.thCell} ${styles.thRight}`}>Amount</div>
+          <div className={rowStyles.tableHeaderEmployee}>
+            <div className={rowStyles.thCell}>Description</div>
+            <div className={`${rowStyles.thCell} ${rowStyles.thCenter}`}>Status</div>
+            <div className={`${rowStyles.thCell} ${rowStyles.thCenter}`}>Date</div>
+            <div className={`${rowStyles.thCell} ${rowStyles.thRight}`}>Amount</div>
           </div>
 
           {/* Rows */}
           <div className="flex flex-col gap-3">
             {expenses.map((expense) => (
-              <ExpenseRow
+              <ExpenseListRow
                 key={expense.id}
                 expense={expense}
+                variant="employee"
                 statusLabel={STATUS_LABEL[expense.status]}
                 statusClass={STATUS_CLASS[expense.status]}
                 onClick={() => router.push(`/my-expenses/${expense.id}`)}
@@ -293,60 +290,3 @@ export default function ExpenseListView() {
   );
 }
 
-function ExpenseRow({
-  expense,
-  statusLabel,
-  statusClass,
-  onClick,
-}: {
-  expense: Expense;
-  statusLabel: string;
-  statusClass: string;
-  onClick: () => void;
-}) {
-  const Icon = TYPE_ICON[expense.type] ?? Camera;
-  const label = expense.title || expense.vendorName || expense.type;
-  const sub =
-    expense.type === "RECEIPT"
-      ? expense.vendorName
-        ? `${expense.vendorName} • Receipt`
-        : "Receipt"
-      : expense.type === "PER_DIEM"
-      ? `${expense.tripFrom ?? ""} → ${expense.tripTo ?? ""} • Per Diem`.trim()
-      : `${expense.distanceKm ?? ""} km • Mileage`;
-
-  const dateStr = expense.receiptDate ?? expense.createdAt?.slice(0, 10) ?? "—";
-
-  return (
-    <button onClick={onClick} className={styles.row}>
-      {/* Description */}
-      <div className={styles.rowDesc}>
-        <div className={styles.rowIconWrapper}>
-          <Icon className="h-5 w-5" />
-        </div>
-        <div className="min-w-0">
-          <p className={`truncate ${styles.rowLabel}`}>{label}</p>
-          <p className={styles.rowSub}>{sub}</p>
-        </div>
-      </div>
-
-      {/* Status */}
-      <div className={styles.rowStatusCell}>
-        <span className={`${styles.badge} ${statusClass}`}>{statusLabel}</span>
-      </div>
-
-      {/* Date */}
-      <div className={styles.rowDateCell}>{dateStr}</div>
-
-      {/* Amount */}
-      <div className={styles.rowAmountCell}>
-        {expense.amount != null
-          ? `${expense.amount.toLocaleString("de-DE", {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })} €`
-          : "—"}
-      </div>
-    </button>
-  );
-}

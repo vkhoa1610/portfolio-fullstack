@@ -127,7 +127,11 @@ CREATE TABLE expenses (
     is_deleted TINYINT(1) DEFAULT 0,
 
     INDEX idx_exp_user_status (user_sub, status),
-    INDEX idx_exp_retention (retention_expires_at)
+    INDEX idx_exp_retention (retention_expires_at),
+    -- Speeds up the manager approval queue's duplicate-detection subquery,
+    -- which matches on (user_sub, receipt_date, amount) before comparing
+    -- vendor_name.
+    INDEX idx_exp_dup_lookup (user_sub, receipt_date, amount)
 );
 
 CREATE TABLE policy_evaluation_history (
@@ -580,16 +584,6 @@ INSERT INTO screen_configs (screen_key, version, config_json, updated_by) VALUES
     "type": "layout.page",
     "parts": [
       {
-        "id": "expense-info",
-        "type": "layout.card",
-        "parts": [
-          { "id": "field-amount",  "type": "display.field", "data_key": "amount" },
-          { "id": "field-type",    "type": "display.field", "data_key": "type" },
-          { "id": "field-date",    "type": "display.field", "data_key": "submitted_at" },
-          { "id": "field-vendor",  "type": "display.field", "data_key": "vendor_name" }
-        ]
-      },
-      {
         "id": "action-bar",
         "type": "layout.action-bar",
         "auto_hide_if_empty": true,
@@ -656,6 +650,22 @@ INSERT INTO expenses (user_sub, type, title, amount, currency, status, trip_from
 
 INSERT INTO expenses (user_sub, type, title, amount, currency, status, vendor_name, receipt_date, vat_amount, submitted_at, reviewed_at, created_at) VALUES
 ('auth0|69db9135b65ad959bd52d81e', 'RECEIPT', 'Software License', 1500.00, 'EUR', 'APPROVED', 'JetBrains s.r.o.', '2026-03-12', 239.50, '2026-03-12 11:00:00', '2026-03-13 10:00:00', '2026-03-12 11:00:00');
+
+-- Duplicate-detection demo: two PENDING_REVIEW receipts, same vendor/amount/
+-- receipt date, submitted 5 minutes apart. The manager approval queue's
+-- duplicate-detection subquery flags the LATER one (this one, submitted at
+-- 12:05) as a possible duplicate of the earlier one (12:00) — the earlier
+-- row is never flagged. See ExpenseMapper.xml's findForManagerByStatus.
+INSERT INTO expenses (user_sub, type, title, amount, currency, status, vendor_name, receipt_date, vat_amount, submitted_at, created_at) VALUES
+('auth0|69db9135b65ad959bd52d81e', 'RECEIPT', 'Client Dinner', 16.90, 'EUR', 'PENDING_REVIEW', 'Bahnhof Bistro München', '2026-04-03', 2.70, '2026-04-03 12:00:00', '2026-04-03 12:00:00');
+
+INSERT INTO expenses (user_sub, type, title, amount, currency, status, vendor_name, receipt_date, vat_amount, submitted_at, created_at) VALUES
+('auth0|69db9135b65ad959bd52d81e', 'RECEIPT', 'Client Dinner', 16.90, 'EUR', 'PENDING_REVIEW', 'Bahnhof Bistro München', '2026-04-03', 2.70, '2026-04-03 12:05:00', '2026-04-03 12:05:00');
+
+-- Per-diem subtitle demo: 1-day trip to Austria, PENDING_REVIEW — exercises
+-- the "{country} · {days} Tag" singular-day formatting in buildSubtitle.ts.
+INSERT INTO expenses (user_sub, type, title, amount, currency, status, trip_from, trip_to, country_code, per_diem_rate, per_diem_days, submitted_at, created_at) VALUES
+('auth0|69db9135b65ad959bd52d81e', 'PER_DIEM', 'Q1 Vienna Trip', 97.50, 'EUR', 'PENDING_REVIEW', '2026-04-05', '2026-04-05', 'AT', 97.50, 1, '2026-04-05 09:00:00', '2026-04-05 09:00:00');
 
 -- Thomas Weber (MANAGER) expenses
 INSERT INTO expenses (user_sub, type, title, amount, currency, status, vendor_name, receipt_date, vat_amount, submitted_at, reviewed_at, created_at) VALUES

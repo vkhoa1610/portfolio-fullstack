@@ -19,13 +19,13 @@ public interface ExpenseMapper {
                       @Param("status") String status,
                       @Param("submittedAt") String submittedAt);
 
-    void updateReview(@Param("id") Long id,
+    int updateReview(@Param("id") Long id,
                       @Param("status") String status,
                       @Param("reviewedBy") String reviewedBy,
                       @Param("reviewedAt") String reviewedAt,
                       @Param("rejectionReason") String rejectionReason);
 
-    List<ExpenseEntity> findPendingForManager();
+    List<ExpenseEntity> findForManagerByStatus(@Param("statuses") List<String> statuses);
 
     List<ExpenseEntity> findApprovedByPeriod(@Param("year") int year, @Param("month") int month);
 

@@ -1,8 +1,11 @@
 "use client";
 
 import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from "react";
+import { useDispatch } from "react-redux";
 import { UISession } from "@/ducks/auth/types";
 import { useGetSessionQuery } from "@/ducks/auth/authApi";
+import { resetAllApiCaches } from "@/ducks/store";
+import type { AppDispatch } from "@/ducks/store";
 
 // ============================================================================
 // AUTH CONTEXT TYPES
@@ -63,6 +66,7 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [session, setSessionState] = useState<UISession | null>(null);
   const [isHydrated, setIsHydrated] = useState(false);
+  const dispatch = useDispatch<AppDispatch>();
 
   // Auto-hydrate session from cookies on mount
   const {
@@ -88,14 +92,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   // Set session (after login/MFA success)
   const setSession = useCallback((newSession: UISession | null) => {
+    dispatch(resetAllApiCaches());
     setSessionState(newSession);
     setIsHydrated(true);
-  }, []);
+  }, [dispatch]);
 
   // Clear session (logout)
   const clearSession = useCallback(() => {
+    dispatch(resetAllApiCaches());
     setSessionState(null);
-  }, []);
+  }, [dispatch]);
 
   // Check if user has a specific permission
   const hasPermission = useCallback((permissionCode: string): boolean => {

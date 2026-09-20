@@ -1,5 +1,10 @@
 import ApprovalDetailView from "@/components/manager/approval-detail-view";
 
-export default function ApprovalDetailPage({ params }: { params: { id: string } }) {
-  return <ApprovalDetailView id={parseInt(params.id)} />;
+interface Props {
+  params: Promise<{ id: string }>;
+}
+
+export default async function ApprovalDetailPage({ params }: Props) {
+  const { id } = await params;
+  return <ApprovalDetailView id={parseInt(id)} />;
 }

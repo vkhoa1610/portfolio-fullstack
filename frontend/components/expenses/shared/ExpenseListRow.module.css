@@ -1,0 +1,161 @@
+/* Shared visual language for expense list rows — /my-expenses and
+ * /manager/approvals both use this so the two screens stay visually and
+ * format-consistent. Employee and manager variants use different grid
+ * column counts (manager needs Employee/Type/dual-date/Flags columns the
+ * employee list doesn't), so each gets its own grid-template-columns, but
+ * shares every other visual rule (colors, spacing, hover, badges).
+ */
+
+.tableHeaderEmployee,
+.tableHeaderManager {
+  display: grid;
+  padding: 0 2rem;
+  margin-bottom: 0.5rem;
+}
+.tableHeaderEmployee { grid-template-columns: 5fr 2fr 2fr 3fr; }
+.tableHeaderManager  { grid-template-columns: 1.6fr 3fr 1fr 1.1fr 1.1fr 0.7fr 1.2fr; }
+
+.thCell {
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-neutral-400);
+}
+.thCenter { text-align: center; }
+.thRight  { text-align: right; }
+
+/* ── Row ── */
+.rowEmployee,
+.rowManager {
+  display: grid;
+  align-items: center;
+  background: white;
+  padding: 1.25rem 2rem;
+  border-radius: 1.5rem;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(66, 68, 219, 0.06);
+  transition: background 0.15s;
+  text-align: left;
+  width: 100%;
+  gap: 0.5rem;
+}
+.rowEmployee { grid-template-columns: 5fr 2fr 2fr 3fr; }
+.rowManager  { grid-template-columns: 1.6fr 3fr 1fr 1.1fr 1.1fr 0.7fr 1.2fr; }
+.rowEmployee:hover,
+.rowManager:hover { background: var(--color-neutral-50); }
+
+/* Duplicate-submission warning — flagged by the backend when this receipt
+ * matches an earlier one from the same submitter (vendor+amount+date).
+ * Amber = the original is still PENDING_REVIEW (needs a look, but nothing
+ * has been paid yet). Escalated to red when the original is already
+ * APPROVED/PAID — that's a real double-payment risk, not just clutter. */
+.rowDuplicate {
+  box-shadow: 0 1px 3px rgba(66, 68, 219, 0.06), inset 3px 0 0 var(--color-warning-500);
+}
+.rowDuplicateSevere {
+  box-shadow: 0 1px 3px rgba(66, 68, 219, 0.06), inset 3px 0 0 var(--color-error-500);
+}
+
+.rowDesc { display: flex; align-items: center; gap: 1rem; min-width: 0; }
+
+.rowIconWrapper {
+  flex-shrink: 0;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.75rem;
+  background: rgba(66, 68, 219, 0.05);
+  color: var(--color-primary-600);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rowLabel {
+  font-weight: 700;
+  color: var(--color-neutral-900);
+  font-size: 0.9375rem;
+}
+
+.rowSub {
+  font-size: 0.75rem;
+  color: var(--color-neutral-400);
+  margin-top: 0.125rem;
+}
+
+.rowStatusCell { display: flex; justify-content: center; }
+
+.rowDateCell {
+  text-align: center;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-neutral-900);
+}
+.rowDateSub {
+  font-size: 0.6875rem;
+  color: var(--color-neutral-400);
+  margin-top: 0.0625rem;
+}
+
+.rowAmountCell {
+  text-align: right;
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--color-neutral-900);
+}
+
+/* ── Employee cell (manager variant only) ── */
+.employeeCell { display: flex; align-items: center; gap: 0.625rem; min-width: 0; }
+.avatar {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 9999px;
+  background: var(--color-primary-100, #e0e1ff);
+  color: var(--color-primary-700, #4c51bf);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.avatarDeleted { background: var(--color-neutral-100); color: var(--color-neutral-400); }
+.employeeName {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-neutral-800);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.employeeNameDeleted { color: var(--color-neutral-400); font-style: italic; }
+
+/* ── Type badge (manager variant only) ── */
+.typeBadge {
+  justify-self: start;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  background: var(--color-neutral-100);
+  color: var(--color-neutral-600);
+  white-space: nowrap;
+}
+
+/* ── Flags cell (manager variant only) ── */
+.flagsCell { display: flex; align-items: center; justify-content: center; gap: 0.375rem; }
+
+/* ── Status badge (employee variant) ── */
+.badge {
+  padding: 0.375rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+.statusDraft         { background: var(--color-neutral-100); color: var(--color-neutral-600); }
+.statusPendingReview { background: #fffbeb; color: #d97706; }
+.statusApproved      { background: #f0fdf4; color: #16a34a; }
+.statusRejected      { background: var(--color-error-100);   color: var(--color-error-700); }
+.statusPaid          { background: var(--color-primary-50);  color: var(--color-primary-700); }

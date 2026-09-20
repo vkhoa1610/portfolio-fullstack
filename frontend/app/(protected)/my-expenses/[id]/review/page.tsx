@@ -1,5 +1,10 @@
 import ExpenseReviewView from "@/components/expenses/expense-review-view";
 
-export default function MyExpenseReviewPage({ params }: { params: { id: string } }) {
-  return <ExpenseReviewView id={parseInt(params.id)} />;
+interface Props {
+  params: Promise<{ id: string }>;
+}
+
+export default async function MyExpenseReviewPage({ params }: Props) {
+  const { id } = await params;
+  return <ExpenseReviewView id={parseInt(id)} />;
 }

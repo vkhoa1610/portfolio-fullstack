@@ -31,11 +31,14 @@ public class ExpenseRepository {
         mapper.updateStatus(id, status, submittedAt);
     }
 
-    public void updateReview(Long id, String status, String reviewedBy, String reviewedAt, String rejectionReason) {
-        mapper.updateReview(id, status, reviewedBy, reviewedAt, rejectionReason);
+    /** @return rows actually updated — 0 means the expense was no longer
+     *  PENDING_REVIEW when this ran (already reviewed by someone else, or a
+     *  stale client retrying a review). */
+    public int updateReview(Long id, String status, String reviewedBy, String reviewedAt, String rejectionReason) {
+        return mapper.updateReview(id, status, reviewedBy, reviewedAt, rejectionReason);
     }
 
-    public List<ExpenseEntity> findPendingForManager() {
-        return mapper.findPendingForManager();
+    public List<ExpenseEntity> findForManagerByStatus(List<String> statuses) {
+        return mapper.findForManagerByStatus(statuses);
     }
 }

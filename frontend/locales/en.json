@@ -311,7 +311,8 @@
     "btn": {
       "accept": "Approve",
       "reject": "Reject",
-      "confirm_reject": "Confirm Rejection"
+      "confirm_reject": "Confirm Rejection",
+      "dismiss": "Dismiss"
     },
     "rejection_reason": "Rejection Reason",
     "approvals": {
@@ -319,6 +320,10 @@
       "subtitle": "Pending expense approvals from your team",
       "pending_count": "{{count}} pending",
       "empty": "No pending approvals.",
+      "empty_approved": "No approved expenses yet.",
+      "empty_rejected": "No rejected expenses yet.",
+      "empty_all": "No expenses to show.",
+      "duplicate_tooltip": "Possible duplicate of #{{id}} ({{status}})",
       "btn_approve": "Approve",
       "btn_reject": "Reject",
       "detail_title": "Review Expense",
@@ -330,7 +335,26 @@
       "approving": "Approving…",
       "rejecting": "Rejecting…",
       "not_found": "Expense not found.",
-      "field_submitted": "Submitted"
+      "field_submitted": "Submitted",
+      "tab_pending": "Pending",
+      "tab_approved": "Approved",
+      "tab_rejected": "Rejected",
+      "tab_all": "All",
+      "th_employee": "Employee",
+      "th_description": "Description",
+      "th_type": "Type",
+      "th_expense_date": "Expense Date",
+      "th_submitted": "Submitted",
+      "th_reviewed": "Reviewed",
+      "th_flags": "Flags",
+      "th_amount": "Amount",
+      "toast_approved": "Expense #{{id}} approved.",
+      "toast_rejected": "Expense #{{id}} rejected.",
+      "view_in_approved": "View in Approved",
+      "view_in_rejected": "View in Rejected",
+      "approved_by": "Approved by {{name}} · {{date}}",
+      "rejected_by": "Rejected by {{name}} · {{date}}",
+      "paid_on": "Paid on {{date}}"
     }
   },
   "finance": {

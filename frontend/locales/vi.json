@@ -311,7 +311,8 @@
     "btn": {
       "accept": "Phê duyệt",
       "reject": "Từ chối",
-      "confirm_reject": "Xác nhận từ chối"
+      "confirm_reject": "Xác nhận từ chối",
+      "dismiss": "Đóng"
     },
     "rejection_reason": "Lý do từ chối",
     "approvals": {
@@ -319,6 +320,10 @@
       "subtitle": "Chi phí chờ phê duyệt từ nhóm của bạn",
       "pending_count": "{{count}} chờ duyệt",
       "empty": "Không có chi phí chờ duyệt.",
+      "empty_approved": "Chưa có chi phí nào được duyệt.",
+      "empty_rejected": "Chưa có chi phí nào bị từ chối.",
+      "empty_all": "Không có chi phí nào.",
+      "duplicate_tooltip": "Có thể trùng với #{{id}} ({{status}})",
       "btn_approve": "Phê duyệt",
       "btn_reject": "Từ chối",
       "detail_title": "Kiểm tra chi phí",
@@ -330,7 +335,26 @@
       "approving": "Đang phê duyệt…",
       "rejecting": "Đang từ chối…",
       "not_found": "Không tìm thấy chi phí.",
-      "field_submitted": "Ngày gửi"
+      "field_submitted": "Ngày gửi",
+      "tab_pending": "Chờ duyệt",
+      "tab_approved": "Đã duyệt",
+      "tab_rejected": "Đã từ chối",
+      "tab_all": "Tất cả",
+      "th_employee": "Nhân viên",
+      "th_description": "Mô tả",
+      "th_type": "Loại",
+      "th_expense_date": "Ngày chi phí",
+      "th_submitted": "Ngày gửi",
+      "th_reviewed": "Ngày duyệt",
+      "th_flags": "Cảnh báo",
+      "th_amount": "Số tiền",
+      "toast_approved": "Đã duyệt chi phí #{{id}}.",
+      "toast_rejected": "Đã từ chối chi phí #{{id}}.",
+      "view_in_approved": "Xem trong tab Đã duyệt",
+      "view_in_rejected": "Xem trong tab Đã từ chối",
+      "approved_by": "Duyệt bởi {{name}} · {{date}}",
+      "rejected_by": "Từ chối bởi {{name}} · {{date}}",
+      "paid_on": "Đã thanh toán vào {{date}}"
     }
   },
   "finance": {

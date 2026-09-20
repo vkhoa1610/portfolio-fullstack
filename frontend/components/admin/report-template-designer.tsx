@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/common/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
-import { ChevronLeft } from 'lucide-react';
+import PageHeader from '@/components/layout/PageHeader';
 import {
   DndContext,
   closestCenter,
@@ -201,18 +201,15 @@ export default function ReportTemplateDesigner() {
   const isSaving = isCreating || isUpdating;
 
   return (
-    <div className="flex flex-col gap-4">
-      {/* Back button */}
-      <div className="flex items-center gap-2">
-        <button
-          onClick={() => router.push('/admin')}
-          className="rounded-full p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700"
-        >
-          <ChevronLeft className="h-5 w-5" />
-        </button>
-        <h2 className="text-xl font-bold text-neutral-900">{t('template.template_name')}</h2>
-      </div>
+    <div>
+      <PageHeader
+        title="Report Template Designer"
+        subtitle="Customize the layout and sections of the AI-generated expense report"
+        backHref="/manager"
+        backLabel="Back"
+      />
 
+      <div className="flex flex-col gap-4 p-6">
       {/* Template selector */}
       <div className="flex items-center gap-3">
         <select
@@ -327,6 +324,7 @@ export default function ReportTemplateDesigner() {
             sandbox="allow-same-origin"
           />
         </div>
+      </div>
       </div>
     </div>
   );

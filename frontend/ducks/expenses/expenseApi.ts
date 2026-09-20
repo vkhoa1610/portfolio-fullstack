@@ -87,10 +87,12 @@ export const expenseApi = createApi({
     }),
 
     // ─────────────────────────────────────────────────────
-    // MANAGER: Pending approval queue
+    // MANAGER: Approval queue/history, filtered by status. Omitting the arg
+    // (or status) defaults to PENDING_REVIEW server-side — existing
+    // `useGetManagerQueueQuery()` call sites keep working unchanged.
     // ─────────────────────────────────────────────────────
-    getManagerQueue: builder.query<Expense[], void>({
-      query: () => '/mgr-001',
+    getManagerQueue: builder.query<Expense[], { status?: string } | void>({
+      query: (arg) => (arg?.status ? `/mgr-001?status=${encodeURIComponent(arg.status)}` : '/mgr-001'),
       providesTags: ['ManagerQueue'],
     }),
 

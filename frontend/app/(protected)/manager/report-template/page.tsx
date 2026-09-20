@@ -1,13 +1,12 @@
 import { Suspense } from "react";
 import ReportTemplateDesigner from "@/components/admin/report-template-designer";
 
+// ReportTemplateDesigner renders its own PageHeader hero — no wrapper header
+// here, otherwise the page would show two stacked headers.
 export default function ManagerReportTemplatePage() {
   return (
-    <div className="p-6">
-      <h1 className="text-xl font-bold mb-4">Report Template Designer</h1>
-      <Suspense fallback={<div>Loading...</div>}>
-        <ReportTemplateDesigner />
-      </Suspense>
-    </div>
+    <Suspense fallback={<div className="p-6">Loading...</div>}>
+      <ReportTemplateDesigner />
+    </Suspense>
   );
 }

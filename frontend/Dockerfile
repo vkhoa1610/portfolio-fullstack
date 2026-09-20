@@ -46,8 +46,15 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ARG BFF_INTERNAL_URL=http://nextjs-bff:4000
 ENV BFF_INTERNAL_URL=$BFF_INTERNAL_URL
 
-# Build the application
-RUN npm run build
+# Build the application — webpack (not --turbopack). Turbopack's production
+# bundler was observed shipping a client-navigation CSS chunk ordering issue:
+# the `.relative`/`z-10` utility classes on (protected)/layout.tsx's wrapper
+# and LayoutShell's <main> would apply after first paint following a
+# post-mutation router.push(), breaking the stacking context and letting the
+# background decoration <div> (position:absolute) cover the navbar/header
+# even though it was correctly present and sized in the DOM. Switch back to
+# --turbopack once this is confirmed fixed upstream.
+RUN npm run build:webpack
 
 # ============================================
 # Stage 3: Runner (Production)
