@@ -27,10 +27,13 @@ public class ManagerController extends BaseController {
         this.permissionService = permissionService;
     }
 
-    /** GET /api/v1/manager/expenses — danh sách PENDING_REVIEW */
+    /** GET /api/v1/manager/expenses?status=PENDING_REVIEW|APPROVED|REJECTED|PAID|ALL
+     *  Defaults to PENDING_REVIEW so existing callers (badge count, the live
+     *  queue) keep working unchanged if they omit the param. */
     @GetMapping
-    public ResponseEntity<List<ExpenseResponseDto>> getPending() {
-        return ok(managerService.getPending());
+    public ResponseEntity<List<ExpenseResponseDto>> getExpenses(
+            @RequestParam(defaultValue = "PENDING_REVIEW") String status) {
+        return ok(managerService.getByStatus(status));
     }
 
     /** PUT /api/v1/manager/expenses/{id}/approve */
